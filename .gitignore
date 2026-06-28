@@ -1,0 +1,21 @@
+# Függőségek / build (jelenleg nincs build, de jövőbeli bővítéshez)
+node_modules/
+dist/
+.next/
+build/
+
+# Környezeti változók (soha ne kerüljön be valós .env!)
+.env
+.env.local
+.env.*.local
+
+# Operációs rendszer / szerkesztő
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Logok
+*.log
+npm-debug.log*

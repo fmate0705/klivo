@@ -1,0 +1,43 @@
+# Klivo
+
+> Modern magyar webügynökség. Professzionális weboldalakat építünk erős SEO-val
+> és AI-láthatósággal (AI SEO), hogy a Google mellett az AI-keresők és
+> asszisztensek (ChatGPT, Gemini, Perplexity) is megértsék és ajánlják az
+> ügyfeleink vállalkozásait.
+
+## Szolgáltatások
+
+- **Weboldal készítés** (100 000 Ft-tól): landing oldalak, bemutatkozó
+  weboldalak és fullstack oldalak (blogkezelés, e-mail küldés).
+  Oldal: /weboldal-keszites
+- **Egyedi weboldal és webalkalmazás fejlesztés** (egyedi árajánlat): webshopok,
+  foglalási és jegyrendszerek, AI-chatbot integráció, teljes webalkalmazások
+  admin felülettel. Oldal: /egyedi-fejlesztes
+- **Tárhely és üzemeltetés**: az általunk készített oldalakhoz 20 000 Ft/hó-tól,
+  külsős oldalakhoz 25 000 Ft/hó-tól. A hostolt oldalakon a módosításokat
+  óradíjban végezzük. Oldal: /tarhely
+
+## Miért minket választanak
+
+- Kiváló SEO és AI SEO (strukturált adat, szemantikus szerkezet, llms.txt).
+- Villámgyors betöltés, kiváló Core Web Vitals értékek.
+- Modern, megbízható, karbantartható technológia.
+- Átlátható, fix árazás és gyors fejlesztés.
+
+## Folyamat
+
+1. Konzultáció (ingyenes). 2. Fix árajánlat és ütemterv. 3. Design és fejlesztés.
+4. Élesítés és átadás. 5. Tárhely és folyamatos támogatás.
+
+## Kapcsolat
+
+- Weboldal: https://klivo.hu/   (PLACEHOLDER domain)
+- Kapcsolati oldal: /kapcsolat
+- E-mail: hello@klivo.hu        (PLACEHOLDER)
+- Telefon: +36 30 000 0000      (PLACEHOLDER)
+- Terület: Magyarország, online az egész országban.
+
+## Megjegyzés
+
+A fenti elérhetőségek és a domain jelenleg helykitöltők, éles indulás előtt valós
+adatokra cserélendők.

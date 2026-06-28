@@ -1,0 +1,29 @@
+{
+  "name": "klivo-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Klivo — modern magyar webügynökség weboldala (Next.js, Tier 2)",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "geist": "^1.7.2",
+    "motion": "^12.42.0",
+    "next": "^16.2.9",
+    "nodemailer": "^9.0.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "@types/nodemailer": "^8.0.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

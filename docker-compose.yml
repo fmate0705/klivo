@@ -1,0 +1,36 @@
+# ============================================================================
+# Klivo — helyi környezet egy paranccsal:  docker compose up
+#   Weboldal:        http://localhost:3000
+#   Mailpit (mail):  http://localhost:8025   (ide érkeznek a teszt e-mailek)
+#
+# A Mailpit egy fejlesztői SMTP + webes postafiók: valódi kiküldés nélkül
+# láthatóvá teszi a kapcsolati űrlapból küldött leveleket. Élesben a SMTP_*
+# változókat a valós levelezőszolgáltatóra kell állítani (lásd .env.example).
+# ============================================================================
+services:
+  web:
+    build:
+      context: .
+    image: klivo-web
+    container_name: klivo-web
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
+      SMTP_HOST: "mailpit"
+      SMTP_PORT: "1025"
+      SMTP_SECURE: "false"
+      MAIL_FROM: "Klivo weboldal <no-reply@klivo.hu>"
+      MAIL_TO: "hello@klivo.hu"
+    depends_on:
+      - mailpit
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: klivo-mailpit
+    ports:
+      - "8025:8025" # webes postafiók (UI)
+      - "1025:1025" # SMTP
+    restart: unless-stopped

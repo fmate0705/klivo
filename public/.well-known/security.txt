@@ -1,0 +1,7 @@
+# Klivo — Felelős hibabejelentés (security.txt, RFC 9116)
+# PLACEHOLDER: cseréld valós elérhetőségre és dátumra éles indulás előtt.
+
+Contact: mailto:security@klivo.hu
+Expires: 2027-06-24T00:00:00.000Z
+Preferred-Languages: hu, en
+Canonical: https://klivo.hu/.well-known/security.txt

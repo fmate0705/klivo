@@ -1,0 +1,93 @@
+/* ==========================================================================
+   KLIVO — Design tokenek (egyetlen forrás az értékekhez, „no magic values")
+   Világos, Apple-szerű prémium esztétika: sok negatív tér, finom árnyékok,
+   nagy lekerekítések, visszafogott paletta egy markáns kiemelő színnel.
+   ========================================================================== */
+:root {
+  /* --- Szín: alap felületek --- */
+  --bg:            #FBFBFD;   /* fő háttér – majdnem fehér */
+  --bg-elevated:   #FFFFFF;   /* kártyák, kiemelt felületek */
+  --bg-alt:        #F4F5F9;   /* váltakozó szekciók halvány háttere */
+  --bg-invert:     #0B0C10;   /* sötét sávok (CTA, lábléc accent) */
+
+  /* --- Szín: tinta / szöveg --- */
+  --ink:           #0E0F14;   /* fő szövegszín */
+  --ink-soft:      #3A3D49;   /* másodlagos szöveg */
+  --ink-muted:     #6B6F7D;   /* halvány szöveg, segédfeliratok */
+  --ink-on-dark:   #F5F6FA;   /* szöveg sötét háttéren */
+  --ink-on-dark-muted: #AEB2C2;
+
+  /* --- Szín: kiemelő (egy markáns akcentus + másodlagos) --- */
+  --accent:        #3B5BFF;   /* elsődleges kiemelő – bizalom + tech */
+  --accent-strong: #2E47E0;   /* hover / nyomott állapot */
+  --accent-2:      #7C4DFF;   /* másodlagos (csak hero-aurában, gradiensben) */
+  --accent-tint:   #ECEFFF;   /* nagyon halvány akcentus háttér */
+  --accent-ring:   rgba(59, 91, 255, 0.32); /* fókusz gyűrű */
+
+  /* --- Vonalak --- */
+  --line:          #E7E8EF;   /* hajszálvékony elválasztó */
+  --line-strong:   #D7D9E3;
+
+  /* --- Tipográfia ---
+     A Geist (next/font) tölti be a változókat: --font-geist-sans / -mono.
+     Fallback rendszer-fontstack, ha a Geist nem érhető el. */
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+               "Cascadia Code", monospace;
+  --font-display: var(--font-sans);
+
+  /* Típusskála (fluid, clamp-pal) */
+  --fs-display: clamp(2.5rem, 1.4rem + 4.6vw, 4.25rem);
+  --fs-h2:      clamp(1.85rem, 1.2rem + 2.6vw, 2.85rem);
+  --fs-h3:      clamp(1.2rem, 1.02rem + 0.7vw, 1.45rem);
+  --fs-lead:    clamp(1.05rem, 0.98rem + 0.4vw, 1.25rem);
+  --fs-body:    1.0625rem;   /* 17px */
+  --fs-sm:      0.9375rem;   /* 15px */
+  --fs-xs:      0.8125rem;   /* 13px */
+
+  --lh-tight: 1.08;
+  --lh-snug:  1.28;
+  --lh-body:  1.65;
+
+  --tracking-tight: -0.02em;
+  --tracking-wide:  0.14em;
+
+  /* --- Térköz-skála (8px alap) --- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+
+  /* --- Sugarak --- */
+  --radius-sm: 10px;
+  --radius:    16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+
+  /* --- Árnyékok (lágy, prémium, réteges) --- */
+  --shadow-xs: 0 1px 2px rgba(16, 17, 25, 0.04);
+  --shadow-sm: 0 2px 8px rgba(16, 17, 25, 0.05);
+  --shadow-md: 0 10px 30px rgba(16, 17, 25, 0.07);
+  --shadow-lg: 0 24px 60px rgba(16, 17, 25, 0.10);
+  --shadow-accent: 0 14px 34px rgba(59, 91, 255, 0.30);
+
+  /* --- Elrendezés --- */
+  --container: 1140px;
+  --container-narrow: 760px;
+  --nav-h: 72px;
+
+  /* --- Mozgás --- */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 160ms;
+  --dur: 280ms;
+  --dur-slow: 540ms;
+}
