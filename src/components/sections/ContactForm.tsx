@@ -1,3 +1,9 @@
+// MEGŐRZÖTT KOMPONENS — jelenleg NINCS használatban.
+// Az e-mailt küldő kapcsolati űrlap egyelőre ki van kapcsolva; helyette a
+// /kapcsolat oldal a háttérszolgáltatás nélküli ContactInfo szekciót használja
+// (lásd docs/decisions/0005-disable-email.md). Ezt a fájlt szándékosan
+// megtartottuk, hogy az űrlapos küldés később egyszerűen visszakapcsolható
+// legyen (állítsd vissza az /api/contact route-ot és a lib/email.ts-t is).
 "use client";
 
 import { useState } from "react";

@@ -14,12 +14,14 @@ Ez a mappa a rendszer „térképe" egy jövőbeli fejlesztő (ember vagy AI) sz
 ## Gyors indítás
 
 ```bash
-docker compose up --build   # web → http://localhost:3000, mailpit → http://localhost:8025
+docker compose up -d --build   # web → http://localhost:3000 (egyetlen konténer)
 ```
 
 ## Aktuális állapot
 
-Tier 2 (Next.js, többoldalas, e-mail backenddel). Főoldal + 3 szolgáltatás-
-aloldal + kapcsolat + 3 jogi oldal, működő kapcsolati űrlap (Mailpittel
-tesztelve), teljes SEO/AI-discoverability baseline. A nyitott teendők (valós
-adatok) a gyökér `README.md` „Teendők éles indulás előtt" listájában találhatók.
+Tier 2 (Next.js, többoldalas). Főoldal + 3 szolgáltatás-aloldal + kapcsolat + 3
+jogi oldal, teljes SEO/AI-discoverability baseline. **E-mail küldés jelenleg
+kikapcsolva** (a kapcsolat közvetlen e-mail/telefon linkeken megy; a backend
+megőrizve — lásd [decisions/0005-disable-email.md](decisions/0005-disable-email.md)).
+A nyitott teendők (valós adatok) a gyökér `README.md` „Teendők éles indulás
+előtt" listájában találhatók.

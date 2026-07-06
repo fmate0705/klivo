@@ -19,3 +19,8 @@ Thumbs.db
 # Logok
 *.log
 npm-debug.log*
+
+# Claude Code / helyi eszköz-konfiguráció (ne kerüljön a GitHubra)
+.claude/
+.mcp.json
+CLAUDE.md

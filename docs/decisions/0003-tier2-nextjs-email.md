@@ -1,5 +1,10 @@
 # 0003 — Tier 2 átállás: Next.js + e-mail backend, multi-page
 
+> **Megjegyzés:** e döntés e-mail-backend része részben **felülírva** —
+> az e-mail küldés jelenleg kikapcsolva, lásd
+> [0005-disable-email.md](0005-disable-email.md). A Tier 2 stack egyébként
+> változatlan.
+
 **Döntés:** A korábbi statikus (Tier 1) oldalt **Next.js (App Router) +
 TypeScript** alapú **Tier 2** alkalmazássá alakítottuk, valódi e-mail
 backenddel, többoldalas szerkezettel és jogi oldalakkal. A design nyelvet

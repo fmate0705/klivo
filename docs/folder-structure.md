@@ -3,8 +3,8 @@
 ```
 velion site test másolat/
 ├── package.json · tsconfig.json · next.config.ts   # Next.js (standalone)
-├── Dockerfile · docker-compose.yml · .dockerignore # web + mailpit
-├── .env.example                                    # SMTP / MAIL / URL változók
+├── Dockerfile · docker-compose.yml · .dockerignore # egyetlen web szolgáltatás
+├── .env.example                                    # NEXT_PUBLIC_SITE_URL (SMTP kikommentelve)
 ├── public/
 │   ├── favicon.svg · og-image.svg                  # (production: 1200×630 PNG)
 │   ├── llms.txt                                     # AI-olvasható összefoglaló
@@ -21,20 +21,21 @@ velion site test másolat/
 │   │   ├── impresszum/page.tsx
 │   │   ├── adatkezelesi-tajekoztato/page.tsx
 │   │   ├── aszf/page.tsx
-│   │   ├── api/contact/route.ts      # e-mail backend (POST)
+│   │   ├── api/contact/route.ts      # e-mail backend (POST) — KIKAPCSOLVA (stub 503)
 │   │   ├── sitemap.ts · robots.ts · manifest.ts
 │   ├── components/
 │   │   ├── layout/Header.tsx (client) · Footer.tsx
 │   │   ├── sections/                 # Hero, Trust, ServicesOverview, WhyUs,
 │   │   │                             # Process, Faq, CtaBand, ServiceDetail,
-│   │   │                             # LegalPage, ContactForm (client)
+│   │   │                             # LegalPage, ContactInfo (aktív),
+│   │   │                             # ContactForm (client, megőrizve, nem használt)
 │   │   ├── ScrollReveal.tsx (client) · JsonLd.tsx
 │   │   └── ui/BrandMark.tsx
 │   ├── lib/
 │   │   ├── site.ts                   # tartalmi single source (szöveg, ár, nav, cég)
 │   │   ├── seo.ts                    # metaadat + JSON-LD builderek
-│   │   ├── email.ts                  # nodemailer SMTP (server-only)
-│   │   └── validation.ts             # űrlap validáció (kliens + szerver)
+│   │   ├── email.ts                  # nodemailer SMTP (server-only) — KIKAPCSOLVA
+│   │   └── validation.ts             # űrlap validáció (a megőrzött űrlaphoz)
 │   └── styles/
 │       ├── tokens.css                # design tokenek (szín, típus, térköz…)
 │       └── main.css                  # komponens- és szekció-stílusok

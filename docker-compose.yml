@@ -1,11 +1,15 @@
 # ============================================================================
-# Klivo — helyi környezet egy paranccsal:  docker compose up
-#   Weboldal:        http://localhost:3000
-#   Mailpit (mail):  http://localhost:8025   (ide érkeznek a teszt e-mailek)
+# Klivo — helyi/VPS környezet egy paranccsal:  docker compose up -d --build
+#   Weboldal:  http://localhost:3000
 #
-# A Mailpit egy fejlesztői SMTP + webes postafiók: valódi kiküldés nélkül
-# láthatóvá teszi a kapcsolati űrlapból küldött leveleket. Élesben a SMTP_*
-# változókat a valós levelezőszolgáltatóra kell állítani (lásd .env.example).
+# E-MAIL KIKAPCSOLVA: a kapcsolatfelvétel közvetlen e-mail/telefon linkeken át
+# megy, ezért NINCS szükség Mailpit/SMTP háttérszolgáltatásra. Így egyetlen
+# konténer fut, nem próbál külső szolgáltatáshoz csatlakozni, és semmi nem
+# tudja emiatt leállítani. (Lásd docs/decisions/0005-disable-email.md.)
+#
+# `network_mode: bridge` → a Compose NEM hoz létre külön projekt-hálózatot;
+# a konténer a Docker beépített alap "bridge" hálózatára csatlakozik, a
+# 3000-es port publikálása változatlanul működik.
 # ============================================================================
 services:
   web:
@@ -18,19 +22,31 @@ services:
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
-      SMTP_HOST: "mailpit"
-      SMTP_PORT: "1025"
-      SMTP_SECURE: "false"
-      MAIL_FROM: "Klivo weboldal <no-reply@klivo.hu>"
-      MAIL_TO: "hello@klivo.hu"
-    depends_on:
-      - mailpit
+      # --- E-mail (SMTP) beállítások: KIKAPCSOLVA ---
+      # Visszakapcsoláshoz vedd ki a kommentből ezeket, állítsd be egy valós
+      # SMTP szolgáltatóra (vagy adj hozzá újra egy mailpit szolgáltatást),
+      # és állítsd vissza az /api/contact route + lib/email.ts implementációt.
+      # SMTP_HOST: "smtp.pelda.hu"
+      # SMTP_PORT: "587"
+      # SMTP_SECURE: "false"
+      # SMTP_USER: ""
+      # SMTP_PASS: ""
+      # MAIL_FROM: "Klivo weboldal <no-reply@klivo.hu>"
+      # MAIL_TO: "hello@klivo.hu"
+    network_mode: bridge
     restart: unless-stopped
 
-  mailpit:
-    image: axllent/mailpit:latest
-    container_name: klivo-mailpit
-    ports:
-      - "8025:8025" # webes postafiók (UI)
-      - "1025:1025" # SMTP
-    restart: unless-stopped
+# --- Mailpit (fejlesztői SMTP + webes postafiók): KIKAPCSOLVA ---
+# A weboldal e-mail küldés nélkül fut, ezért ez a szolgáltatás (és a hozzá
+# tartozó depends_on) eltávolítva, hogy a VPS-en ne okozzon fennakadást.
+# Visszakapcsoláshoz vedd ki a kommentből, add vissza a web `depends_on`
+# blokkját, és cseréld a fenti `network_mode: bridge`-et egy közös hálózatra,
+# hogy a két konténer név szerint elérje egymást.
+#
+#  mailpit:
+#    image: axllent/mailpit:latest
+#    container_name: klivo-mailpit
+#    ports:
+#      - "8025:8025" # webes postafiók (UI)
+#      - "1025:1025" # SMTP
+#    restart: unless-stopped

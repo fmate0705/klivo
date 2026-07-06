@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CaretRight } from "@phosphor-icons/react/dist/ssr";
-import ContactForm from "@/components/sections/ContactForm";
+// Az űrlapos, e-mailt küldő változat (ContactForm) egyelőre ki van kapcsolva,
+// helyette a háttérszolgáltatás nélküli ContactInfo szekciót használjuk.
+// Lásd docs/decisions/0005-disable-email.md.
+import ContactInfo from "@/components/sections/ContactInfo";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -34,7 +37,7 @@ export default function KapcsolatPage() {
 
       <section className="section">
         <div className="container">
-          <ContactForm />
+          <ContactInfo />
         </div>
       </section>
     </>

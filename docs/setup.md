@@ -11,10 +11,11 @@ docker compose up --build
 ```
 
 - Weboldal: **http://localhost:3000**
-- Mailpit (a kapcsolati űrlap teszt e-mailjei): **http://localhost:8025**
 
-Leállítás: `docker compose down`. A `web` a Next.js standalone production
-buildet futtatja, a `mailpit` egy fejlesztői SMTP + webes postafiók.
+Leállítás: `docker compose down`. Egyetlen `web` szolgáltatás fut (Next.js
+standalone production build). Az e-mail küldés ki van kapcsolva, ezért nincs
+Mailpit/SMTP szolgáltatás, és a `network_mode: bridge` miatt a Compose nem hoz
+létre külön projekt-hálózatot (lásd `docs/decisions/0005-disable-email.md`).
 
 ## Fejlesztés Docker nélkül
 
@@ -22,10 +23,6 @@ buildet futtatja, a `mailpit` egy fejlesztői SMTP + webes postafiók.
 npm install
 npm run dev          # http://localhost:3000 (hot reload)
 ```
-
-Az e-mail küldés teszteléséhez vagy állíts be valós SMTP-t a `.env`-ben, vagy
-indíts Mailpitet külön: `docker compose up mailpit`, majd a `.env`-ben
-`SMTP_HOST=localhost`, `SMTP_PORT=1025`.
 
 ## Környezeti változók
 
@@ -35,12 +32,11 @@ cp .env.example .env
 
 | Változó | Mire való |
 |---|---|
-| `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` / `SMTP_USER` / `SMTP_PASS` | E-mail küldés |
-| `MAIL_FROM` / `MAIL_TO` | Feladó / címzett |
 | `NEXT_PUBLIC_SITE_URL` | Publikus alap-URL |
+| ~~`SMTP_*` / `MAIL_*`~~ | E-mail küldéshez — **jelenleg kikapcsolva**, kikommentelve a `.env.example`-ben |
 
-A docker-compose a `web` szolgáltatáshoz a Mailpit SMTP-jét állítja be
-alapból, így a kapcsolati űrlap azonnal tesztelhető.
+Az e-mail küldés ki van kapcsolva, ezért SMTP változókra most nincs szükség; a
+`/kapcsolat` oldal közvetlen e-mail/telefon linkeket használ.
 
 ## Build és minőség-ellenőrzés
 
@@ -49,11 +45,9 @@ npm run build                       # production build (TypeScript ellenőrzéss
 npx lighthouse http://localhost:3000 --view   # teljesítmény / a11y / SEO
 ```
 
-## A kapcsolati űrlap kézi tesztje
+## Kapcsolat
 
-```bash
-curl -X POST http://localhost:3000/api/contact \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Teszt","email":"teszt@pelda.hu","message":"Kérek egy ajánlatot."}'
-# → {"ok":true}, a levél megjelenik a Mailpitben (http://localhost:8025)
-```
+A `/kapcsolat` oldal jelenleg közvetlen e-mail/telefon linkeket kínál, nincs
+űrlapos küldés. A `/api/contact` endpoint megőrizve, de kikapcsolva: `POST`
+esetén `503`-at ad vissza a közvetlen e-mail címmel. Az űrlapos e-mail küldés
+visszakapcsolásához lásd `docs/decisions/0005-disable-email.md`.

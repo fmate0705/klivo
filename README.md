@@ -1,11 +1,17 @@
 # Klivo — webügynökség weboldal
 
 Modern, prémium, magyar nyelvű **többoldalas** weboldal egy webügynökség
-számára. **Next.js (App Router) + TypeScript**, valódi e-mail backenddel,
-Dockerben futtatva. Light theme, Geist tipográfia, finom mozgás, erős SEO és
-AI-láthatóság.
+számára. **Next.js (App Router) + TypeScript**, Dockerben futtatva. Light theme,
+Geist tipográfia, finom mozgás, erős SEO és AI-láthatóság.
 
-> **Tier 2** (dinamikus marketing oldal e-mail küldéssel). A márkanév-döntésről
+> **Megjegyzés — e-mail küldés kikapcsolva.** Az űrlapos, SMTP-s e-mail küldést
+> egyelőre kivezettük, hogy a weboldal háttérszolgáltatás nélkül, egyetlen
+> konténerben stabilan fusson a VPS-en. A kapcsolatfelvétel most közvetlen
+> e-mail/telefon linkeken keresztül történik. A kód megőrizve, később
+> visszakapcsolható — lásd
+> [`docs/decisions/0005-disable-email.md`](docs/decisions/0005-disable-email.md).
+
+> **Tier 2** (dinamikus marketing oldal). A márkanév-döntésről
 > (Kodly helyett **Klivo**) lásd:
 > [`docs/decisions/0002-brand-name.md`](docs/decisions/0002-brand-name.md).
 
@@ -16,9 +22,9 @@ AI-láthatóság.
 - **Oldalak:** főoldal, 3 szolgáltatás-aloldal
   (`/weboldal-keszites`, `/egyedi-fejlesztes`, `/tarhely`), `/kapcsolat`, és a
   jogi oldalak (`/impresszum`, `/adatkezelesi-tajekoztato`, `/aszf`).
-- **E-mail backend:** a kapcsolati űrlap a `/api/contact` végpontra küld, amely
-  SMTP-n (nodemailer) keresztül e-mailt küld. Helyi fejlesztésben a **Mailpit**
-  fogadja, valódi kiküldés nélkül.
+- **Kapcsolat:** a `/kapcsolat` oldal közvetlen e-mail/telefon linkeket kínál
+  (nincs háttérszolgáltatás). Az e-mailt küldő űrlap kódja megőrizve, de
+  jelenleg kikapcsolva (lásd `docs/decisions/0005-disable-email.md`).
 - **SEO / AI SEO:** per-oldal metaadatok, Open Graph, JSON-LD
   (ProfessionalService, WebSite, FAQPage, Service, BreadcrumbList),
   `sitemap.xml`, `robots.txt` (AI-crawlerek engedélyezve), `llms.txt`, manifest.
@@ -40,11 +46,10 @@ docker compose up --build
 ```
 
 - Weboldal: **http://localhost:3000**
-- Mailpit postafiók (a kapcsolati űrlap teszt e-mailjei): **http://localhost:8025**
 
-A `web` szolgáltatás a Next.js standalone production buildet futtatja, a
-`mailpit` pedig egy fejlesztői SMTP + webes postafiók. Leállítás:
-`docker compose down`.
+Egyetlen `web` szolgáltatás fut (a Next.js standalone production build). A
+`network_mode: bridge` miatt a Compose **nem hoz létre külön projekt-hálózatot**,
+és nincs Mailpit/SMTP háttérszolgáltatás. Leállítás: `docker compose down`.
 
 ### Fejlesztés Docker nélkül
 
@@ -52,9 +57,6 @@ A `web` szolgáltatás a Next.js standalone production buildet futtatja, a
 npm install
 npm run dev          # http://localhost:3000
 ```
-
-Az e-mail küldés teszteléséhez állíts be SMTP-t a `.env`-ben
-(`cp .env.example .env`), vagy indítsd a Mailpitet: `docker compose up mailpit`.
 
 ---
 
@@ -64,12 +66,12 @@ Lásd [`.env.example`](.env.example). Lényeg:
 
 | Változó | Mire való |
 |---|---|
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` | E-mail küldés (élesben a valós levelezőszolgáltató) |
-| `MAIL_FROM`, `MAIL_TO` | Feladó és címzett |
 | `NEXT_PUBLIC_SITE_URL` | Publikus alap-URL |
+| ~~`SMTP_*`, `MAIL_*`~~ | E-mail küldéshez — **jelenleg kikapcsolva**, kikommentelve a `.env.example`-ben |
 
-Ha nincs `SMTP_HOST`, az `/api/contact` nem tesz úgy, mintha küldött volna:
-hibát ad vissza a felhasználónak a közvetlen e-mail címmel.
+Az e-mail küldés ki van kapcsolva, ezért SMTP változókra most nincs szükség. A
+`/kapcsolat` oldal közvetlen e-mail/telefon linkeket használ. Visszakapcsolás:
+lásd `docs/decisions/0005-disable-email.md`.
 
 ---
 
@@ -78,8 +80,8 @@ hibát ad vissza a felhasználónak a közvetlen e-mail címmel.
 - **Next.js 16** (App Router, React 19, TypeScript, standalone output)
 - **Geist** tipográfia (`next/font`), **Phosphor** ikonok
 - Saját CSS design-rendszer (tokenek + komponensstílusok), light theme
-- **nodemailer** (SMTP) az e-mailekhez
-- Docker (többlépcsős build) + Mailpit a helyi e-mail teszteléshez
+- Docker (többlépcsős, standalone build) — egyetlen `web` konténer
+- **nodemailer** (SMTP) az e-mailekhez — a kód megőrizve, jelenleg kikapcsolva
 
 Részletek: [`docs/architecture.md`](docs/architecture.md).
 
@@ -91,7 +93,7 @@ A kódban `PLACEHOLDER`, illetve a jogi oldalakon `[szögletes zárójel]` jelö
 
 - [ ] **Domain** (`klivo.hu`) a `src/lib/site.ts`-ben + a `NEXT_PUBLIC_SITE_URL`-ben
 - [ ] **Telefon, e-mail, cégadatok** (`src/lib/site.ts` → `contact`, `company`)
-- [ ] **Valós SMTP** beállítása élesben (`.env`)
+- [ ] **E-mail küldés** újbóli bekapcsolása, ha kell (lásd `docs/decisions/0005-disable-email.md`), majd valós SMTP a `.env`-ben
 - [ ] **Közösségi média** linkek (`src/lib/seo.ts` → `sameAs`)
 - [ ] **OG-kép** (`public/og-image.svg` → 1200×630 PNG)
 - [ ] **Jogi szövegek** ügyvédi ellenőrzése (Impresszum, Adatkezelési, ÁSZF)
