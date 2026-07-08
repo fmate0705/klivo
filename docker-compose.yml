@@ -1,52 +1,40 @@
 # ============================================================================
-# Klivo — helyi/VPS környezet egy paranccsal:  docker compose up -d --build
-#   Weboldal:  http://localhost:3000
+# Klivo — a Klivo webhosting platformon fut (Traefik + izolált kliens-hálózat).
 #
-# E-MAIL KIKAPCSOLVA: a kapcsolatfelvétel közvetlen e-mail/telefon linkeken át
-# megy, ezért NINCS szükség Mailpit/SMTP háttérszolgáltatásra. Így egyetlen
-# konténer fut, nem próbál külső szolgáltatáshoz csatlakozni, és semmi nem
-# tudja emiatt leállítani. (Lásd docs/decisions/0005-disable-email.md.)
+# A platform KÖTÖTT elvárásai. Ezek nélkül a panel néhány másodperc után
+# "stopped"-ot mutat (a metrika-poller a hosting_klivo_web nevet keresi, és ha
+# nem találja, 'missing' → 'stopped'), a Traefik pedig 502 Bad Gateway-t ad:
+#   • konténer neve PONTOSAN:   hosting_klivo_web   (slug = "klivo")
+#   • hálózat:                  client_klivo_net    (external — a platform hozza létre)
+#   • belső port:               3000                (a panelon a "Container port" is 3000)
 #
-# `network_mode: bridge` → a Compose NEM hoz létre külön projekt-hálózatot;
-# a konténer a Docker beépített alap "bridge" hálózatára csatlakozik, a
-# 3000-es port publikálása változatlanul működik.
+# A Traefik ezen a hálózaton, KONTÉNERNÉV szerint éri el az appot
+# (http://hosting_klivo_web:3000), ezért NEM publikálunk portot a hostra
+# (a régi "3000:3000" + network_mode: bridge miatt volt a Bad Gateway).
+#
+# E-MAIL KIKAPCSOLVA: a kapcsolat közvetlen e-mail/telefon linkeken megy, így
+# nincs SMTP háttérszolgáltatás. (Lásd docs/decisions/0005-disable-email.md.)
 # ============================================================================
 services:
   web:
     build:
       context: .
-    image: klivo-web
-    container_name: klivo-web
-    ports:
-      - "3000:3000"
+    # A platform e pontos név alapján figyeli az állapotot ÉS route-ol rá.
+    container_name: hosting_klivo_web
+    restart: unless-stopped
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
-      # --- E-mail (SMTP) beállítások: KIKAPCSOLVA ---
-      # Visszakapcsoláshoz vedd ki a kommentből ezeket, állítsd be egy valós
-      # SMTP szolgáltatóra (vagy adj hozzá újra egy mailpit szolgáltatást),
-      # és állítsd vissza az /api/contact route + lib/email.ts implementációt.
-      # SMTP_HOST: "smtp.pelda.hu"
-      # SMTP_PORT: "587"
-      # SMTP_SECURE: "false"
-      # SMTP_USER: ""
-      # SMTP_PASS: ""
-      # MAIL_FROM: "Klivo weboldal <no-reply@klivo.hu>"
-      # MAIL_TO: "hello@klivo.hu"
-    network_mode: bridge
-    restart: unless-stopped
+    # Csak a konténerhálózaton belül elérhető port (a Next.js a 3000-en figyel).
+    # Nincs host-oldali publikálás: több kliens is futhat egy VPS-en ütközés nélkül.
+    expose:
+      - "3000"
+    networks:
+      - client_klivo_net
 
-# --- Mailpit (fejlesztői SMTP + webes postafiók): KIKAPCSOLVA ---
-# A weboldal e-mail küldés nélkül fut, ezért ez a szolgáltatás (és a hozzá
-# tartozó depends_on) eltávolítva, hogy a VPS-en ne okozzon fennakadást.
-# Visszakapcsoláshoz vedd ki a kommentből, add vissza a web `depends_on`
-# blokkját, és cseréld a fenti `network_mode: bridge`-et egy közös hálózatra,
-# hogy a két konténer név szerint elérje egymást.
-#
-#  mailpit:
-#    image: axllent/mailpit:latest
-#    container_name: klivo-mailpit
-#    ports:
-#      - "8025:8025" # webes postafiók (UI)
-#      - "1025:1025" # SMTP
-#    restart: unless-stopped
+networks:
+  # A platform API hozza létre ezt a hálózatot és csatolja rá a Traefiket; itt
+  # csak KÜLSŐKÉNT hivatkozunk rá. Ne definiáld újra, és ne válts vissza
+  # network_mode: bridge-re — különben a Traefik nem éri el a konténert.
+  client_klivo_net:
+    external: true
