@@ -1,0 +1,383 @@
+{
+  "issues": [
+    {
+      "id": "accessibility-1",
+      "gate": "accessibility",
+      "severity": "blocker",
+      "message": "No skip link to the main content.",
+      "file": "app/layout.tsx",
+      "recommendation": "Add a visible-on-focus link to #main."
+    },
+    {
+      "id": "seo-2",
+      "gate": "seo",
+      "severity": "major",
+      "message": "Missing SEO artifact \"public/manifest.webmanifest\".",
+      "file": "public/manifest.webmanifest"
+    },
+    {
+      "id": "seo-3",
+      "gate": "seo",
+      "severity": "major",
+      "message": "Missing SEO artifact \"public/llms.txt\".",
+      "file": "public/llms.txt"
+    },
+    {
+      "id": "seo-4",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Missing SEO artifact \"public/humans.txt\".",
+      "file": "public/humans.txt"
+    },
+    {
+      "id": "seo-5",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Missing SEO artifact \"public/security.txt\".",
+      "file": "public/security.txt"
+    },
+    {
+      "id": "seo-6",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Missing SEO artifact \"public/schema.json\".",
+      "file": "public/schema.json"
+    },
+    {
+      "id": "seo-7",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Page declares no canonical URL.",
+      "file": "app/(site)/blog/page.tsx"
+    },
+    {
+      "id": "seo-8",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Page declares no canonical URL.",
+      "file": "app/(site)/folyamat/page.tsx"
+    },
+    {
+      "id": "seo-9",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Page declares no canonical URL.",
+      "file": "app/(site)/kapcsolat/page.tsx"
+    },
+    {
+      "id": "seo-10",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Page declares no canonical URL.",
+      "file": "app/(site)/page.tsx"
+    },
+    {
+      "id": "seo-11",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Page declares no canonical URL.",
+      "file": "app/(site)/rolunk/page.tsx"
+    },
+    {
+      "id": "seo-12",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Page declares no canonical URL.",
+      "file": "app/(site)/szolgaltatasok/page.tsx"
+    },
+    {
+      "id": "seo-13",
+      "gate": "seo",
+      "severity": "major",
+      "message": "Page has no metadata export.",
+      "file": "app/admin/(panel)/arak/page.tsx"
+    },
+    {
+      "id": "seo-14",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Page declares no canonical URL.",
+      "file": "app/admin/(panel)/arak/page.tsx"
+    },
+    {
+      "id": "seo-15",
+      "gate": "seo",
+      "severity": "major",
+      "message": "Page has no metadata export.",
+      "file": "app/admin/(panel)/bejegyzesek/page.tsx"
+    },
+    {
+      "id": "seo-16",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Page declares no canonical URL.",
+      "file": "app/admin/(panel)/bejegyzesek/page.tsx"
+    },
+    {
+      "id": "seo-17",
+      "gate": "seo",
+      "severity": "major",
+      "message": "Page has no metadata export.",
+      "file": "app/admin/(panel)/bejegyzesek/uj/page.tsx"
+    },
+    {
+      "id": "seo-18",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Page declares no canonical URL.",
+      "file": "app/admin/(panel)/bejegyzesek/uj/page.tsx"
+    },
+    {
+      "id": "seo-19",
+      "gate": "seo",
+      "severity": "major",
+      "message": "Page has no metadata export.",
+      "file": "app/admin/(panel)/page.tsx"
+    },
+    {
+      "id": "seo-20",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Page declares no canonical URL.",
+      "file": "app/admin/(panel)/page.tsx"
+    },
+    {
+      "id": "seo-21",
+      "gate": "seo",
+      "severity": "major",
+      "message": "Page has no metadata export.",
+      "file": "app/admin/(panel)/uzenetek/page.tsx"
+    },
+    {
+      "id": "seo-22",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Page declares no canonical URL.",
+      "file": "app/admin/(panel)/uzenetek/page.tsx"
+    },
+    {
+      "id": "seo-23",
+      "gate": "seo",
+      "severity": "major",
+      "message": "Page has no metadata export.",
+      "file": "app/admin/belepes/page.tsx"
+    },
+    {
+      "id": "seo-24",
+      "gate": "seo",
+      "severity": "minor",
+      "message": "Page declares no canonical URL.",
+      "file": "app/admin/belepes/page.tsx"
+    },
+    {
+      "id": "content-25",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/\" has no matching page.",
+      "file": "app/(site)/blog/[slug]/page.tsx"
+    },
+    {
+      "id": "content-26",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/blog\" has no matching page.",
+      "file": "app/(site)/blog/[slug]/page.tsx"
+    },
+    {
+      "id": "content-27",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/blog\" has no matching page.",
+      "file": "app/(site)/blog/[slug]/page.tsx"
+    },
+    {
+      "id": "content-28",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/folyamat\" has no matching page.",
+      "file": "app/(site)/szolgaltatasok/[slug]/page.tsx"
+    },
+    {
+      "id": "content-29",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/admin/bejegyzesek\" has no matching page.",
+      "file": "app/admin/(panel)/bejegyzesek/[id]/page.tsx"
+    },
+    {
+      "id": "content-30",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/admin/bejegyzesek/uj\" has no matching page.",
+      "file": "app/admin/(panel)/bejegyzesek/page.tsx"
+    },
+    {
+      "id": "content-31",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/admin/bejegyzesek\" has no matching page.",
+      "file": "app/admin/(panel)/bejegyzesek/uj/page.tsx"
+    },
+    {
+      "id": "content-32",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/admin/bejegyzesek/uj\" has no matching page.",
+      "file": "app/admin/(panel)/page.tsx"
+    },
+    {
+      "id": "content-33",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/admin/bejegyzesek\" has no matching page.",
+      "file": "app/admin/(panel)/page.tsx"
+    },
+    {
+      "id": "content-34",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/admin/bejegyzesek\" has no matching page.",
+      "file": "app/admin/(panel)/page.tsx"
+    },
+    {
+      "id": "content-35",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/admin/uzenetek\" has no matching page.",
+      "file": "app/admin/(panel)/page.tsx"
+    },
+    {
+      "id": "content-36",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/admin/bejegyzesek\" has no matching page.",
+      "file": "app/admin/(panel)/page.tsx"
+    },
+    {
+      "id": "content-37",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/admin/uzenetek\" has no matching page.",
+      "file": "app/admin/(panel)/page.tsx"
+    },
+    {
+      "id": "content-38",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/admin/arak\" has no matching page.",
+      "file": "app/admin/(panel)/page.tsx"
+    },
+    {
+      "id": "content-39",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/\" has no matching page.",
+      "file": "app/admin/belepes/page.tsx"
+    },
+    {
+      "id": "content-40",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/\" has no matching page.",
+      "file": "app/error.tsx"
+    },
+    {
+      "id": "content-41",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/\" has no matching page.",
+      "file": "app/not-found.tsx"
+    },
+    {
+      "id": "content-42",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/kapcsolat\" has no matching page.",
+      "file": "app/not-found.tsx"
+    },
+    {
+      "id": "content-43",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/\" has no matching page.",
+      "file": "components/admin/admin-shell.tsx"
+    },
+    {
+      "id": "content-44",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/blog\" has no matching page.",
+      "file": "components/sections/blog-teaser.tsx"
+    },
+    {
+      "id": "content-45",
+      "gate": "content",
+      "severity": "minor",
+      "message": "Internal link \"/\" has no matching page.",
+      "file": "components/site/logo.tsx"
+    },
+    {
+      "id": "content-46",
+      "gate": "content",
+      "severity": "nit",
+      "message": "Grammar and tone require a human read-through before approval.",
+      "recommendation": "Proofread all shipped copy."
+    },
+    {
+      "id": "brand-47",
+      "gate": "brand",
+      "severity": "nit",
+      "message": "Brand alignment (voice, imagery, tone) needs a human sign-off.",
+      "recommendation": "Have the brand owner review before approval."
+    },
+    {
+      "id": "legal-48",
+      "gate": "legal",
+      "severity": "major",
+      "message": "Required legal page \"Privacy Policy\" is not present.",
+      "recommendation": "Author the Privacy Policy page: Standard disclosure of data handling."
+    },
+    {
+      "id": "legal-49",
+      "gate": "legal",
+      "severity": "major",
+      "message": "Required legal page \"Terms of Service\" is not present.",
+      "recommendation": "Author the Terms of Service page: Governs use of the site and services."
+    },
+    {
+      "id": "legal-50",
+      "gate": "legal",
+      "severity": "major",
+      "message": "Required legal page \"Cookie Policy\" is not present.",
+      "recommendation": "Author the Cookie Policy page: Required where cookies or tracking are used."
+    },
+    {
+      "id": "legal-51",
+      "gate": "legal",
+      "severity": "major",
+      "message": "Required legal page \"Impresszum\" is not present.",
+      "recommendation": "Author the Impresszum page: Hungarian law requires site operator identification."
+    },
+    {
+      "id": "legal-52",
+      "gate": "legal",
+      "severity": "major",
+      "message": "Required legal page \"Adatkezelési Tájékoztató\" is not present.",
+      "recommendation": "Author the Adatkezelési Tájékoztató page: Hungarian GDPR data-processing notice."
+    },
+    {
+      "id": "legal-53",
+      "gate": "legal",
+      "severity": "major",
+      "message": "Required legal page \"Cookie Tájékoztató\" is not present.",
+      "recommendation": "Author the Cookie Tájékoztató page: Hungarian cookie notice."
+    },
+    {
+      "id": "legal-54",
+      "gate": "legal",
+      "severity": "major",
+      "message": "Generated legal text requires review by a qualified legal professional.",
+      "recommendation": "Generated legal text is a draft only. It MUST be reviewed by a qualified legal professional before publication; CEF does not provide legal advice."
+    }
+  ]
+}

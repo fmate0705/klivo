@@ -1,0 +1,125 @@
+{
+  "pages": [
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "purpose": "The authenticated application home.",
+      "priority": "critical",
+      "seoImportance": "low",
+      "sections": ["metrics", "activity"],
+      "components": ["admin", "dashboard-widget", "chart", "table"],
+      "dependencies": ["home"],
+      "rationale": "Expected for creative agency: the authenticated application home."
+    },
+    {
+      "id": "home",
+      "name": "Home",
+      "purpose": "Communicate the core value and route visitors to conversion.",
+      "priority": "critical",
+      "seoImportance": "high",
+      "sections": ["hero", "value", "proof", "features", "cta"],
+      "components": ["navbar", "hero", "features", "testimonials", "cta", "footer"],
+      "dependencies": [],
+      "rationale": "Expected for creative agency: communicate the core value and route visitors to conversion."
+    },
+    {
+      "id": "signup",
+      "name": "Sign Up",
+      "purpose": "Register new users.",
+      "priority": "critical",
+      "seoImportance": "low",
+      "sections": ["form"],
+      "components": ["auth", "form"],
+      "dependencies": ["home"],
+      "rationale": "Expected for creative agency: register new users."
+    },
+    {
+      "id": "about",
+      "name": "About",
+      "purpose": "Build trust through story, team, and credibility.",
+      "priority": "high",
+      "seoImportance": "medium",
+      "sections": ["story", "team", "values"],
+      "components": ["navbar", "team", "stats", "cta", "footer"],
+      "dependencies": ["home"],
+      "rationale": "Expected for creative agency: build trust through story, team, and credibility."
+    },
+    {
+      "id": "admin",
+      "name": "Admin",
+      "purpose": "Back-office management.",
+      "priority": "high",
+      "seoImportance": "low",
+      "sections": ["data", "management"],
+      "components": ["admin", "table", "dashboard-widget"],
+      "dependencies": ["home"],
+      "rationale": "Expected for creative agency: back-office management."
+    },
+    {
+      "id": "contact",
+      "name": "Contact",
+      "purpose": "Capture inquiries and provide details.",
+      "priority": "high",
+      "seoImportance": "medium",
+      "sections": ["form", "details"],
+      "components": ["navbar", "contact", "form", "footer"],
+      "dependencies": ["home"],
+      "rationale": "Expected for creative agency: capture inquiries and provide details."
+    },
+    {
+      "id": "login",
+      "name": "Login",
+      "purpose": "Authenticate returning users.",
+      "priority": "high",
+      "seoImportance": "low",
+      "sections": ["form"],
+      "components": ["auth", "form"],
+      "dependencies": ["home"],
+      "rationale": "Expected for creative agency: authenticate returning users."
+    },
+    {
+      "id": "services",
+      "name": "Services",
+      "purpose": "Explain offerings and their outcomes.",
+      "priority": "high",
+      "seoImportance": "high",
+      "sections": ["overview", "service-detail", "cta"],
+      "components": ["navbar", "features", "cta", "footer"],
+      "dependencies": ["home"],
+      "rationale": "Expected for creative agency: explain offerings and their outcomes."
+    },
+    {
+      "id": "work",
+      "name": "Work",
+      "purpose": "Showcase selected projects.",
+      "priority": "high",
+      "seoImportance": "medium",
+      "sections": ["gallery", "detail"],
+      "components": ["navbar", "gallery", "cta", "footer"],
+      "dependencies": ["home"],
+      "rationale": "Expected for creative agency: showcase selected projects."
+    },
+    {
+      "id": "blog",
+      "name": "Blog",
+      "purpose": "Publish content for SEO and authority.",
+      "priority": "medium",
+      "seoImportance": "high",
+      "sections": ["listing", "article"],
+      "components": ["navbar", "blog-card", "footer"],
+      "dependencies": ["home"],
+      "rationale": "Expected for creative agency: publish content for seo and authority."
+    },
+    {
+      "id": "legal",
+      "name": "Legal",
+      "purpose": "Required legal and policy pages.",
+      "priority": "medium",
+      "seoImportance": "low",
+      "sections": ["policy"],
+      "components": ["footer"],
+      "dependencies": ["home"],
+      "rationale": "Expected for creative agency: required legal and policy pages."
+    }
+  ]
+}

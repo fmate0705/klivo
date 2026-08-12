@@ -1,0 +1,32 @@
+# Függőségek
+node_modules/
+
+# Build kimenet
+.next/
+build/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Környezet és titkok
+.env
+.env.*
+!.env.example
+
+# Futásidejű adat (a Docker volume tartalma)
+data/*.json
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Naplók és cache
+*.log
+.cache/
+.eslintcache
+coverage/
+
+# OS és szerkesztő
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json

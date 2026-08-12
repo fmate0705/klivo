@@ -1,0 +1,54 @@
+# Klivo — egy konténer, 3000-es port.
+#
+# A tárhelyszolgáltatás a 3000-es portra irányít, ezért a konténer is azon figyel.
+services:
+  klivo_web:
+    build:
+      context: .
+      args:
+        # Build időben ég bele a kliens bundle-be. Meg kell egyeznie az éles
+        # domainnel, különben minden canonical URL, OG tag és sitemap bejegyzés
+        # máshová mutat.
+        NEXT_PUBLIC_SITE_URL: https://klivo.hu
+    container_name: klivo_web
+    restart: unless-stopped
+
+    # Innen jön futásidőben az ADMIN_JWT_SECRET, ADMIN_USERNAME és
+    # ADMIN_PASSWORD_HASH. Lásd .env.example.
+    env_file:
+      - .env
+
+    ports:
+      - '3000:3000'
+
+    volumes:
+      # Bejegyzések, megkeresések, beállítások. Enélkül az oldal minden
+      # deploynál üres blogra és üres postaládára áll vissza.
+      - klivo_data:/app/data
+      # Az adminban feltöltött képek.
+      - klivo_uploads:/app/public/uploads
+
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+    # Konténer szintű szigorítás.
+    #
+    # A `read_only: true` szándékosan NINCS beállítva. A Next.js ISR frissített
+    # HTML-t ír a /app/.next/server/app/*.html alá, és egy csak olvasható
+    # gyökérrel minden revalidáció EROFS hibával bukna — naplózva, de nem
+    # végzetesen, vagyis a tünet néma: az oldal a build idejű pillanatképet
+    # szolgálná ki, és soha nem venné észre az új bejegyzéseket.
+    #
+    # A többi kontroll érvényben marad: a folyamat jogosulatlan felhasználóként
+    # fut (lásd Dockerfile), és nem szerezhet új privilégiumot.
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  klivo_data:
+  klivo_uploads:

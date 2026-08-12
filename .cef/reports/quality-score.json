@@ -1,0 +1,36 @@
+{
+  "projectName": "klivo",
+  "reviewedAt": "2026-08-08T10:53:21.654Z",
+  "overall": 72,
+  "readiness": 62,
+  "recommendation": "not-ready",
+  "requiredPassed": false,
+  "byGate": {
+    "architecture": 100,
+    "design": 100,
+    "accessibility": 60,
+    "performance": 100,
+    "seo": 0,
+    "security": 100,
+    "content": 0,
+    "brand": 99,
+    "legal": 0,
+    "docker": 100,
+    "testing": 100,
+    "documentation": 100
+  },
+  "gateStatus": {
+    "architecture": "pass",
+    "design": "pass",
+    "accessibility": "fail",
+    "performance": "pass",
+    "seo": "warn",
+    "security": "pass",
+    "content": "warn",
+    "brand": "pass",
+    "legal": "warn",
+    "docker": "pass",
+    "testing": "pass",
+    "documentation": "pass"
+  }
+}

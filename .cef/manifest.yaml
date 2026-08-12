@@ -1,0 +1,88 @@
+frameworkVersion: 2
+project:
+  name: klivo
+  type: landing-page
+  created: 2026-08-08T10:02:22.396Z
+  cefVersion: 0.1.0
+engines:
+  - accessibility
+  - ai-seo
+  - architecture
+  - components
+  - core
+  - deployment
+  - design
+  - docker
+  - experience
+  - legal
+  - motion
+  - performance
+  - platform
+  - security
+  - seo
+  - validation
+skills:
+  - emil-frontend-design
+  - emil-motion
+  - frontend-design
+  - taste
+  - uiux-pro-max
+mcp:
+  - chrome-devtools
+  - higgsfield
+metadata:
+  description: 'Web design agency and web development studio building marketing
+    websites, custom web applications, AI chatbots and integrations, plus managed
+    web hosting with SEO focus for Hungarian small and medium businesses. Fixed
+    transparent pricing, blog and a small admin panel.'
+  framework: nextjs
+  language: typescript
+  packageManager: npm
+  styling: tailwind
+  uiLibrary: none
+  animation: css
+  database: json-store
+  orm: none
+  authentication: jwt
+  cms: custom-admin
+  designPreset: luxury
+docker:
+  enabled: true
+  port: 3000
+features:
+  adminPanel: true
+  blog: true
+  commerce: false
+  legalPages: true
+  aiSeo: true
+  githubActions: true
+deployment:
+  target: docker
+languages:
+  primary: hu
+  additional: []
+  country: HU
+generatedFiles:
+  - .cef/manifest.yaml
+  - .cef/memory.md
+  - .cef/project.json
+  - .cef/runtime.json
+  - .editorconfig
+  - .env
+  - .env.example
+  - .github/workflows/ci.yml
+  - .gitignore
+  - .prettierignore
+  - .prettierrc.json
+  - CLAUDE.md
+  - Dockerfile
+  - README.md
+  - content/legal/cookie-policy.md
+  - content/legal/impressum.md
+  - content/legal/privacy-policy.md
+  - content/legal/terms.md
+  - docker-compose.yml
+  - eslint.config.js
+  - package.json
+  - public/llms.txt
+  - tsconfig.json

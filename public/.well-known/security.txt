@@ -1,0 +1,11 @@
+# Biztonsági hiba bejelentése — https://klivo.hu
+# RFC 9116
+
+Contact: mailto:hello@klivo.hu
+Preferred-Languages: hu, en
+Canonical: https://klivo.hu/.well-known/security.txt
+
+# Ha biztonsági hibát találsz, kérjük, e-mailben jelezd, mielőtt nyilvánosságra
+# hoznád. A bejelentésekre egy munkanapon belül válaszolunk.
+# Az Expires mezőt évente frissíteni kell, különben a fájl elavultnak számít.
+Expires: 2027-08-08T00:00:00.000Z
