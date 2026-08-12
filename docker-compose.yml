@@ -10,7 +10,9 @@ services:
         # domainnel, különben minden canonical URL, OG tag és sitemap bejegyzés
         # máshová mutat.
         NEXT_PUBLIC_SITE_URL: https://klivo.hu
-    container_name: klivo_web
+    # A Traefik a hosting_{ugyfel}_web nevre routol — a nevnek egyeznie kell,
+    # kulonben a proxy nem talalja meg a konténert (502).
+    container_name: hosting_klivo_web
     restart: unless-stopped
 
     # Innen jön futásidőben az ADMIN_JWT_SECRET, ADMIN_USERNAME és
@@ -18,8 +20,15 @@ services:
     env_file:
       - .env
 
-    ports:
-      - '3000:3000'
+    # Nincs kozvetlen host port: a forgalom a Traefiken keresztul jon, az
+    # intezi a HTTPS-t is. A panelben a container_port legyen 3000.
+    expose:
+      - '3000'
+
+    # A Traefik ezen a halozaton eri el a konténert. A halozatot a platform
+    # hozza letre a deploy elott, ezert external.
+    networks:
+      - client_klivo_net
 
     volumes:
       # Bejegyzések, megkeresések, beállítások. Enélkül az oldal minden
@@ -42,13 +51,17 @@ services:
     # végzetesen, vagyis a tünet néma: az oldal a build idejű pillanatképet
     # szolgálná ki, és soha nem venné észre az új bejegyzéseket.
     #
-    # A többi kontroll érvényben marad: a folyamat jogosulatlan felhasználóként
-    # fut (lásd Dockerfile), és nem szerezhet új privilégiumot.
+    # A `security_opt: no-new-privileges:true` szándékosan NINCS itt: a
+    # tárhelyplatform compose-ellenőrzése minden `security_opt` kulcsot
+    # elutasít (érték nélkül, kulcs alapján), így a deploy elbukna rajta.
+    # A folyamat továbbra is jogosulatlan felhasználóként fut (lásd Dockerfile).
     tmpfs:
       - /tmp
-    security_opt:
-      - no-new-privileges:true
 
 volumes:
   klivo_data:
   klivo_uploads:
+
+networks:
+  client_klivo_net:
+    external: true
