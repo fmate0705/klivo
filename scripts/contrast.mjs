@@ -63,6 +63,25 @@ for (const width of widths) {
     await p.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
     await p.waitForTimeout(400);
 
+    // A beúszó szöveg és a nyitó függöny lefutása.
+    //
+    // A `rise` félig átlátszó szövegen kapná el a mérést, és egy 40 százalékos
+    // fehér a mély kéken 2,9:1 — miközben a kész állapot 8,3:1. Ez így nem hiba,
+    // hanem rossz pillanat: az időzítés helyett meg kell **várni**, hogy az
+    // animációk befejeződjenek. A folyamatosan futók (buborék, szócsere) nem
+    // számítanak, ezért szűrünk névre.
+    await p
+      .waitForFunction(
+        () =>
+          !document
+            .getAnimations()
+            .some((a) => a.playState === 'running' && /^(rise|intro)/.test(a.animationName ?? '')),
+        null,
+        { timeout: 9000 },
+      )
+      .catch(() => {});
+    await p.waitForTimeout(200);
+
     const boxes = await p.evaluate(() =>
       [...document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,a,button,span,time,label')]
         .filter((el) => {

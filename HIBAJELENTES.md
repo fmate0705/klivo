@@ -497,6 +497,28 @@ ráközelítenek a hullámok.
 
 ---
 
+### 2/d.14 A fehér kontúr keresztülfutott a fehér szövegen
+
+A hullámtarajok élén futó fehér kontúr 1,5 képpont vastag, és a nyitóképernyő
+címsora meg bekezdése **rajta ül**. Egy 0,6-os fehér vonal a `wave-9`-en
+félig fehér felület: ott a fehér szöveg kontraszja **2,5:1**-re esik. Nem az
+egész felület bukik meg, csak az a néhány betű, amelyik épp a vonalon áll — de
+az is bukás, és a pixelpontos mérés ki is mutatta (16 találat három oldalon).
+
+A kontúr a szöveg mögötti mezőben azóta legföljebb 0,22: a mély kéken így is jól
+látszik, a szöveg viszont 4,8:1 fölött marad. Az alsó, világos zónában — ahol
+nincs szöveg — maradt a 0,55–0,7.
+
+### 2/d.15 Az átlátszó másodlagos gomb világos hullámon állt
+
+A sötét felületre szánt másodlagos gomb átlátszó volt, fehér kerettel és fehér
+felirattal. A nyitóképernyőn viszont a világos tarajok felérnek a gombok
+magasságáig, és ott a felirat **1,6:1**-re esett. A gomb háttere azóta tömör
+mély kék. A záró felhívás és a lábléc felülete amúgy is pontosan ugyanez a kék,
+tehát ott semmi nem változott tőle.
+
+---
+
 ## 3. Amit szándékosan másképp csináltam
 
 ### 3.1 Az admin csak blogot kezel — az árakat és a cégadatokat nem

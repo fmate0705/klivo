@@ -67,10 +67,14 @@ const button = cva(
         class: 'border-line-strong bg-surface text-ink hover:border-wave-6',
       },
       {
+        // A háttér **tömör mély kék**, nem átlátszó. A nyitóképernyőn a gomb a
+        // hullámmező fölött ül, és a világos tarajok elérnek odáig: átlátszó
+        // háttérrel a fehér felirat egy világoskék hullámon 1,6:1 lenne. A záró
+        // felhívás és a lábléc felülete amúgy is ugyanez a kék, tehát ott semmi
+        // nem változik tőle.
         variant: 'secondary',
         tone: 'dark',
-        class:
-          'border-on-dark/35 bg-transparent text-on-dark hover:border-on-dark hover:bg-on-dark/5',
+        class: 'border-on-dark/35 bg-deep text-on-dark hover:border-on-dark hover:bg-wave-8',
       },
       {
         variant: 'ghost',

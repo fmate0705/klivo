@@ -90,7 +90,19 @@ type Wave = {
   rimTone: string;
   /** A víztömeg tónusa. */
   bodyTone: string;
-  /** A fehér kontúr erőssége a taraj élén. */
+  /**
+   * A fehér kontúr erőssége a taraj élén.
+   *
+   * **A szöveg mögötti mezőben legföljebb 0,22.** A kontúr egy 1,5 képpontos
+   * fehér vonal, és pont keresztülfut a betűkön: egy 0,6-os vonal a `wave-9`-en
+   * 50 százalék fehér, ott a fehér szöveg kontrasztja 2,5:1-re esik. A
+   * pixelpontos mérés (`scripts/contrast.mjs`) ezt ki is mutatja — nem az egész
+   * felület bukik meg, csak az a néhány betű, amelyik a vonalon ül, de az is
+   * bukás. 0,2-nél a vonal még jól látszik a mély kéken, és a szöveg 4,8:1
+   * fölött marad.
+   *
+   * Az alsó, világos zónában nincs szöveg — ott mehet 0,7-ig.
+   */
   line: number;
   /** Mennyire húz a mutató felé. */
   pull: number;
@@ -117,17 +129,17 @@ type Wave = {
  */
 // prettier-ignore
 const WAVES: Wave[] = [
-  { x: 0.5, y: 0.02, angle: -6, wide: 0.66, tall: 14, crests: 0.8, steep: 0.3, phase: 0.1, rim: 20, swell: 0.86, rimTone: 'wave-7', bodyTone: 'wave-8', line: 0.6, pull: 7, pullY: -3 },
-  { x: 0.6, y: 0.06, angle: 9, wide: 0.5, tall: 13.5, crests: 1.6, steep: 0.26, phase: 0.35, rim: 14, swell: 0.9, rimTone: 'wave-7', bodyTone: 'wave-9', line: 0.5, pull: -6, pullY: 3 },
-  { x: 0.46, y: 0.1, angle: 5, wide: 0.74, tall: 13, crests: 1.2, steep: 0.32, phase: 0.55, rim: 18, swell: 0.88, rimTone: 'wave-7', bodyTone: 'wave-9', line: 0.65, pull: -10, pullY: 4 },
-  { x: 0.54, y: 0.19, angle: -10, wide: 0.58, tall: 12, crests: 0.9, steep: 0.28, phase: 0.3, rim: 22, swell: 0.84, rimTone: 'wave-7', bodyTone: 'wave-8', line: 0.55, pull: 13, pullY: -5 },
-  { x: 0.44, y: 0.28, angle: 7, wide: 0.7, tall: 11, crests: 1.4, steep: 0.24, phase: 0.8, rim: 20, swell: 0.88, rimTone: 'wave-8', bodyTone: 'wave-9', line: 0.7, pull: -8, pullY: 3 },
-  { x: 0.36, y: 0.32, angle: -13, wide: 0.44, tall: 10.5, crests: 1.9, steep: 0.3, phase: 0.62, rim: 16, swell: 0.9, rimTone: 'wave-8', bodyTone: 'wave-9', line: 0.5, pull: 8, pullY: -3 },
-  { x: 0.56, y: 0.36, angle: -4, wide: 0.62, tall: 10, crests: 1, steep: 0.34, phase: 0.15, rim: 24, swell: 0.85, rimTone: 'wave-9', bodyTone: 'wave-8', line: 0.6, pull: 11, pullY: -4 },
-  { x: 0.42, y: 0.44, angle: 9, wide: 0.76, tall: 9.5, crests: 1.6, steep: 0.26, phase: 0.45, rim: 18, swell: 0.88, rimTone: 'wave-8', bodyTone: 'wave-9', line: 0.7, pull: -13, pullY: 5 },
-  { x: 0.68, y: 0.47, angle: 12, wide: 0.4, tall: 9.2, crests: 2.2, steep: 0.3, phase: 0.18, rim: 16, swell: 0.89, rimTone: 'wave-9', bodyTone: 'wave-8', line: 0.55, pull: -7, pullY: 3 },
-  { x: 0.52, y: 0.51, angle: -12, wide: 0.54, tall: 9, crests: 1.1, steep: 0.32, phase: 0.7, rim: 26, swell: 0.83, rimTone: 'wave-9', bodyTone: 'wave-8', line: 0.65, pull: 9, pullY: -4 },
-  { x: 0.48, y: 0.58, angle: 6, wide: 0.68, tall: 8, crests: 1.8, steep: 0.28, phase: 0.25, rim: 22, swell: 0.87, rimTone: 'wave-8', bodyTone: 'wave-9', line: 0.6, pull: -11, pullY: 4 },
+  { x: 0.5, y: 0.02, angle: -6, wide: 0.66, tall: 14, crests: 0.8, steep: 0.3, phase: 0.1, rim: 20, swell: 0.86, rimTone: 'wave-7', bodyTone: 'wave-8', line: 0.2, pull: 7, pullY: -3 },
+  { x: 0.6, y: 0.06, angle: 9, wide: 0.5, tall: 13.5, crests: 1.6, steep: 0.26, phase: 0.35, rim: 14, swell: 0.9, rimTone: 'wave-7', bodyTone: 'wave-9', line: 0.16, pull: -6, pullY: 3 },
+  { x: 0.46, y: 0.1, angle: 5, wide: 0.74, tall: 13, crests: 1.2, steep: 0.32, phase: 0.55, rim: 18, swell: 0.88, rimTone: 'wave-7', bodyTone: 'wave-9', line: 0.22, pull: -10, pullY: 4 },
+  { x: 0.54, y: 0.19, angle: -10, wide: 0.58, tall: 12, crests: 0.9, steep: 0.28, phase: 0.3, rim: 22, swell: 0.84, rimTone: 'wave-7', bodyTone: 'wave-8', line: 0.18, pull: 13, pullY: -5 },
+  { x: 0.44, y: 0.28, angle: 7, wide: 0.7, tall: 11, crests: 1.4, steep: 0.24, phase: 0.8, rim: 20, swell: 0.88, rimTone: 'wave-8', bodyTone: 'wave-9', line: 0.2, pull: -8, pullY: 3 },
+  { x: 0.36, y: 0.32, angle: -13, wide: 0.44, tall: 10.5, crests: 1.9, steep: 0.3, phase: 0.62, rim: 16, swell: 0.9, rimTone: 'wave-8', bodyTone: 'wave-9', line: 0.16, pull: 8, pullY: -3 },
+  { x: 0.56, y: 0.36, angle: -4, wide: 0.62, tall: 10, crests: 1, steep: 0.34, phase: 0.15, rim: 24, swell: 0.85, rimTone: 'wave-9', bodyTone: 'wave-8', line: 0.22, pull: 11, pullY: -4 },
+  { x: 0.42, y: 0.44, angle: 9, wide: 0.76, tall: 9.5, crests: 1.6, steep: 0.26, phase: 0.45, rim: 18, swell: 0.88, rimTone: 'wave-8', bodyTone: 'wave-9', line: 0.18, pull: -13, pullY: 5 },
+  { x: 0.68, y: 0.47, angle: 12, wide: 0.4, tall: 9.2, crests: 2.2, steep: 0.3, phase: 0.18, rim: 16, swell: 0.89, rimTone: 'wave-9', bodyTone: 'wave-8', line: 0.2, pull: -7, pullY: 3 },
+  { x: 0.52, y: 0.51, angle: -12, wide: 0.54, tall: 9, crests: 1.1, steep: 0.32, phase: 0.7, rim: 26, swell: 0.83, rimTone: 'wave-9', bodyTone: 'wave-8', line: 0.22, pull: 9, pullY: -4 },
+  { x: 0.48, y: 0.58, angle: 6, wide: 0.68, tall: 8, crests: 1.8, steep: 0.28, phase: 0.25, rim: 22, swell: 0.87, rimTone: 'wave-8', bodyTone: 'wave-9', line: 0.18, pull: -11, pullY: 4 },
 
   // Az alsó harmad: a perem vastagszik, a test is világosodik. Itt már nincs se
   // szöveg, se áttetsző gomb, tehát a skála teljes világos vége használható — a
@@ -153,7 +165,6 @@ const WAVES: Wave[] = [
 // prettier-ignore
 const SWIRLS: (Curl & { pull: number; pullY: number })[] = [
   { cx: 0.17, cy: 0.74, radius: 0.075, squash: 0.84, rotate: 28, from: -150, to: 44, tones: ['wave-3', 'wave-6', 'wave-4'], inner: 0.4, line: 0.65, taper: 34, spiral: 0.62, inset: 0.09, lead: 0.75, pull: 13, pullY: -5 },
-  { cx: 0.86, cy: 0.66, radius: 0.06, squash: 0.86, rotate: -146, from: -150, to: 44, tones: ['wave-4', 'wave-7', 'wave-5'], inner: 0.42, line: 0.6, taper: 34, spiral: -0.58, inset: 0.1, lead: 0.25, pull: -11, pullY: 5 },
   { cx: 0.55, cy: 0.88, radius: 0.055, squash: 0.85, rotate: 14, from: -150, to: 44, tones: ['wave-2', 'wave-5', 'wave-3'], inner: 0.4, line: 0.7, taper: 34, spiral: 0.66, inset: 0.1, lead: 0.8, pull: 10, pullY: -4 },
 ];
 
