@@ -1,0 +1,39 @@
+# Függőségek
+node_modules/
+
+# Build kimenet
+.next/
+build/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Környezet és titkok
+.env
+.env.*
+!.env.example
+
+# Futásidejű adat (a Docker kötet tartalma). A kezdő bejegyzések nem itt élnek,
+# hanem a `scripts/seed-content.mjs`-ben, amit a build futtat — így a
+# verziókövetésben a *forrás* van, nem a generált állapot.
+data/
+
+# A CEF futásonként újragenerált kimenete. A manifest és a memória viszont
+# a projekt állapota, azok maradnak verziókövetve.
+.cef/generated/
+.cef/reports/
+
+# Naplók és cache
+*.log
+.cache/
+.eslintcache
+coverage/
+
+# OS és szerkesztő
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+docker-compose.local.yml

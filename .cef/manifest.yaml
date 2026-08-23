@@ -1,0 +1,69 @@
+frameworkVersion: 2
+project:
+  name: klivo
+  type: agency-site
+  created: 2026-08-22T12:06:43.198Z
+  cefVersion: 0.1.0
+engines:
+  - accessibility
+  - ai-seo
+  - architecture
+  - components
+  - core
+  - deployment
+  - design
+  - docker
+  - experience
+  - legal
+  - motion
+  - performance
+  - platform
+  - security
+  - seo
+  - validation
+skills:
+  - emil-frontend-design
+  - emil-motion
+  - frontend-design
+  - taste
+  - uiux-pro-max
+mcp:
+  - chrome-devtools
+  - higgsfield
+metadata:
+  description: Klivo is a Hungarian web agency building custom websites, web
+    applications and AI integrations, plus hosting and maintenance. It sells
+    premium, beautiful, fast websites that make a strong first impression and
+    convert visitors into customers, using modern technology including AI-driven
+    search optimisation.
+  framework: nextjs
+  language: typescript
+  packageManager: npm
+  styling: tailwind
+  uiLibrary: none
+  animation: css
+  database: json-file-store
+  orm: none
+  authentication: jwt
+  cms: built-in-admin
+docker:
+  enabled: true
+  port: 3000
+features:
+  adminPanel: true
+  blog: true
+  commerce: false
+  legalPages: true
+  aiSeo: true
+  githubActions: false
+deployment:
+  target: docker
+languages:
+  primary: hu
+  additional: []
+  country: Hungary
+generatedFiles:
+  - .cef/manifest.yaml
+  - .cef/memory.md
+  - .cef/project.json
+  - .cef/runtime.json

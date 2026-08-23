@@ -1,0 +1,24 @@
+{
+  "name": "klivo",
+  "framework": "nextjs",
+  "version": "0.1.0",
+  "createdDate": "2026-08-22T12:06:43.198Z",
+  "cefVersion": "0.1.0",
+  "packageManager": "npm",
+  "language": "typescript",
+  "buildSystem": "next",
+  "deployment": "docker",
+  "database": "json-file-store",
+  "orm": "none",
+  "cms": "none",
+  "authentication": "jwt",
+  "features": {
+    "adminPanel": true,
+    "blog": true,
+    "commerce": false,
+    "legalPages": true,
+    "aiSeo": true,
+    "githubActions": false,
+    "docker": true
+  }
+}

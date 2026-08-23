@@ -1,0 +1,16 @@
+.git
+.github
+.next
+node_modules
+coverage
+.env
+.env.*
+!.env.example
+data
+# A helyi futtatás felülírása — az image-ben nincs rá szükség.
+docker-compose.local.yml
+*.log
+.DS_Store
+Thumbs.db
+.vscode
+.idea

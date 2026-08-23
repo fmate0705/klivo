@@ -1,0 +1,1186 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Klivo — design tokenek
+   --------------------------------------------------------------------------
+   Kék és fehér. Kilenc lépcsős hullámskála a tiszta fehértől a mély
+   tengerkékig, és négy felület, amelyek körbejárnak: fehér → világoskék →
+   kék → mély kék → újra. A szekcióhatárokat ez a skála köti össze.
+
+   Nincs színátmenet: a mélységet tömör tónuslépcsők és árnyékok adják, nem
+   színkeverés. Nincs lila és nincs sárga.
+   ========================================================================== */
+
+@layer base {
+  :root {
+    /**
+     * A hullámskála. Ebből dolgozik minden hullám: a szekcióhatárok sávjai a
+     * fenti szekció színétől lépdelnek a lentebbiig, a háttérmezők pedig
+     * ezekből a fokozatokból rétegződnek.
+     *
+     * A lépések nagyok. Közeli árnyalatokból egyetlen mosott folt lesz — a
+     * réteghatárt a tónusugrás és az árnyék teszi láthatóvá.
+     */
+    --wave-1: 255 255 255; /* #FFFFFF */
+    --wave-2: 240 249 255; /* #F0F9FF */
+    --wave-3: 219 238 252; /* #DBEEFC */
+    --wave-4: 183 219 247; /* #B7DBF7 */
+    --wave-5: 125 195 240; /* #7DC3F0 */
+    --wave-6: 79 169 227; /* #4FA9E3 */
+    --wave-7: 37 133 206; /* #2585CE */
+    --wave-8: 22 103 174; /* #1667AE */
+    --wave-9: 13 79 143; /* #0D4F8F — a legmélyebb kék */
+
+    /* A négy szekciófelület — a skála négy pontja. */
+    --white: var(--wave-1);
+    --sky: var(--wave-3);
+    /**
+     * A záró felhívás, az aloldal-fejlécek és a lábléc felülete. Mindkét név
+     * ugyanarra a színre mutat: a `#0D4F8F` a legmélyebb kék az oldalon, ennél
+     * sötétebb felület nincs.
+     */
+    --blue: var(--wave-9);
+    --deep: var(--wave-9);
+
+    /* A törzs alapja. Egy leheletnyi kék, hogy a fehér kártyák elváljanak. */
+    --paper: 246 251 255; /* #F6FBFF */
+    --surface: 255 255 255;
+
+    /* Szöveg */
+    --ink: 8 41 77; /* #08294D — mély tengerkék, nem fekete */
+    --ink-soft: 26 66 105; /* #1A4269 */
+    --muted: 63 95 125; /* #3F5F7D — 6,7:1 fehéren, 5,4:1 világoskéken */
+    --on-dark: 255 255 255;
+    --on-dark-muted: 214 233 248; /* #D6E9F8 — 6,3:1 a kék felületen */
+
+    /* Keret */
+    --line: 208 231 248; /* #D0E7F8 */
+    --line-strong: 168 208 238; /* #A8D0EE */
+    --line-dark: 26 74 124; /* #1A4A7C */
+
+    /* Állapot. Csak visszajelzésre, soha díszítésre. */
+    --success: 14 106 79;
+    --warning: 146 92 12;
+    --danger: 176 42 55;
+
+    /* Árnyék alapszíne — kékes, hogy ne szürkítse el a palettát. */
+    --shadow: 8 41 77;
+
+    /**
+     * Mozgásgörbék.
+     *
+     * A beépített CSS easing-ek túl gyengék. Ezek az arányok az `animate`
+     * skill táblájából valók, és az egész oldalon csak ezek használhatók.
+     */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+    /* A mutató helyzete −1..1 tartományban. A MotionDriver írja. */
+    --pointer-x: 0;
+    --pointer-y: 0;
+
+    /**
+     * CEF token-interfész.
+     *
+     * A keretrendszer eszközei (`cef design`, `cef review`) a `--cef-color-*`,
+     * `--cef-space-*` és `--cef-text-*` neveken keresik a design rendszer
+     * tokenjeit. A fenti, szemantikus nevek maradnak a forrás; ez csak
+     * leképezés, hogy a projekt kívülről is olvasható legyen a keretrendszer
+     * szerződése szerint.
+     */
+    /* Az elsődleges márkaszín. Nálunk ez nem külön akcentus, hanem a
+       hullámskála kék felülete — a keretrendszer viszont ezen a néven keresi. */
+    --cef-primary: var(--blue);
+    --cef-color-primary: var(--blue);
+
+    --cef-color-surface: var(--paper);
+    --cef-color-raised: var(--surface);
+    --cef-color-recessed: var(--sky);
+    --cef-color-foreground: var(--ink);
+    --cef-color-muted: var(--muted);
+    --cef-color-border: var(--line);
+    --cef-color-inverse: var(--on-dark);
+    --cef-color-success: var(--success);
+    --cef-color-warning: var(--warning);
+    --cef-color-danger: var(--danger);
+
+    --cef-space-1: 0.25rem;
+    --cef-space-2: 0.5rem;
+    --cef-space-3: 0.75rem;
+    --cef-space-4: 1rem;
+    --cef-space-6: 1.5rem;
+    --cef-space-8: 2rem;
+    --cef-space-12: 3rem;
+    --cef-space-16: 4rem;
+    --cef-space-24: 6rem;
+    --cef-space-30: 7.5rem;
+
+    --cef-text-body-sm: 0.875rem;
+    --cef-text-body: 1.0625rem;
+    --cef-text-body-lg: 1.1875rem;
+    --cef-text-h4: 1.75rem;
+    --cef-text-h3: clamp(1.625rem, 3.6vw, 2.25rem);
+    --cef-text-h2: clamp(2rem, 5vw, 3rem);
+    --cef-text-h1: clamp(2.5rem, 6.5vw, 4rem);
+    --cef-text-display: clamp(3rem, 9vw, 6rem);
+  }
+
+  * {
+    border-color: rgb(var(--line));
+  }
+
+  html {
+    /* A hullámok szélesebbek a nézetnél; vízszintesen vágjuk őket, de a
+       függőleges `position: sticky` működőképes marad. */
+    overflow-x: clip;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: rgb(var(--paper));
+    color: rgb(var(--ink));
+    font-family: var(--font-sans), system-ui, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+  }
+
+  /* Elválasztás csak a két legnagyobb fokozaton: ott egy hosszú magyar
+     összetett szó különben kilógna a lapból, és ezt semmilyen sortörés nem
+     javítja. Kártyacímen viszont a szótagolás rossz töréseket ad
+     („Első benyo-mására”), ezért a `h3`-tól lefelé ki van kapcsolva. */
+  h1,
+  h2 {
+    hyphens: auto;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--wave-7));
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  [data-tone='dark'] :focus-visible {
+    outline-color: rgb(var(--on-dark));
+  }
+
+  ::selection {
+    background-color: rgb(var(--wave-7) / 0.25);
+    color: rgb(var(--ink));
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+/* ==========================================================================
+   Hangnemhez igazodó segédosztályok
+   --------------------------------------------------------------------------
+   Ugyanaz a szekció világos és sötét háttéren is előfordul. A komponensek a
+   *jelentést* nevezik meg, a szín a szülő `data-tone` értékéből következik.
+   ========================================================================== */
+
+@layer components {
+  .text-soft {
+    color: rgb(var(--muted));
+  }
+
+  .border-soft {
+    border-color: rgb(var(--line));
+  }
+
+  .divide-soft > * + * {
+    border-color: rgb(var(--line));
+  }
+
+  .bg-raised {
+    background-color: rgb(var(--surface));
+  }
+
+  [data-tone='dark'] .text-soft {
+    color: rgb(var(--on-dark-muted));
+  }
+
+  [data-tone='dark'] .border-soft,
+  [data-tone='dark'] .divide-soft > * + * {
+    border-color: rgb(var(--line-dark));
+  }
+
+  /* Sötét felületen a tintaszínű hullámvonal beleolvadna a háttérbe. */
+  [data-tone='dark'] .wave-rule {
+    color: rgb(var(--wave-1) / 0.45);
+  }
+
+  [data-tone='dark'] .bg-raised {
+    background-color: rgb(var(--wave-1) / 0.08);
+  }
+}
+
+/* ==========================================================================
+   A hullámmotor
+   --------------------------------------------------------------------------
+   Három forma, három feladattal:
+
+   1. `.wave-band`  — a szekcióhatár. Három hullám, amely a fenti szekció
+      színétől lépdel a lentebbiig. Görgetésre sodródik.
+   2. `.wave-stack` — hullámok egy dobozon belül: kártyaborító, portré.
+      A szekciók háttere **sima**; hullám csak a szekciók között van.
+   3. `.wave-swirl` — a nyitóképernyő márványos szalagjai. Ez követi a mutatót.
+
+   **A forma SVG, nem `border-radius`.** A CSS-ellipszis egyetlen kupolát tud;
+   egy hullám viszont váltakozó hegyekből és völgyekből áll, sima érintővel a
+   fordulópontokon. Az útvonalakat a `lib/wave-path.ts` állítja elő, a mozgás
+   marad CSS.
+
+   Mindhárom kizárólag `transform`-ot animál, tehát a mozgás a compositoron
+   marad.
+   ========================================================================== */
+
+@layer components {
+  /* ---- Szekcióhatár ---------------------------------------------------- */
+
+  .wave-band {
+    position: relative;
+    width: 100%;
+    height: var(--band-height, clamp(64px, 7vw, 108px));
+    background-color: rgb(var(--band-base));
+    /**
+     * `clip`, nem `hidden`.
+     *
+     * Az `overflow: hidden` görgetőkonténert csinál az elemből, és a
+     * görgetésvezérelt idővonal a legközelebbi görgetőkonténerhez kötődik — egy
+     * soha nem görgő dobozhoz kötött idővonal pedig némán, hibaüzenet nélkül áll
+     * meg. Az `overflow: clip` ugyanúgy vág, de nem hoz létre
+     * görgetőkonténert. A `hidden` előtte a tartalék: aki a `clip`-et nem
+     * ismeri, átlépi, és marad a vágás.
+     */
+    overflow: hidden;
+    overflow: clip;
+    pointer-events: none;
+    contain: paint;
+  }
+
+  /** Tükrözés: a hullám a másik irányba hajlik. */
+  .wave-band--flip {
+    transform: scaleX(-1);
+  }
+
+  /**
+   * Egy hullámréteg: tömör felület, a tetején hullámos taraj.
+   *
+   * A tömör rész a réteg tetejétől a szülő aljáig ér, sőt egy kicsit túl is —
+   * enélkül a kitöltés végén éles vízszintes él maradna. A taraj **külön,
+   * alacsony sáv** a blokk fölött: az útvonal 100 egység magas, és ha a teljes
+   * réteget fedné, a függőleges nyújtás a sima ívet meredek sátorrá torzítaná.
+   *
+   * A réteg kétszer olyan széles a szülőnél: a vízszintes sodródás így sehol
+   * nem enged rést a széleken.
+   */
+  .wave-layer {
+    position: absolute;
+    left: -50%;
+    width: 200%;
+    top: var(--layer-top, 50%);
+    bottom: -1px;
+    display: block;
+    color: rgb(var(--layer-color));
+    background-color: currentColor;
+    will-change: transform;
+  }
+
+  .wave-layer__crest {
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+    display: block;
+    width: 100%;
+    height: var(--layer-crest, clamp(40px, 4.5vw, 86px));
+    /* Egy hajszálnyi átfedés: enélkül a taraj és a tömör blokk közé
+       felskálázáskor bekerülhet egy világos pixelsor. */
+    margin-bottom: -1px;
+    color: inherit;
+  }
+
+  /**
+   * Görgetésre mozgó hullámok.
+   *
+   * Ahogy a sáv áthalad a nézeten, a hullámok különböző ütemben csúsznak el
+   * egymáson. Ez nem díszítés: a görgetés folytonosságát mutatja meg — a
+   * látogató látja, hogy egyik felületről a másikra ér át.
+   *
+   * Ahol a böngésző nem ismeri a görgetéshez kötött animációt, ott a hullámok
+   * időzített, lassú sodródást kapnak. A hatás halkabb, de nincs üres állapot.
+   */
+  @supports not (animation-timeline: view()) {
+    .wave-band .wave-layer {
+      animation: wave-drift 46s var(--ease-in-out) infinite alternate;
+    }
+  }
+
+  @supports (animation-timeline: view()) {
+    /**
+     * A sáv **saját maga** az idővonal alanya, és a hullámok erre a névre
+     * hivatkoznak.
+     *
+     * A rövidebb `animation-timeline: view()` a hullámra magára mutatna, az
+     * pedig a sávnál kétszer szélesebb — a látható tartománya nem esik egybe a
+     * sávéval, és a haladás értelmezhetetlenre nyúlik. Névvel a mérce
+     * egyértelmű: a sáv az, ami átúszik a képernyőn.
+     */
+    .wave-band {
+      view-timeline-name: --wave-band;
+      view-timeline-axis: block;
+    }
+
+    .wave-band .wave-layer {
+      animation: band-scroll linear both;
+      animation-timeline: --wave-band;
+      animation-range: cover 0% cover 100%;
+    }
+  }
+
+  /* ---- Szekcióháttér --------------------------------------------------- */
+
+  /** Hullámok egy dobozon belül (kártyaborító, portré). */
+  .wave-stack {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    overflow: clip;
+    pointer-events: none;
+    contain: paint;
+  }
+
+  .wave-swirl__track .wave-layer,
+  .wave-stack .wave-layer {
+    animation: wave-drift var(--layer-duration, 64s) var(--ease-in-out) var(--layer-delay, 0s)
+      infinite alternate;
+  }
+
+  /* ---- A nyitóképernyő szalagjai --------------------------------------- */
+
+  .wave-swirl {
+    position: absolute;
+    inset: var(--swirl-start, 0) 0 0 0;
+    z-index: 0;
+    overflow: hidden;
+    overflow: clip;
+    pointer-events: none;
+    contain: paint;
+  }
+
+  /**
+   * Az aloldalak fejlécében a víz lejjebb kezdődik, keskeny nézetben pedig még
+   * lejjebb: ott a címsor és a felvezető több sorba törik, és a szöveg
+   * különben a hullámok alá kerülne.
+   */
+  .wave-swirl--header {
+    --swirl-start: 70%;
+  }
+
+  @media (min-width: 768px) {
+    .wave-swirl--header {
+      --swirl-start: 58%;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .wave-swirl--header {
+      --swirl-start: 48%;
+    }
+  }
+
+  /**
+   * Ha a fejlécben kép vagy űrlap is áll, a bal hasáb szövege lejjebb ér — a
+   * víz ezért még mélyebbről indul.
+   */
+  .wave-swirl--header-low {
+    --swirl-start: 82%;
+  }
+
+  @media (min-width: 768px) {
+    .wave-swirl--header-low {
+      --swirl-start: 74%;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .wave-swirl--header-low {
+      --swirl-start: 66%;
+    }
+  }
+
+  /**
+   * A mutatókövetés hordozója. A szalag maga viszi a saját sodródását — egy
+   * elem `transform`-ján nem futhat egyszerre animáció és interaktív érték.
+   */
+  /**
+   * A mutatókövetés hordozója — és a szalag dőlése.
+   *
+   * A referenciakép hullámai nem mind vízszintesek: néhány oldalról érkezik.
+   * A dőlést a hordozó adja, mert a szalag saját `transform`-ján már fut a
+   * sodródás. A nagyítás a dőlés miatt kell: elforgatva a sarkoknál kilátszana
+   * a háttér.
+   */
+  .wave-swirl__track {
+    position: absolute;
+    inset: 0;
+    display: block;
+    transform: translate3d(
+        calc(var(--pointer-x) * var(--layer-pull, 0px)),
+        calc(var(--pointer-y) * var(--layer-pull-y, 0px)),
+        0
+      )
+      rotate(var(--layer-tilt, 0deg)) scale(var(--layer-zoom, 1));
+    transition: transform 1100ms var(--ease-out);
+  }
+
+  /**
+   * Az idővonal sorszáma és pontja.
+   *
+   * A szám kontúros, és görgetésre telik meg — ez mutatja, hol tart az ember az
+   * úton. A `-webkit-text-stroke` minden mai böngészőben megy; ahol nem, ott a
+   * szám egyszerűen tömör lesz, ami nem hiba, csak halkabb.
+   */
+  .process-step__number {
+    display: block;
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-size: clamp(2.75rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: rgb(var(--wave-7) / 0.14);
+    -webkit-text-stroke: 1.5px rgb(var(--line-strong));
+  }
+
+  .process-step__dot {
+    transition:
+      border-color 320ms var(--ease-out),
+      box-shadow 320ms var(--ease-out);
+  }
+
+  @supports (animation-timeline: view()) {
+    .process-step {
+      view-timeline-name: --process-step;
+      view-timeline-axis: block;
+    }
+
+    .process-step__number {
+      animation: number-fill linear both;
+      animation-timeline: --process-step;
+      animation-range: cover 25% cover 55%;
+    }
+
+    .process-step__dot {
+      animation: dot-light linear both;
+      animation-timeline: --process-step;
+      animation-range: cover 25% cover 55%;
+    }
+  }
+
+  /**
+   * A folyamat lépéseit összekötő vonal.
+   *
+   * A kitöltés vízszintesen skálázódik nullából egyre, ahogy a szekció áthalad
+   * a nézeten — görgetéshez kötött animáció, tehát nincs hozzá figyelő, és a
+   * compositoron fut. Ahol a böngésző nem ismeri, a vonal egyszerűen teli: a
+   * hiányzó animáció nem tüntethet el információt.
+   */
+  .process__rail {
+    position: relative;
+    display: block;
+    height: 1px;
+    flex: 1;
+    background-color: rgb(var(--line));
+    overflow: hidden;
+  }
+
+  .process__fill {
+    position: absolute;
+    inset: 0;
+    display: block;
+    background-color: rgb(var(--wave-7));
+    transform-origin: left center;
+  }
+
+  @supports (animation-timeline: view()) {
+    .process {
+      view-timeline-name: --process;
+      view-timeline-axis: block;
+    }
+
+    .process__fill {
+      transform: scaleX(0);
+      animation: rail-fill linear both;
+      animation-timeline: --process;
+      animation-range: cover 15% cover 65%;
+    }
+  }
+
+  /* A szekció tartalma mindig a hullámok fölött. */
+  .wave-content {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/**
+ * Görgetésre: a hullám a sáv áthaladása alatt egy kevés hullámhosszt csúszik.
+ * Rétegenként más mértékben és irányban — ettől „folyik” a felület ahelyett,
+ * hogy egyben tolódna el.
+ */
+@keyframes band-scroll {
+  from {
+    transform: translate3d(calc(var(--layer-drift, 5%) * -1), 0, 0);
+  }
+  to {
+    transform: translate3d(var(--layer-drift, 5%), 0, 0);
+  }
+}
+
+/**
+ * Időzített sodródás. Csak vízszintes eltolás: forgatás és nagyítás a hullám
+ * gerincét torzítaná, és látszana, hogy nem víz, hanem egy elforgatott kép.
+ */
+@keyframes number-fill {
+  from {
+    color: rgb(var(--wave-7) / 0.14);
+    -webkit-text-stroke-color: rgb(var(--line-strong));
+  }
+  to {
+    color: rgb(var(--wave-7) / 0.55);
+    -webkit-text-stroke-color: rgb(var(--wave-7));
+  }
+}
+
+@keyframes dot-light {
+  from {
+    border-color: rgb(var(--line));
+    box-shadow: 0 0 0 0 rgb(var(--wave-7) / 0);
+  }
+  to {
+    border-color: rgb(var(--wave-7));
+    box-shadow: 0 0 0 6px rgb(var(--wave-7) / 0.14);
+  }
+}
+
+@keyframes rail-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes wave-drift {
+  from {
+    transform: translate3d(calc(var(--layer-drift, 3%) * -1), 0, 0);
+  }
+  to {
+    transform: translate3d(var(--layer-drift, 3%), 0, 0);
+  }
+}
+
+/* ==========================================================================
+   Vízbuborékok
+   --------------------------------------------------------------------------
+   Néhány sötét szekcióban apró buborékok szállnak fel. Ritkák, lassúak és
+   halványak: ez a „delight” szint, ami csak akkor engedhető meg, ha nem vonja
+   el a figyelmet az olvasnivalóról.
+   ========================================================================== */
+
+@layer components {
+  .bubbles {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .bubbles__dot {
+    position: absolute;
+    bottom: -8%;
+    left: var(--bubble-left);
+    width: var(--bubble-size);
+    height: var(--bubble-size);
+    border-radius: 9999px;
+    background-color: rgb(var(--wave-1) / 0.16);
+    box-shadow: inset 0 0 0 1px rgb(var(--wave-1) / 0.3);
+    will-change: transform, opacity;
+    animation: bubble-rise var(--bubble-duration) linear var(--bubble-delay) infinite;
+  }
+}
+
+@keyframes bubble-rise {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--bubble-sway, 12px), calc(var(--bubble-rise, 420px) * -1), 0);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Mozgás-alapelemek
+   ========================================================================== */
+
+@layer components {
+  /**
+   * Görgetésre megjelenő tartalom.
+   *
+   * A kiinduló (rejtett) állapot csak akkor lép életbe, ha a `<html>`-en ott a
+   * `data-motion="ready"` — ezt egy fejlécbe ágyazott, festés előtt lefutó
+   * szkript teszi ki. Enélkül a tartalom egyszerűen látszik: nincs olyan
+   * állapot, amelyben a szöveg láthatatlan marad, mert egy szkript nem futott
+   * le.
+   */
+  html[data-motion='ready'] [data-reveal]:not([data-revealed]) {
+    opacity: 0;
+    transform: translate3d(0, 1.25rem, 0);
+  }
+
+  html[data-motion='ready'] [data-reveal='figure']:not([data-revealed]) {
+    transform: translate3d(0, 2rem, 0) scale(0.98);
+  }
+
+  /* Az idővonal két oldala kívülről érkezik — a mozgás iránya megmutatja, hogy
+     a lépés melyik oldalhoz tartozik. Keskeny nézetben nincs két oldal, ezért
+     ott mindkettő alulról jön, mint minden más. */
+  @media (min-width: 1024px) {
+    html[data-motion='ready'] [data-reveal='left']:not([data-revealed]) {
+      transform: translate3d(-1.5rem, 0.5rem, 0);
+    }
+
+    html[data-motion='ready'] [data-reveal='right']:not([data-revealed]) {
+      transform: translate3d(1.5rem, 0.5rem, 0);
+    }
+  }
+
+  html[data-motion='ready'] [data-reveal] {
+    transition:
+      opacity 520ms var(--ease-out) var(--reveal-delay, 0ms),
+      transform 520ms var(--ease-out) var(--reveal-delay, 0ms);
+  }
+
+  .rise-mask {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.1em;
+    margin-bottom: -0.1em;
+  }
+
+  html[data-motion='ready'] .rise {
+    animation: rise 760ms var(--ease-out) var(--rise-delay, 0ms) both;
+  }
+
+  .rise-mask > .rise {
+    display: block;
+  }
+
+  /**
+   * Csontváz.
+   *
+   * Betöltés után a `skeleton` osztály **lekerül** az elemről, nem csak
+   * átlátszóvá válik: a lüktetés CSS animáció, az pedig erősebb a sima
+   * `opacity` deklarációnál — osztályostul hagyva a csontváz örökre ott
+   * maradna a kép fölött.
+   */
+  .skeleton {
+    background-color: rgb(var(--wave-3));
+    animation: skeleton-pulse 1.6s var(--ease-in-out) infinite;
+  }
+
+  .link-underline {
+    position: relative;
+  }
+
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 1px;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 220ms var(--ease-out);
+  }
+
+  .link-underline:hover::after,
+  .link-underline:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  /**
+   * A gomb vízhulláma.
+   *
+   * Rálebegésre egy hullám alakú felület emelkedik meg a gomb alján — mintha
+   * víz gyűlne benne. Nem tölti fel: néhány pixellel mozdul, és ennyi elég a
+   * visszajelzéshez. 220 ms, erős `ease-out`.
+   *
+   * Csak finom mutatóval: érintésre a hover hamisan sülne el.
+   */
+  /**
+   * A gomb vize.
+   *
+   * Nyugalomban **teljesen láthatatlan** — a gomb egy tiszta felület. A három
+   * réteg csak rálebegésre úszik be alulról, és ott is csak az alsó harmadig
+   * ér.
+   */
+  .btn-wave {
+    position: absolute;
+    inset: 0;
+    display: block;
+    pointer-events: none;
+  }
+
+  /**
+   * Egy réteg víz.
+   *
+   * Nyugalomban a gomb alja alatt áll, láthatatlanul. Rálebegésre rétegenként
+   * 60 ezredmásodperces késleltetéssel úszik be — így nem egy tömb csúszik föl,
+   * hanem folyik. A visszaút gyorsabb és késleltetés nélküli: a felhasználó
+   * már máshová néz, azt nem kell megvárakoztatni.
+   */
+  .btn-wave__layer {
+    position: absolute;
+    left: -50%;
+    width: 200%;
+    bottom: 0;
+    display: block;
+    background-color: currentColor;
+    opacity: 0;
+    transform: translate3d(0, 78%, 0);
+    transition:
+      transform 260ms var(--ease-out),
+      opacity 200ms var(--ease-out);
+  }
+
+  .btn-wave__crest {
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+    margin-bottom: -1px;
+    display: block;
+    width: 100%;
+    height: 10px;
+    color: inherit;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .group\/button:hover .btn-wave__layer {
+      opacity: var(--layer-opacity, 1);
+      transform: translate3d(0, 8%, 0);
+      transition:
+        transform 620ms var(--ease-out) var(--layer-delay, 0ms),
+        opacity 320ms var(--ease-out) var(--layer-delay, 0ms);
+    }
+  }
+
+  .group\/button:active .btn-wave__layer {
+    transform: translate3d(0, 18%, 0);
+  }
+  /**
+   * A lenyíló válasz belseje. A késleltetett `visibility` váltás megvárja az
+   * összecsukódás végét, így a csukott tartalom a képernyőolvasó fájából is
+   * kikerül.
+   */
+  .accordion-panel {
+    overflow: hidden;
+    visibility: hidden;
+    transition: visibility 0s linear 300ms;
+  }
+
+  [data-open='true'] .accordion-panel {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  /**
+   * A süti-buborék.
+   *
+   * Jobb alsó sarok, a lebegő navigáció alatti rétegen. Alulról úszik be, mert
+   * onnan érkezik — a mozgás iránya megmondja, honnan jött, és hova tűnik el.
+   */
+  .consent {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 45;
+    max-width: 24rem;
+    opacity: 0;
+    transform: translate3d(0, 1.5rem, 0);
+    transition:
+      opacity 320ms var(--ease-out),
+      transform 320ms var(--ease-out);
+  }
+
+  @media (min-width: 640px) {
+    .consent {
+      left: auto;
+      right: 1.5rem;
+      bottom: 1.5rem;
+    }
+  }
+
+  .consent[data-open='true'] {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  /**
+   * A legördülő menü eleme.
+   *
+   * A kiemelés bal oldali sáv, nem háttér és nem nagyítás. A keret **mindig
+   * ott van**, csak átlátszó — így a szélessége soha nem változik, és a
+   * menüpont nem ugrik el rálebegéskor.
+   */
+  .submenu-item:hover,
+  .submenu-item:focus-visible {
+    border-left-color: rgb(var(--wave-5));
+  }
+
+  .submenu-item[aria-current='page']:hover {
+    border-left-color: rgb(var(--wave-7));
+  }
+
+  /** Görgető egér a nyitóképernyőn. */
+  .scroll-cue__dot {
+    animation: scroll-cue 2200ms var(--ease-in-out) infinite;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes scroll-cue {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  22% {
+    opacity: 1;
+  }
+  72% {
+    transform: translateY(7px);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Nyitó animáció
+   --------------------------------------------------------------------------
+   Az első betöltéskor a képernyőt hullámsávok fedik, és egyenként húzódnak el
+   felfelé — a legmélyebb kéktől a fehérig. A leleplezés maga is az oldal
+   formanyelvében történik, és közben van idejük betöltődni a képeknek.
+
+   Egyetlen sor kliensoldali JavaScript sem tartozik hozzá: a `MotionBoot`
+   fejlécszkript kirakja a `data-intro="run"` jelzőt a `<html>`-re, a többit a
+   CSS animáció intézi. Ha bármi elakad, a függöny alapból rejtett.
+   ========================================================================== */
+
+@layer components {
+  .intro {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    /* A sávok szélesebbek a nézetnél; a `<html>` vízszintes vágása a
+       `position: fixed` elemekre nem terjed ki. */
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  html[data-intro='run'] .intro {
+    display: block;
+  }
+
+  .intro__layer {
+    position: absolute;
+    inset: 0;
+    animation: intro-lift var(--intro-duration, 900ms) var(--ease-in-out) var(--intro-delay, 0ms)
+      forwards;
+  }
+
+  /** A sáv maga: tömör felület, az alján hullámmal. */
+  .intro__wave {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -14%;
+    bottom: 0;
+    display: block;
+  }
+
+  /* A függöny hullámai a tetejüktől lefelé tömörek, tehát a rétegnek fordítva
+     kell állnia: a taraj alul van. */
+  .intro__wave .wave-layer {
+    top: auto;
+    bottom: 0;
+    height: 100%;
+    transform: scaleY(-1);
+  }
+
+  .intro__mark {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: intro-mark 2300ms var(--ease-out) forwards;
+  }
+}
+
+@keyframes intro-lift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -112%, 0);
+  }
+}
+
+@keyframes intro-mark {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  12%,
+  44% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  60%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+/* ==========================================================================
+   Folyószöveg
+   ========================================================================== */
+
+@layer components {
+  .prose > * + * {
+    margin-top: 1.3em;
+  }
+
+  .prose h2 {
+    font-size: 1.875rem;
+    line-height: 1.15;
+    margin-top: 2.25em;
+  }
+
+  .prose h3 {
+    font-size: 1.375rem;
+    line-height: 1.25;
+    margin-top: 1.75em;
+  }
+
+  .prose h2 + *,
+  .prose h3 + * {
+    margin-top: 0.7em;
+  }
+
+  .prose p,
+  .prose li {
+    color: rgb(var(--ink-soft));
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .prose ul {
+    list-style: disc;
+  }
+
+  .prose ol {
+    list-style: decimal;
+  }
+
+  .prose li::marker {
+    color: rgb(var(--wave-6));
+  }
+
+  .prose a {
+    color: rgb(var(--wave-7));
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    text-decoration-color: rgb(var(--wave-5));
+    transition: text-decoration-color 160ms var(--ease-out);
+  }
+
+  .prose a:hover {
+    text-decoration-color: rgb(var(--wave-7));
+  }
+
+  .prose strong {
+    font-weight: 600;
+    color: rgb(var(--ink));
+  }
+
+  .prose blockquote {
+    border-left: 2px solid rgb(var(--wave-5));
+    padding-left: 1.25rem;
+    color: rgb(var(--muted));
+  }
+
+  .prose code {
+    font-size: 0.9em;
+    background-color: rgb(var(--wave-2));
+    border-radius: 0.25rem;
+    padding: 0.15em 0.4em;
+  }
+
+  .prose pre {
+    background-color: rgb(var(--deep));
+    color: rgb(var(--on-dark));
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    overflow-x: auto;
+  }
+
+  .prose pre code {
+    background: none;
+    padding: 0;
+  }
+
+  .prose hr {
+    border: 0;
+    border-top: 1px solid rgb(var(--line));
+    margin-top: 2.5em;
+  }
+
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+}
+
+/* ==========================================================================
+   Csökkentett mozgás
+   --------------------------------------------------------------------------
+   Nem lassítás: a folyamatos, önjáró mozgás leáll, a megjelenések azonnaliak
+   lesznek, és a nyitó függöny el sem indul. Ami visszajelzés (fókusz,
+   állapotváltás), az megmarad — kevesebb és szelídebb mozgás, nem nulla.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .wave-layer,
+  .process__fill,
+  .process-step__number,
+  .process-step__dot,
+  .intro__layer,
+  .intro__mark,
+  .bubbles__dot,
+  .scroll-cue__dot {
+    animation: none !important;
+  }
+
+  .wave-swirl__track {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* A vonal teli marad: az információt a mozgás nem viheti el. */
+  .process__fill {
+    transform: scaleX(1) !important;
+  }
+
+  .bubbles {
+    display: none;
+  }
+
+  .skeleton {
+    animation: none;
+    opacity: 0.8;
+  }
+
+  html[data-motion='ready'] [data-reveal],
+  html[data-motion='ready'] [data-reveal]:not([data-revealed]) {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
