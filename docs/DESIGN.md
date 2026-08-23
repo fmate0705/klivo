@@ -17,6 +17,7 @@ papírból lennének kivágva, vagy mintha víz alatt egymásra úsznának. Az e
 oldal ebből az egy formából épül:
 
 - a szekcióhatárok (`WaveBand`, a `components/wave/section-divider.tsx`-ben),
+- a világoskék szekciók saját, sarokba zúduló sávja (`SkyBand`),
 - a nyitóképernyő és az aloldalak fejlécének hullámmezője (`WaveCurls`),
 - a blogbejegyzések borítója, ha nincs képe,
 - a csapattagok portréja mögötti felület,
@@ -24,7 +25,7 @@ oldal ebből az egy formából épül:
 - a kártyacímek alatti apró elválasztó (`WaveRule`),
 - és a márkajel maga.
 
-Hét helyen, hét léptékben ugyanaz a forma. Ettől érzi az ember egyetlen
+Nyolc helyen, nyolc léptékben ugyanaz a forma. Ettől érzi az ember egyetlen
 tervezett felületnek az oldalt, nem összeollózott szekcióknak.
 
 **Két dolog teszi hullámmá, és mindkettő kötelező:**
@@ -301,33 +302,40 @@ görgetés a szekcióhatárok dolga.
 alja viszont tarka. A nyitóképernyőn ez a zárósor háttere is; a fejléceken nincs
 zárósor, ott keskenyebb (`--slim`).
 
-### `WaveDrift` — sarokmotívum a világoskék szekciókban
+### `SkyBand` — a világoskék szekciók saját hullámsávja
 
-A referencia sarokformái nem sávok, hanem **a sarokba simuló, egymásra
-rétegzett foltok**: mindegyik a szekció felső élén indul, lefelé-befelé
-kanyarodik, és az oldalsó élen ér véget. A sarok maga tömör, a rétegek kifelé
-mélyülnek.
+A világoskék szekciók fölött nem a `WaveBand` áll, hanem egy **saját** sáv. Az
+oka egyetlen mondat: a sarokmotívum és a szekcióhatár nem tud illeszkedni, ha
+két külön rajz két külön koordinátarendszerben. A rétegek magassága nem eshet
+egybe, és a találkozásuknál mindig marad egy törés vagy egy hézag — ezt négy
+változaton át próbáltuk másképp.
 
-1. **Nincs mit levágni.** A folt két vége nem a levegőben végződik, hanem a
-   szekció két élén — pontosan ott, ahol a felület amúgy is véget ér. Nincs
-   tompa vég, nincs egyenes vágás a felület közepén.
-2. **Érintkezik a szekcióhatárral.** A felső él a határ alsó pereme, tehát a
-   folt onnan indul: úgy néz ki, mintha a határ folytatódna a sarokban. A
-   határhoz magához nem nyúlunk.
-3. **Két köbös Bézier, egy fordulóponttal.** Egyetlen ívből lekerekített sarok
-   lenne, nem hullám. A csatlakozásnál a vezérlőpontok tükrözve vannak, tehát
-   az érintő folytonos. A felső élnél függőleges, az oldalsónál vízszintes
-   érintővel fut ki — a folt merőlegesen éri a szekció szélét.
-4. **Átlós pár.** Egy sarok magányos folt, négy sarok keret. A bal felső és a
-   jobb alsó sarok van kitöltve; a szekció sorszáma a két átló között vált
-   (`globals.css`).
+Itt a sáv **és** a sarokfolt ugyanannak az egyetlen rajznak a része: a folt nem
+odarakott alakzat, hanem az, hogy a sáv rétegei az egyik sarokban
+**lezúdulnak**. Nincs mit illeszteni, mert nincs két dolog.
 
-A doboz keskeny, mert a szekció címsora a bal felső sarokban kezdődik, és a folt
-nem érhet alá. A tónus a `wave-6`-nál nem megy mélyebbre: tintaszínű szöveg azon
-még 5,3:1, a `wave-7`-en viszont már csak 3,7:1. Keskeny nézetben nincs.
+1. **A rétegek szalagok, nem alul kitöltött formák.** A `WaveBand` rétegei a
+   gerincüktől lefelé tömörek, és egymásra festődnek. Itt minden réteg két határ
+   közötti terület, a visszaút a felső határ megfordított Bézier-lánca. Kitöltött
+   formákkal a sarokban mindig a legutoljára rajzolt réteg takarna el mindent;
+   szalagokkal viszont egymásba ágyazódnak, ahogy a referencián.
+2. **A lezúdulás és a halk hullám egyetlen görbe.** Minden határ a saroktól
+   indul mélyen, vízszintes érintővel (lapos fenék, nem hegyes csúcs), fölfut a
+   nyugalmi magasságára, és onnan fut végig a felületen. Rétegenként más a
+   mélység, a szélesség és a fázis — enélkül a négy határ párhuzamos lenne, és
+   egy vastag szalagnak látszana.
+3. **A sáv mély.** Jóval mélyebb a sima szekcióhatárnál, és ez nem díszítés: a
+   folt a sáv **magasságából** él. Sekély sávban a lezúdulás széles, lapos teknő
+   lenne, mert a `preserveAspectRatio="none"` vízszintesen sokkal jobban nyújt,
+   mint függőlegesen.
+4. **A `flip` viszi a másik sarokba.** Egy lapon így nem ugyanott ismétlődik.
 
-A `Section` magától kiteszi, a felülete alapján: sötét szekcióban buborék,
-világoskékben ez, fehéren semmi.
+A sáv blokk, mint a többi szekcióhatár: helyet foglal, nem lóg bele semmibe, és
+nem kell hozzá z-index-trükk, hogy a folt a szöveg mögé kerüljön. Szöveget soha
+nem takar, mert nincs is benne szöveg — így keskeny nézetben sem kell kikapcsolni.
+
+A `components/wave/section-divider.tsx` érintetlen: a többi szekcióhatár
+változatlanul azt használja.
 
 ### `WaveRule` — az apró elválasztó
 

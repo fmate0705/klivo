@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { WaveBand, type Tone } from '@/components/wave/section-divider';
+import { SkyBand } from '@/components/wave/sky-band';
 import { Bubbles } from '@/components/wave/bubbles';
-import { WaveDrift } from '@/components/wave/wave-drift';
 
 /**
  * Egy szekció: felület, függőleges ritmus, háttérhullám és a fölötte lévő
@@ -83,13 +83,23 @@ export function Section({
   return (
     <>
       {band ? (
-        <WaveBand
-          from={band.from}
-          to={tone}
-          flip={band.flip ?? false}
-          {...(band.layers ? { layers: band.layers } : {})}
-          {...(band.depth ? { depth: band.depth } : {})}
-        />
+        tone === 'sky' ? (
+          // A világoskék szekciók saját sávot kapnak: abban a sarokfolt is
+          // benne van, egyetlen rajzban. Lásd `components/wave/sky-band.tsx`.
+          <SkyBand
+            from={band.from}
+            flip={band.flip ?? false}
+            {...(band.depth ? { depth: band.depth } : {})}
+          />
+        ) : (
+          <WaveBand
+            from={band.from}
+            to={tone}
+            flip={band.flip ?? false}
+            {...(band.layers ? { layers: band.layers } : {})}
+            {...(band.depth ? { depth: band.depth } : {})}
+          />
+        )
       ) : null}
 
       <section
@@ -99,7 +109,6 @@ export function Section({
         className={cn('relative isolate py-20 md:py-24 lg:py-32', TONE_CLASS[tone], className)}
       >
         {texture && dark ? <Bubbles /> : null}
-        {texture && tone === 'sky' ? <WaveDrift /> : null}
         <div className="wave-content">{children}</div>
       </section>
     </>

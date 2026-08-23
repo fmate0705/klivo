@@ -525,8 +525,28 @@
    * A számláló az összes szekciót számolja, nem csak a világoskékeket: a
    * váltakozás így nem lesz szabályos ide-oda billegés.
    */
-  section:nth-of-type(even) .curls--corner {
+  /**
+   * A világoskék szekciók saját hullámsávja.
+   *
+   * Blokk, mint a többi szekcióhatár: helyet foglal, nem lóg bele semmibe. A
+   * sarokfolt is benne van a rajzban, tehát nincs mit a szekcióba lógatni — és
+   * nincs is szükség z-index-trükkre, hogy a folt a tartalom mögé kerüljön.
+   */
+  .sky-band {
+    position: relative;
+    width: 100%;
+    height: var(--sky-band-height);
+    pointer-events: none;
+  }
+
+  .sky-band--flip .sky-band__canvas {
     transform: scaleX(-1);
+  }
+
+  .sky-band__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
   .curls__waterline--slim {

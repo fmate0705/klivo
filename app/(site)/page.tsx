@@ -69,7 +69,9 @@ export default function HomePage() {
       />
       <ProcessSteps tone="sky" band={{ from: 'white', ...QUIET }} />
       <BlogTeaser tone="white" band={{ from: 'sky', ...QUIET, flip: true }} />
-      <Ownership tone="sky" band={{ from: 'white', ...QUIET }} />
+      {/* A világoskék szekciók sávja az egyik sarokban lezúdul; a `flip`
+          átviszi a másik oldalra, hogy a lapon ne ugyanott ismétlődjön. */}
+      <Ownership tone="sky" band={{ from: 'white', ...QUIET, flip: true }} />
       <FaqSection
         page="fooldal"
         limit={5}
