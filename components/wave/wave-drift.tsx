@@ -1,143 +1,161 @@
+import type { CSSProperties } from 'react';
 import { cn } from '@/lib/cn';
-import { arcBand, curlBands, type Curl } from '@/lib/wave-curl';
 
 /**
- * Háttérmotívum a világoskék szekciókban.
+ * Sarokmotívum a világoskék szekciókban.
  *
- * A nyitóképernyő hullámmezője a lap legerősebb felülete; a világoskék
- * szekciók viszont teljesen simák voltak, és a kettő között nagy a szakadék. Ez
- * a réteg **egymásba boruló hullámtarajokat** emel a szekció jobb alsó
- * sarkába, ugyanabból a geometriából, amiből a nyitóképernyő örvényei
- * (`lib/wave-curl.ts`): elliptikus ívsávok befelé lépdelő tónussal és fehér
- * fénykontúrral.
+ * A referencia sarokformái nem sávok, hanem **a sarokba simuló, egymásra
+ * rétegzett foltok**: mindegyik a szekció felső élén indul, lefelé-befelé
+ * kanyarodik, és az oldalsó élen ér véget. A sarok maga tömör, a rétegek
+ * kifelé mélyülnek.
  *
- * Három szabály tartja, és mind a három egy-egy elrontott változatból jött:
+ * Ez a forma old meg egyszerre két dolgot, amin az összes korábbi változat
+ * elbukott:
  *
- * 1. **A taraj fölfelé néz.** Az ív a csúcsánál a sugárra merőleges: ha a
- *    kidudorodás oldalra néz, a látható darab függőleges szalag, aminek semmi
- *    köze a hullámhoz. A középpontok ezért a felület alatt vannak, és a
- *    tarajok fölfelé domborodnak — ez az, amit hullámnak látunk.
- * 2. **A sávok vége a felület alá esik.** Egy ívnek a semmiben végződő vége
- *    félbevágott hullámnak látszik. A középpont magasságában végződnek, az
- *    pedig a szekció alsó éle alatt van.
- * 3. **A réteg teljes szélességű, a kompozíció mégsem az.** Egy sarokba tett
- *    doboznak *egyenes éle* van, és a sáv azon elvágva ragasztott képnek
- *    látszik. A réteg ezért a szekció szélességét viszi — a bal széle a nézet
- *    széle, ott nincs mit levágni —, a tarajok viszont mind a jobb oldalon
- *    ülnek, a szöveghasábtól távol.
+ * 1. **Nincs mit levágni.** A folt két vége nem a levegőben végződik, hanem a
+ *    szekció két élén — pontosan ott, ahol a felület amúgy is véget ér. Nincs
+ *    tompa vég, nincs egyenes vágás a felület közepén.
+ * 2. **Érintkezik a szekcióhatárral.** A felső él a határ alsó pereme, tehát a
+ *    folt onnan indul: úgy néz ki, mintha a határ folytatódna a sarokban. A
+ *    határhoz magához nem nyúlunk — az a `section-divider.tsx` dolga.
+ *
+ * **A görbe két köbös Bézier-ből áll, egy fordulóponttal.** Egyetlen ívből
+ * lekerekített sarok lenne, nem hullám. A csatlakozásnál a vezérlőpontok
+ * tükrözve vannak, tehát az érintő folytonos: a görbe nem törik meg. A felső
+ * élnél függőleges, az oldalsónál vízszintes érintővel fut ki — így a folt
+ * merőlegesen éri a szekció szélét, nem hegyesszögben.
+ *
+ * **Átlós pár.** Egy sarok magányos folt; négy sarok keret. A referencián a bal
+ * felső és a jobb alsó sarok van kitöltve — ez a kettő egyensúlyban tartja a
+ * felületet, és szabadon hagyja a másik átlót. A szekció sorszáma a két átló
+ * között vált (`globals.css`), tehát a lapon nem ugyanaz ismétlődik.
  *
  * A tónus a `wave-6`-nál nem megy mélyebbre: tintaszínű szöveg azon még 5,3:1,
- * a `wave-7`-en viszont már csak 3,7:1.
+ * a `wave-7`-en viszont már csak 3,7:1 — a bal felső sarokban pedig ott áll a
+ * szekció címsora.
  *
  * **Keskeny nézetben nincs.** Ott a tartalom a teljes szélességet elfoglalja,
- * tehát nincs margó, amiben a motívum megállhatna — a szöveg mögé csúszva pedig
- * már nem háttér, hanem zaj.
+ * tehát nincs margó, amiben a folt megállhatna.
  *
  * **Interaktív, ingyen.** A réteg ugyanazt a `curls__track` osztályt viseli,
  * mint a nyitóképernyő síkjai, tehát a `MotionDriver` ezt is mozgatja a mutató
  * után — külön szkript és külön figyelő nélkül.
  */
 
-/** A rajzterület. Fekvő, mert a tarajok vízszintesen futnak. */
-const FIELD_WIDTH = 1200;
-const FIELD_HEIGHT = 600;
-const FIELD_VIEWBOX = `0 0 ${FIELD_WIDTH} ${FIELD_HEIGHT}`;
+/** A rajzterület normalizált: a doboz nyújtja a helyére. */
+const FIELD = 100;
 
-/** A gyűrű vastagsága a rajzterület szélességének arányában. */
-const RING = 0.05;
-
-/**
- * A látható ív közepe **fölfelé** néz.
- *
- * A `curlBands` a −150°…40° szakaszt rajzolja, aminek a közepe −55°. Az SVG
- * y tengelye lefelé nő, tehát a „fölfelé” a 270°: ennyivel kell elforgatni.
- */
-const FACING = 325;
-
-type Placed = {
-  /** Középpont a rajzterület **szélességének** arányában. */
-  cx: number;
-  cy: number;
-  /** A taraj csúcsa: eddig emelkedik a hullám. */
-  radius: number;
-  squash: number;
-  /** Elforgatás a fölfelé nézéshez képest. */
-  tilt: number;
-  tones: readonly string[];
-  line: number;
-  spiral: number;
+type Layer = {
+  /** Hol indul a felső élen, a doboz szélességének arányában. */
+  top: number;
+  /** Hol ér véget az oldalsó élen, a doboz magasságának arányában. */
+  side: number;
+  /**
+   * A görbe hasa: mennyire dudorodik ki a fordulópont előtti szakasz.
+   *
+   * Nulla közelében a folt lekerekített sarok; a nagyobb érték adja a
+   * hullámos, S-alakú élt.
+   */
+  bend: number;
+  tone: string;
 };
 
 /**
- * A torlasz — öt egymásba boruló taraj.
+ * A négy réteg, **kívülről befelé**.
  *
- * A középpontok nagyjából egy magasságban, a felület alatt vannak: a sugár adja,
- * melyik meddig emelkedik. Így a tarajok egymásba borulnak, ahogy a
- * nyitóképernyőn is.
- *
- * A tónushármasok a skála világos vége felől jönnek, mert a felület `wave-3`.
- * Egyik sem lehet maga a `wave-3`: az a sáv egyszerűen eltűnne, és a taraj
- * kilyukasztottnak látszana.
+ * A legnagyobb, legmélyebb megy előre, és minden következő világosabb és
+ * kisebb — így a sarok a legsötétebb, a folt pereme felé pedig világosodik,
+ * ahogy a referencián. A `bend` rétegenként más, különben a négy él párhuzamos
+ * lenne, és a folt egyetlen vastag szalagnak látszana.
  */
-// prettier-ignore
-const PLACED: Placed[] = [
-  { cx: 0.99, cy: 1.02, radius: 0.34, squash: 0.82, tilt: -13, tones: ['wave-4', 'wave-2', 'wave-5'], line: 0.5, spiral: 0.35 },
-  { cx: 1.04, cy: 1.05, radius: 0.28, squash: 0.86, tilt: 9, tones: ['wave-6', 'wave-2', 'wave-4'], line: 0.55, spiral: -0.3 },
-  { cx: 0.95, cy: 1.03, radius: 0.23, squash: 0.88, tilt: -20, tones: ['wave-5', 'wave-2', 'wave-6'], line: 0.6, spiral: 0.45 },
-  { cx: 1.08, cy: 1.06, radius: 0.18, squash: 0.9, tilt: 16, tones: ['wave-4', 'wave-2', 'wave-6'], line: 0.6, spiral: -0.4 },
-  { cx: 1, cy: 1.04, radius: 0.13, squash: 0.92, tilt: -6, tones: ['wave-6', 'wave-2', 'wave-5'], line: 0.65, spiral: 0.5 },
+const LAYERS: Layer[] = [
+  { top: 0.99, side: 0.99, bend: 0.34, tone: 'wave-6' },
+  { top: 0.8, side: 0.83, bend: 0.52, tone: 'wave-5' },
+  { top: 0.56, side: 0.63, bend: 0.36, tone: 'wave-4' },
+  { top: 0.31, side: 0.38, bend: 0.58, tone: 'wave-2' },
 ];
 
-const CLUSTER: Curl[] = PLACED.map((placed) => ({
-  cx: placed.cx,
-  // A `curlBands` egyetlen mérethez skáláz; a fekvő nézetdobozban a függőleges
-  // arányt át kell számolni, különben a taraj magasabb lenne, mint a felület.
-  cy: (placed.cy * FIELD_HEIGHT) / FIELD_WIDTH,
-  radius: placed.radius,
-  squash: placed.squash,
-  rotate: Math.round(FACING + placed.tilt),
-  from: -150,
-  to: 40,
-  tones: placed.tones,
-  // A gyűrű vastagsága állandó: a belső sugár a külsőhöz igazodik.
-  inner: 1 - RING / placed.radius,
-  line: placed.line,
-  // A végek a felület alá esnek, tehát nem kell hegyben elfogyniuk.
-  taper: 8,
-  spiral: placed.spiral,
-  inset: 0.05,
-  lead: 0.6,
-}));
+/**
+ * Egy sarokfolt útvonala.
+ *
+ * A görbe a felső él `top` pontjából indul függőleges érintővel, a
+ * fordulóponton át az oldalsó él `side` pontjába fut vízszintes érintővel, majd
+ * a sarkon keresztül zárul. A fordulópontnál a két vezérlőpont egymás tükörképe
+ * — enélkül a görbe ott megtörne.
+ */
+function cornerPath(layer: Layer): string {
+  const tx = layer.top * FIELD;
+  const sy = layer.side * FIELD;
+
+  const round = (value: number) => Math.round(value * 10) / 10;
+
+  // Fordulópont: nagyjából a görbe közepén, a saroktól elhúzva.
+  const mx = tx * 0.72;
+  const my = sy * 0.54;
+
+  // Az első szakasz hasa. A `bend` tolja kifelé a fordulópont előtti kart.
+  const c2x = tx * (0.9 + layer.bend * 0.22);
+  const c2y = sy * 0.38;
+
+  // A második kar a fordulópont tükörképe — így folytonos az érintő.
+  const c3x = 2 * mx - c2x;
+  const c3y = 2 * my - c2y;
+
+  return [
+    `M${round(tx)} 0`,
+    `C${round(tx)} ${round(sy * 0.24)} ${round(c2x)} ${round(c2y)} ${round(mx)} ${round(my)}`,
+    `C${round(c3x)} ${round(c3y)} ${round(tx * 0.34)} ${round(sy)} 0 ${round(sy)}`,
+    'L0 0',
+    'Z',
+  ].join(' ');
+}
+
+/** A két sarok: bal felső és jobb alsó — a referencia átlója. */
+const CORNERS = [
+  { key: 'tl', className: 'left-0 top-0', flip: '' },
+  { key: 'br', className: 'right-0 bottom-0', flip: 'rotate(180deg)' },
+];
 
 export function WaveDrift({ className }: { className?: string }) {
   return (
-    <div className={cn('curls hidden lg:block', className)} aria-hidden="true">
-      <span className="curls__track" data-pull={11} data-pull-y={-6}>
-        <span className="absolute inset-x-0 bottom-0 block h-[clamp(220px,30vh,420px)]">
-          <svg
-            className="block h-full w-full"
-            viewBox={FIELD_VIEWBOX}
-            // A jobb alsó sarokhoz igazítva: a kompozíció ott ül, és széles
-            // nézetben is ott kell maradnia.
-            preserveAspectRatio="xMaxYMax slice"
-            focusable="false"
+    <div className={cn('curls curls--corner hidden lg:block', className)} aria-hidden="true">
+      <span className="curls__track" data-pull={8} data-pull-y={-4}>
+        {CORNERS.map((corner) => (
+          <span
+            key={corner.key}
+            className={cn('absolute block', corner.className)}
+            style={
+              {
+                // A doboz szándékosan keskeny: a szekció címsora a bal felső
+                // sarokban kezdődik, és a folt nem érhet alá. A magassága a
+                // szélesség kétszerese — a referencián is lefelé nyúlik el.
+                width: 'clamp(84px, 10vw, 176px)',
+                height: 'clamp(150px, 20vw, 344px)',
+                transform: corner.flip || undefined,
+              } as CSSProperties
+            }
           >
-            {CLUSTER.map((curl, index) => (
-              <g
-                key={index}
-                // A vonaltulajdonságok öröklődnek: a csoporton egyszer
-                // szerepelnek, nem mind a három sávon külön.
-                stroke={`rgb(255 255 255 / ${curl.line ?? 0})`}
-                strokeWidth={1.5}
-                vectorEffect="non-scaling-stroke"
-              >
-                {curlBands(curl, FIELD_WIDTH).map(({ band, tone }, bandIndex) => (
-                  <path key={bandIndex} d={arcBand(band)} fill={`rgb(var(--${tone}))`} />
-                ))}
-              </g>
-            ))}
-          </svg>
-        </span>
+            <svg
+              className="block h-full w-full"
+              viewBox={`0 0 ${FIELD} ${FIELD}`}
+              preserveAspectRatio="none"
+              focusable="false"
+            >
+              {LAYERS.map((layer, index) => (
+                <path
+                  key={index}
+                  d={cornerPath(layer)}
+                  fill={`rgb(var(--${layer.tone}))`}
+                  // A fehér fénykontúr csak a görbén látszik: a két záróél a
+                  // szekció szélére esik, azon kívülre nem fest a böngésző.
+                  stroke="rgb(255 255 255 / 0.5)"
+                  strokeWidth={1.5}
+                  vectorEffect="non-scaling-stroke"
+                />
+              ))}
+            </svg>
+          </span>
+        ))}
       </span>
     </div>
   );

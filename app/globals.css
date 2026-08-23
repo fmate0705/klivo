@@ -514,6 +514,21 @@
    * amúgy is csak a rajzterület felső kétharmadát mutatja — ott minden
    * fölösleges képpont egy nagy, üres mélykék sáv.
    */
+  /**
+   * A sarokmotívum a másik átlóra vált.
+   *
+   * A motívum alapból a bal felső és a jobb alsó sarkot tölti ki — ez a
+   * referencia átlója. Minden második szekcióban vízszintesen tükrözzük, tehát
+   * a jobb felső és a bal alsó sarokba kerül. Így a lapon nem ugyanaz a
+   * kompozíció ismétlődik, és a hívási helyeken nem kell megadni semmit.
+   *
+   * A számláló az összes szekciót számolja, nem csak a világoskékeket: a
+   * váltakozás így nem lesz szabályos ide-oda billegés.
+   */
+  section:nth-of-type(even) .curls--corner {
+    transform: scaleX(-1);
+  }
+
   .curls__waterline--slim {
     height: clamp(44px, 4.5vh, 72px);
   }
