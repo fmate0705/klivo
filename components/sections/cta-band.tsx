@@ -29,7 +29,7 @@ export function CtaBand({
   const { contact } = getOrganization();
 
   return (
-    <Section band={band} tone="blue" bubbles className="py-14 md:py-16 lg:py-20">
+    <Section band={band} tone="blue" className="py-14 md:py-16 lg:py-20">
       <Container>
         <div className="max-w-2xl">
           <Reveal as="h2" className="text-h3">

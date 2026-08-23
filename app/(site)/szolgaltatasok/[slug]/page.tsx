@@ -106,70 +106,81 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         ])}
       />
 
+      {/* A fejlécben csak a cselekvés áll. Az ár a saját szekciójában van, a
+          csomagokkal együtt — a gomb mellé odabiggyesztve kiragadott szám volt,
+          ami elvitte a figyelmet a cselekvésről, és a csomagok nélkül úgysem
+          mondott semmit. */}
       <PageHeader title={service.title} lead={service.intro} image={service.image}>
-        <ButtonLink href="/kapcsolat" size="lg" arrow>
+        <ButtonLink href="/kapcsolat" tone="dark" size="lg" arrow>
           Kérj ajánlatot
         </ButtonLink>
-        <span data-numeric className="text-body-lg font-medium text-ink">
-          {priceOf(service.priceKey)}
-        </span>
       </PageHeader>
 
-      {/* Kinek ajánljuk + mit tartalmaz */}
+      {/* Kinek ajánljuk + mit tartalmaz.
+
+          **Két kártya helyett egy hasáb.** A két lista korábban két egyforma
+          kártyában állt egymás mellett, tele elválasztó vonallal — együtt egy
+          teljes képernyőnyi helyet vitt el azért, hogy elmondjon tizenkét rövid
+          tagmondatot. A tartalom rövid, tehát a forma is legyen az: a címsor
+          balra, a két lista jobbra, kártyakeret nélkül.
+
+          A „kinek ajánljuk” pontjai **címkék**: két-három szavas jelzők, amiket
+          az ember végigpásztáz, nem végigolvas — a pasztillasor pontosan ezt a
+          leolvasást támogatja, és ez adja a szekció képi hangsúlyát is. A „mi
+          van benne” marad felsorolás, mert azt tételesen kell tudni. */}
       {showLists ? (
         <Section tone="white" band={{ from: 'blue', layers: 3, depth: 'lg' }}>
           <Container>
-            <SectionHeading
-              title="Kinek való, és mi van benne"
-              lead="Két lista, semmi apróbetűs. Ha valami hiányzik belőle, azt külön tételként írjuk az ajánlatba — nem utólag derül ki."
-              className="max-w-3xl"
-            />
+            <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+              <div className="lg:col-span-5">
+                <SectionHeading
+                  title="Kinek való, és mi van benne"
+                  lead="Semmi apróbetűs. Ha valami hiányzik belőle, azt külön tételként írjuk az ajánlatba — nem utólag derül ki."
+                />
+              </div>
 
-            <div className="mt-14 grid gap-5 lg:grid-cols-2">
-              <Reveal className="flex">
-                <Card className="flex w-full flex-col">
-                  <h2 className="text-h4">Kinek ajánljuk</h2>
-                  <WaveRule className="mt-4" />
-                  <ul className="mt-6 flex flex-col gap-3">
-                    {service.idealFor.map((item) => (
-                      <li
-                        key={item}
-                        className="flex gap-3 border-b border-line pb-3 text-body-sm text-ink-soft last:border-b-0 last:pb-0"
-                      >
-                        <Dot />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
-              </Reveal>
+              <div className="lg:col-span-7">
+                <Reveal as="h3" className="text-h4">
+                  Kinek ajánljuk
+                </Reveal>
 
-              <Reveal delay={60} className="flex">
-                <Card className="flex w-full flex-col">
-                  <h2 className="text-h4">Ez mindig benne van</h2>
-                  <WaveRule className="mt-4" />
-                  <ul className="mt-6 flex flex-col gap-3">
-                    {service.features.map((item) => (
-                      <li
-                        key={item}
-                        className="flex gap-3 border-b border-line pb-3 text-body-sm text-ink-soft last:border-b-0 last:pb-0"
-                      >
-                        <Dot />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
-              </Reveal>
+                <Reveal as="ul" delay={60} className="mt-6 flex flex-wrap gap-2.5">
+                  {service.idealFor.map((item) => (
+                    <li
+                      key={item}
+                      className="border-soft bg-sky flex items-start gap-2.5 rounded-pill border px-4 py-2.5 text-body-sm font-medium text-ink"
+                    >
+                      <Dot />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </Reveal>
+
+                {/* Rövid szakasz, nem teljes szélességű vonal: a hullámminta a doboz
+                    szélességét tölti ki, és nyolcszáz képponton már nem elválasztó
+                    jel, hanem firka. */}
+                <WaveRule tone="soft" className="mt-12 max-w-[9rem]" />
+
+                <Reveal as="h3" delay={40} className="mt-8 text-h4">
+                  Ez mindig benne van
+                </Reveal>
+
+                <Reveal as="ul" delay={100} className="mt-6 grid gap-x-10 gap-y-3.5 sm:grid-cols-2">
+                  {service.features.map((item) => (
+                    <li key={item} className="flex gap-3 text-body-sm text-ink-soft">
+                      <Dot />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </Reveal>
+
+                {service.priceNote ? (
+                  <Reveal as="p" delay={140} className="mt-10 max-w-prose text-body-sm text-muted">
+                    {service.priceNote}
+                  </Reveal>
+                ) : null}
+              </div>
             </div>
-
-            {service.priceNote ? (
-              <Reveal delay={120} className="mt-5">
-                <p className="border-soft bg-raised rounded-card border px-6 py-5 text-body-sm text-muted">
-                  {service.priceNote}
-                </p>
-              </Reveal>
-            ) : null}
           </Container>
         </Section>
       ) : null}

@@ -519,6 +519,33 @@ tehát ott semmi nem változott tőle.
 
 ---
 
+### 2/d.16 A világoskék szekciók háttere — négy elrontott változat
+
+A kérés az volt, hogy a világoskék szekciók is éljenek egy kicsit: kerüljön a
+hátterükbe néhány hullám a nyitóképernyő formanyelvéből. A megoldás négy
+nekifutásból állt össze, és mindegyik bukás megtanított egy szabályt.
+
+1. **Végigívelő hullámsávok** a szekció felső és alsó élén. Túl sok volt, és
+   ami rosszabb: egy újabb **szekcióhatárnak** látszott, közvetlenül a valódi
+   alatt.
+2. **Egyetlen apró taraj** a margóban. Az meg dísz volt, nem víz — nem adta át a
+   hullám hatását.
+3. **A nyitóképernyő hullámtestei egy sarokba tett dobozban.** A test kitölti a
+   dobozát, tehát a doboz **egyenes éle** látszott: egy függőleges és egy
+   vízszintes vágás a szekció közepén, mintha egy fényképet ragasztottunk volna
+   oda.
+4. **Ívsávok oldalra néző kidudorodással.** Az ív a csúcsánál a sugárra
+   merőleges, tehát a látható darab **függőleges szalag** lett — annak semmi
+   köze a hullámhoz.
+
+A mostani változat mindhárom szabályt betartja: a tarajok **fölfelé**
+domborodnak (a középpontjuk a felület alatt van), a sávok vége a felület alá
+esik (nincs a semmiben végződő ív), és a réteg **teljes szélességű**, mert a bal
+széle így a nézet széle — ott nincs mit levágni. A kompozíció mégis a jobb alsó
+sarokban ül, a szöveghasábtól távol.
+
+---
+
 ## 3. Amit szándékosan másképp csináltam
 
 ### 3.1 Az admin csak blogot kezel — az árakat és a cégadatokat nem

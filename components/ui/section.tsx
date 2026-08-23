@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { WaveBand, type Tone } from '@/components/wave/section-divider';
 import { Bubbles } from '@/components/wave/bubbles';
+import { WaveDrift } from '@/components/wave/wave-drift';
 
 /**
  * Egy szekció: felület, függőleges ritmus, háttérhullám és a fölötte lévő
@@ -13,10 +14,15 @@ import { Bubbles } from '@/components/wave/bubbles';
  * cél színe a saját felülete. Így az oldal szintjén csak a sorrendet kell
  * helyesen megadni, a határok maguktól következnek belőle.
  *
- * **A szekció háttere sima.** Hullám csak a szekciók *között* van, a
- * határokon: ott vezet át egyik felületről a másikra. A szekció belsejében a
- * háttérminta csak versenyezne a tartalommal, és a hullám elveszítené a
- * jelentését — ha mindenhol hullám van, egyik sem jelent semmit.
+ * **A szekció háttere ott sima, ahol a szöveg fut.** A felület él, de csak a
+ * szélein: a sötét szekciókban buborékok szállnak föl, a világoskékekben a
+ * felső és az alsó élhez tapad néhány halk hullám (`WaveDrift`). A szekció
+ * *közepén* nincs semmi — egy tartalom mögé terített minta versenyezne az
+ * olvasnivalóval, és a hullám elveszítené a jelentését.
+ *
+ * Mindkettő a **felülethez** tartozik, nem a tartalomhoz, ezért nem is kell
+ * külön kérni: a `tone` dönti el, melyik jár. Fehér felületen egyik sem — ott a
+ * nyugalom a lényeg, és a `wave-2` amúgy sem látszana a fehéren.
  *
  * A függőleges térköz 80 / 96 / 128 px. Bőven a CEF spacing.policy felső
  * határán: a sok üres hely maga a prémium érzet, és a hullámoknak is kell hely,
@@ -52,8 +58,13 @@ export function Section({
   id,
   tone = 'white',
   band,
-  /** Felszálló buborékok. Csak sötét szekcióban van értelme. */
-  bubbles = false,
+  /**
+   * A felület háttérrétege: buborék sötéten, hullám világoskéken.
+   *
+   * Alapból a `tone` dönt. Kikapcsolni ott érdemes, ahol a szekció tartalma
+   * maga is nagy felület (kép, űrlap), és a háttér már zaj lenne.
+   */
+  texture = true,
   className,
   children,
   labelledBy,
@@ -61,7 +72,7 @@ export function Section({
   id?: string;
   tone?: SectionTone;
   band?: SectionBand;
-  bubbles?: boolean;
+  texture?: boolean;
   className?: string;
   children: ReactNode;
   /** Annak a címsornak az azonosítója, amely a szekciót elnevezi. */
@@ -87,7 +98,8 @@ export function Section({
         data-tone={dark ? 'dark' : 'light'}
         className={cn('relative isolate py-20 md:py-24 lg:py-32', TONE_CLASS[tone], className)}
       >
-        {bubbles ? <Bubbles /> : null}
+        {texture && dark ? <Bubbles /> : null}
+        {texture && tone === 'sky' ? <WaveDrift /> : null}
         <div className="wave-content">{children}</div>
       </section>
     </>

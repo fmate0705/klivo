@@ -59,17 +59,17 @@ Nincs színátmenet: nincs hozzá token és nincs hozzá segédosztály.
 
 ### A skála
 
-| Token      | Érték     |                        |
-| ---------- | --------- | ---------------------- |
-| `--wave-1` | `#FFFFFF` | tiszta fehér           |
-| `--wave-2` | `#F0F9FF` |                        |
-| `--wave-3` | `#DBEEFC` | világoskék felület     |
-| `--wave-4` | `#B7DBF7` |                        |
-| `--wave-5` | `#7DC3F0` |                        |
-| `--wave-6` | `#3DA3E2` |                        |
-| `--wave-7` | `#177AC5` |                        |
-| `--wave-8` | `#0D4F8F` | kék felület            |
-| `--wave-9` | `#082B52` | mély tengerkék felület |
+| Token      | Érték     |                    |
+| ---------- | --------- | ------------------ |
+| `--wave-1` | `#FFFFFF` | tiszta fehér       |
+| `--wave-2` | `#F0F9FF` |                    |
+| `--wave-3` | `#DBEEFC` | világoskék felület |
+| `--wave-4` | `#B7DBF7` |                    |
+| `--wave-5` | `#7DC3F0` |                    |
+| `--wave-6` | `#4FA9E3` |                    |
+| `--wave-7` | `#2585CE` |                    |
+| `--wave-8` | `#1667AE` |                    |
+| `--wave-9` | `#0D4F8F` | a legmélyebb kék   |
 
 ### A négy szekciófelület
 
@@ -80,7 +80,7 @@ vezetnek át:
 | ------- | --------- | --------- |
 | `white` | `--white` | `wave-1`  |
 | `sky`   | `--sky`   | `wave-3`  |
-| `blue`  | `--blue`  | `wave-8`  |
+| `blue`  | `--blue`  | `wave-9`  |
 | `deep`  | `--deep`  | `wave-9`  |
 
 A főoldal ritmusa: mély → fehér → világoskék → fehér → kék → világoskék →
@@ -300,6 +300,31 @@ görgetés a szekcióhatárok dolga.
 éllel: a következő szekcióhatárnak egyszínű felülettel kell találkoznia, a mező
 alja viszont tarka. A nyitóképernyőn ez a zárósor háttere is; a fejléceken nincs
 zárósor, ott keskenyebb (`--slim`).
+
+### `WaveDrift` — háttérmotívum a világoskék szekciókban
+
+Egymásba boruló hullámtarajok a szekció jobb alsó sarkában, ugyanabból a
+geometriából, amiből a nyitóképernyő örvényei (`lib/wave-curl.ts`). Három
+szabály tartja, és mind a három egy-egy elrontott változatból jött:
+
+1. **A taraj fölfelé néz.** Az ív a csúcsánál a sugárra merőleges: ha a
+   kidudorodás oldalra néz, a látható darab függőleges szalag, aminek semmi
+   köze a hullámhoz. A középpontok ezért a felület alatt vannak.
+2. **A sávok vége a felület alá esik.** Egy ívnek a semmiben végződő vége
+   félbevágott hullámnak látszik.
+3. **A réteg teljes szélességű, a kompozíció mégsem az.** Egy sarokba tett
+   doboznak _egyenes éle_ van, és a sáv azon elvágva ragasztott képnek
+   látszik. A réteg ezért a szekció szélességét viszi — a bal széle a nézet
+   széle, ott nincs mit levágni —, a tarajok viszont mind a jobb oldalon
+   ülnek, a szöveghasábtól távol.
+
+A tónus a `wave-6`-nál nem megy mélyebbre: tintaszínű szöveg azon még 5,3:1, a
+`wave-7`-en viszont már csak 3,7:1. Keskeny nézetben nincs: ott a tartalom a
+teljes szélességet elfoglalja, tehát nincs margó, amiben a motívum megállhatna.
+
+A `Section` magától kiteszi, a felülete alapján: sötét szekcióban buborék,
+világoskékben ez, fehéren semmi. A háttér a **felülethez** tartozik, nem a
+tartalomhoz, ezért nem is kell külön kérni.
 
 ### `WaveRule` — az apró elválasztó
 

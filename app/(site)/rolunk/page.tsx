@@ -45,7 +45,7 @@ export default async function AboutPage() {
       />
 
       <PageHeader title={about.title} lead={about.intro}>
-        <ButtonLink href="/kapcsolat" size="lg" arrow>
+        <ButtonLink href="/kapcsolat" tone="dark" size="lg" arrow>
           Kérj ajánlatot
         </ButtonLink>
       </PageHeader>

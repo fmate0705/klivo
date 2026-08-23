@@ -37,7 +37,7 @@ export default function ServicesPage() {
         title="Amiben segítünk"
         lead="Weboldalt építünk, egyedi rendszert fejlesztünk, és üzemeltetjük is őket. A legtöbb munka az elsővel kezdődik — de bármelyik önmagában is megáll."
       >
-        <ButtonLink href="/kapcsolat" size="lg" arrow>
+        <ButtonLink href="/kapcsolat" tone="dark" size="lg" arrow>
           Kérj ajánlatot
         </ButtonLink>
       </PageHeader>

@@ -19,7 +19,7 @@ import { WaveRule } from '@/components/wave/wave-rule';
  */
 export function HourlyRates({ band, tone = 'white' }: { band?: SectionBand; tone?: SectionTone }) {
   return (
-    <Section band={band} tone={tone} bubbles={tone === 'blue'}>
+    <Section band={band} tone={tone}>
       <Container>
         <SectionHeading title={hourlyRates.title} lead={hourlyRates.lead} className="max-w-3xl" />
 

@@ -37,7 +37,7 @@ export default function ProcessPage() {
         title="Így dolgozunk"
         lead="Nem tervrajzokat küldözgetünk hetekig. Megbeszéljük, mire van szükséged, fix árat adunk rá, megépítjük, és utána is melletted maradunk."
       >
-        <ButtonLink href="/kapcsolat" size="lg" arrow>
+        <ButtonLink href="/kapcsolat" tone="dark" size="lg" arrow>
           Kérj ajánlatot
         </ButtonLink>
       </PageHeader>

@@ -32,7 +32,7 @@ export function ProcessSteps({
   tone?: SectionTone;
 }) {
   return (
-    <Section band={band} tone={tone} bubbles={tone === 'blue'}>
+    <Section band={band} tone={tone}>
       <Container>
         <SectionHeading title={title} lead={lead} className="max-w-3xl" />
 
