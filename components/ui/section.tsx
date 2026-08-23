@@ -79,15 +79,22 @@ export function Section({
   labelledBy?: string;
 }) {
   const dark = DARK.includes(tone);
+  // A világoskék szekció **mindkét** oldalán a saját sáv áll: fölötte lefelé
+  // zúdul, alatta fölfelé. Az alsót nem ez a szekció rajzolja, hanem a
+  // következő — annak a `from` értéke világoskék, és ebből tudja, hogy
+  // fordítva kell állnia.
+  const sky = tone === 'sky' || band?.from === 'sky';
 
   return (
     <>
       {band ? (
-        tone === 'sky' ? (
+        sky ? (
           // A világoskék szekciók saját sávot kapnak: abban a sarokfolt is
           // benne van, egyetlen rajzban. Lásd `components/wave/sky-band.tsx`.
           <SkyBand
             from={band.from}
+            to={tone}
+            rise={tone !== 'sky'}
             flip={band.flip ?? false}
             {...(band.depth ? { depth: band.depth } : {})}
           />
@@ -106,7 +113,15 @@ export function Section({
         id={id}
         aria-labelledby={labelledBy}
         data-tone={dark ? 'dark' : 'light'}
-        className={cn('relative isolate py-20 md:py-24 lg:py-32', TONE_CLASS[tone], className)}
+        className={cn(
+          'relative isolate',
+          // A világoskék szekciónak **nincs** függőleges térköze: két mély
+          // hullámsáv fogja közre, azok adják a levegőt. A szokásos
+          // szekció-térköz fölöslegesen eltolná a hullámoktól a tartalmat.
+          tone === 'sky' ? 'py-0' : 'py-20 md:py-24 lg:py-32',
+          TONE_CLASS[tone],
+          className,
+        )}
       >
         {texture && dark ? <Bubbles /> : null}
         <div className="wave-content">{children}</div>

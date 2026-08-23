@@ -3,8 +3,7 @@ import { cn } from '@/lib/cn';
 import type { Tone } from '@/components/wave/section-divider';
 
 /**
- * A világoskék szekciók fölötti hullámsáv — **saját**, a `WaveBand`-től
- * független.
+ * A világoskék szekciók hullámsávja — **saját**, a `WaveBand`-től független.
  *
  * Miért külön: a világoskék szekciókba sarokmotívum kellett, és amíg a motívum
  * a szekcióban ült, a sáv pedig fölötte, a kettő soha nem illeszkedett. Két
@@ -14,6 +13,11 @@ import type { Tone } from '@/components/wave/section-divider';
  * Itt a sáv **és** a sarokfolt ugyanannak az egyetlen rajznak a része: a folt
  * nem odarakott alakzat, hanem az, hogy a sáv rétegei az egyik sarokban
  * **lezúdulnak**. Nincs mit illeszteni, mert nincs két dolog.
+ *
+ * A világoskék szekció mindkét oldalán ez a sáv áll: fölötte lefelé zúdul, alatta
+ * (`rise`) fölfelé — a kettő közrefogja és megvezeti a szekciót. Az alsót nem a
+ * szekció rajzolja, hanem a **következő**, ugyanúgy, ahogy minden szekcióhatárt:
+ * ott a `from` értéke világoskék, és ebből tudja, hogy fordítva kell állnia.
  *
  * A `components/wave/section-divider.tsx` érintetlen: a többi szekcióhatár
  * változatlanul azt használja.
@@ -40,15 +44,17 @@ const SURFACE: Record<string, (typeof SCALE)[number]> = {
   deep: 'wave-9',
 };
 
-/** A világoskék felület — ide érkezik a sáv. */
-const TO = 'wave-3';
-
 /**
- * A rajzterület. Normalizált: a `preserveAspectRatio="none"` nyújtja a helyére,
- * ahogy a szekcióhatároknál is.
+ * A rajzterület. Normalizált: a `preserveAspectRatio="none"` nyújtja a helyére.
+ *
+ * A görbék a nézetdobozon **túlnyúlnak** mindkét oldalon (`OVER`). Enélkül a
+ * görgetésre induló vízszintes sodródás kilógatná a rajz szélét a sávból, és a
+ * szélén kilátszana az alatta lévő szín. A `svg` a nézetdobozra vág, tehát a
+ * túllógó rész nem látszik — csak amikor elcsúszik alá.
  */
 const W = 1000;
 const H = 1000;
+const OVER = 260;
 
 type Point = [number, number];
 type Segment = { c1: Point; c2: Point; end: Point };
@@ -57,47 +63,112 @@ type Segment = { c1: Point; c2: Point; end: Point };
 type Boundary = { start: Point; segments: Segment[] };
 
 /**
- * Egy réteghatár.
+ * Egy réteghatár alakja.
  *
- * Két része van, és ez a lényeg: a sarokban **lezúdul** (`dip`), a felület többi
- * részén pedig egy hosszú, halk hullám (`edge`, `wob`). A kettő egyetlen
- * folytonos görbe — a folt nem „egy ráhelyezett alakzat”, hanem az, hogy a sáv
- * a sarokban mélyre bukik.
- *
- * @param dip   Meddig zúdul le a sarokban, a sáv magasságának arányában.
- * @param reach Meddig tart a lezúdulás vízszintesen.
  * @param edge  A határ nyugalmi magassága a sávon.
- * @param wob   A halk hullám kitérése a nyugalmi magasság körül.
- * @param phase A halk hullám eltolása — enélkül a rétegek párhuzamosak lennének.
+ * @param dip   Mennyivel mélyebb a sarokban a nyugalmi magasságnál.
+ * @param reach Meddig tart a lezúdulás vízszintesen.
+ * @param phase A hullám eltolása. Ez adja, hogy a szalagok hol szélesednek ki.
  */
-function boundary(dip: number, reach: number, edge: number, wob: number, phase: number): Boundary {
-  const rx = reach * W;
-  const ey = edge * H;
-  const dy = dip * H;
-  const drop = dy - ey;
-  const rest = W - rx;
+type Shape = { edge: number; dip: number; reach: number; phase: number };
 
-  return {
-    start: [0, dy],
-    segments: [
-      // A lezúdulás alja: vízszintes érintővel indul a saroktól, tehát a folt
-      // nem hegyben kezdődik, hanem lapos fenékkel — mint egy medence.
-      { c1: [rx * 0.3, dy], c2: [rx * 0.44, ey + drop * 0.62], end: [rx * 0.6, ey + drop * 0.34] },
-      // Kifutás a nyugalmi magasságra, ott már vízszintes érintővel.
-      { c1: [rx * 0.78, ey + drop * 0.08], c2: [rx * 0.9, ey], end: [rx, ey] },
-      // Innen a halk hullám, két szakaszban.
-      {
-        c1: [rx + rest * 0.2, ey],
-        c2: [rx + rest * 0.3, ey - wob * H],
-        end: [rx + rest * 0.55, ey - wob * H * (0.4 + phase * 0.5)],
-      },
-      {
-        c1: [rx + rest * 0.78, ey - wob * H * (1.3 - phase)],
-        c2: [W * 0.94, ey + wob * H * phase],
-        end: [W, ey + wob * H * (0.3 + phase * 0.4)],
-      },
-    ],
-  };
+/**
+ * A hullám kitérése, a sáv magasságának arányában.
+ *
+ * **Minden határ ugyanekkora.** Ez nem szegényesség, hanem az egyetlen módja
+ * annak, hogy a határok soha ne keresztezzék egymást: ha az amplitúdók
+ * eltérnének, két szomszédos határ valahol összeérne, a szalag ott nullára
+ * fogyna, a folytatásban pedig kifordulna — pontosan ez adta a korábbi változat
+ * szaggatott, hibásnak látszó élét. A vastagság így is végig változik, mert a
+ * **fázisok** különböznek.
+ */
+const AMP = 0.06;
+
+/**
+ * A négy határ.
+ *
+ * A nyugalmi magasságok különbsége mindig nagyobb, mint `2 × AMP`: két azonos
+ * amplitúdójú, eltérő fázisú hullám távolsága legfeljebb ennyivel változik.
+ * Amíg a rés ennél nagyobb, a két határ biztosan nem ér össze — bármilyen
+ * fázissal. A `dip` értékek is monoton nőnek, tehát a sarokban sem fordul meg a
+ * sorrend.
+ */
+const SHAPES: Shape[] = [
+  { edge: 0.1, dip: 0.16, reach: 0.3, phase: 0.08 },
+  { edge: 0.26, dip: 0.22, reach: 0.36, phase: 0.62 },
+  { edge: 0.44, dip: 0.28, reach: 0.42, phase: 0.31 },
+  { edge: 0.64, dip: 0.32, reach: 0.48, phase: 0.85 },
+];
+
+/** Hány mintapontból épül egy határ. Ennyi elég a sima ívhez. */
+const SAMPLES = 26;
+
+/**
+ * A hullám függvénye.
+ *
+ * Két, egymásra rakott szinusz: az alap adja a nagy ívet, a második a
+ * részletet. Egyetlen szinuszból gépi, ismétlődő minta lenne — kettőből, nem
+ * egész számú frekvenciaaránnyal, már olyan, mintha kézzel rajzolták volna.
+ */
+function wave(t: number): number {
+  return 0.66 * Math.sin(2 * Math.PI * t) + 0.34 * Math.sin(4 * Math.PI * t + 1.1);
+}
+
+/** Sima átmenet 0 és 1 között — a lezúdulás pereme ettől nem törik meg. */
+function ease(value: number): number {
+  const t = Math.min(1, Math.max(0, value));
+  return t * t * (3 - 2 * t);
+}
+
+/**
+ * Mintapontokból sima köbös lánc (Catmull-Rom → Bézier).
+ *
+ * A vezérlőpontok a szomszédos minták különbségéből jönnek, tehát a
+ * csatlakozásoknál az érintő folytonos: a görbe áthalad minden mintaponton, és
+ * sehol nem törik meg. A végeken a szomszéd hiányzik, ezért ott a pont maga lép
+ * a helyére.
+ */
+function spline(points: Point[]): Boundary {
+  const segments: Segment[] = [];
+
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const previous = points[Math.max(0, index - 1)]!;
+    const current = points[index]!;
+    const next = points[index + 1]!;
+    const after = points[Math.min(points.length - 1, index + 2)]!;
+
+    segments.push({
+      c1: [current[0] + (next[0] - previous[0]) / 6, current[1] + (next[1] - previous[1]) / 6],
+      c2: [next[0] - (after[0] - current[0]) / 6, next[1] - (after[1] - current[1]) / 6],
+      end: next,
+    });
+  }
+
+  return { start: points[0]!, segments };
+}
+
+/**
+ * Egy réteghatár: hullám + a sarokban egy lezúdulás.
+ *
+ * A kettő **nem két külön szakasz**, hanem ugyanannak a függvénynek a két tagja.
+ * A korábbi változat a hullámot fél periódusonként külön Bézier-ívekből rakta
+ * össze, és a csatlakozásoknál megtört az érintő — a sáv attól látszott
+ * szaggatottnak, hibásnak.
+ */
+function boundary(shape: Shape): Boundary {
+  const { edge, dip, reach, phase } = shape;
+  const rx = reach * W;
+  const points: Point[] = [];
+
+  for (let index = 0; index <= SAMPLES; index += 1) {
+    const x = -OVER + ((W + 2 * OVER) * index) / SAMPLES;
+    const t = (x / W) * 1.35 + phase;
+    // A lezúdulás a saroktól a `reach`-ig fut ki; azon túl nulla.
+    const plunge = dip * H * ease((rx - x) / rx);
+    points.push([x, edge * H + AMP * H * wave(t) + plunge]);
+  }
+
+  return spline(points);
 }
 
 const round = (value: number) => Math.round(value * 10) / 10;
@@ -143,58 +214,42 @@ function ribbon(upper: Boundary, lower: Boundary): string {
 
 /** A sáv legfelső területe: a fölötte lévő szekció színe. */
 function above(line: Boundary): string {
-  return `M0 0 L${W} 0 L${at(lastEnd(line))}${backward(line)} Z`;
+  return `M${-OVER} ${-OVER} L${W + OVER} ${-OVER} L${at(lastEnd(line))}${backward(line)} Z`;
 }
 
-/** A sáv legalsó területe: a világoskék felület, ami a szekcióban folytatódik. */
+/** A sáv legalsó területe: az alatta lévő szekció színe. */
 function below(line: Boundary): string {
-  return `${forward(line)} L${W} ${H} L0 ${H} Z`;
+  return `${forward(line)} L${W + OVER} ${H + OVER} L${-OVER} ${H + OVER} Z`;
 }
 
-/**
- * A négy réteghatár.
- *
- * A `dip` értékek egyre mélyebbek: a sarokban ettől ágyazódnak egymásba, mint a
- * referencia rétegzett foltja. A `reach` is nő, tehát a lezúdulás lefelé
- * szélesedik — a folt nem csúcs, hanem örvény.
- */
-const BOUNDARIES = [
-  boundary(0.3, 0.24, 0.1, 0.045, 0.2),
-  boundary(0.53, 0.31, 0.21, 0.055, 0.75),
-  boundary(0.75, 0.37, 0.33, 0.04, 0.35),
-  boundary(0.95, 0.44, 0.46, 0.05, 0.9),
-];
+const BOUNDARIES = SHAPES.map(boundary);
+
+/** A sodródás mértéke rétegenként. Előjeles: a szomszédos rétegek szétcsúsznak. */
+const DRIFT = ['4%', '-6%', '5%', '-7%'];
 
 /**
- * A tónuslépcsők a `from` felülettől a világoskékig.
+ * A tónuslépcsők az egyik felülettől a másikig.
  *
  * Ha a két felület közel van egymáshoz a skálán (fehér ↔ világoskék), a sáv
  * szándékosan **lemerül** a kék közepéig, és onnan jön vissza — különben nem
  * látszana hullámnak, csak egy alig érzékelhető élnek. Ez ugyanaz a szabály,
  * mint a `WaveBand` `ACCENT`-je.
  */
-function tones(from: Tone): string[] {
+function tones(from: Tone, to: Tone): string[] {
   const source = SCALE.indexOf(SURFACE[from] ?? (from as (typeof SCALE)[number]));
-  const target = SCALE.indexOf(TO);
+  const target = SCALE.indexOf(SURFACE[to] ?? (to as (typeof SCALE)[number]));
   const start = source === -1 ? 0 : source;
+  const end = target === -1 ? 2 : target;
 
-  if (Math.abs(target - start) < 3) return ['wave-4', 'wave-6', 'wave-5', 'wave-4'];
+  if (Math.abs(end - start) < 3) return ['wave-4', 'wave-6', 'wave-5', 'wave-4'];
 
   return [0.28, 0.52, 0.72, 0.88].map((ratio) => {
-    const raw = start + (target - start) * ratio;
-    const step = target > start ? Math.ceil(raw) : Math.floor(raw);
+    const raw = start + (end - start) * ratio;
+    const step = end > start ? Math.ceil(raw) : Math.floor(raw);
     return SCALE[Math.min(SCALE.length - 1, Math.max(0, step))] as string;
   });
 }
 
-/**
- * A sáv mélysége.
- *
- * Jóval nagyobb, mint a sima szekcióhatáré, és ez nem díszítés: a sarokfolt a
- * sáv **magasságából** él. Sekély sávban a lezúdulás egy széles, lapos teknő
- * lenne — a rajzterületet a `preserveAspectRatio="none"` vízszintesen jóval
- * jobban nyújtja, mint függőlegesen.
- */
 const DEPTH: Record<'sm' | 'md' | 'lg', string> = {
   sm: 'clamp(150px, 16vw, 270px)',
   md: 'clamp(210px, 24vw, 420px)',
@@ -203,25 +258,39 @@ const DEPTH: Record<'sm' | 'md' | 'lg', string> = {
 
 export function SkyBand({
   from,
+  to,
   depth = 'md',
   flip = false,
+  rise = false,
   className,
 }: {
-  /** A **fölötte** lévő szekció felülete. Ez a sáv alapszíne. */
+  /** A **fölötte** lévő szekció felülete. */
   from: Tone;
+  /** Az alatta lévő szekció felülete. */
+  to: Tone;
   depth?: 'sm' | 'md' | 'lg';
   /** Tükrözés: a lezúdulás a jobb sarokba kerül. */
   flip?: boolean;
+  /**
+   * Fordított állás: a folt **fölfelé** nyúlik.
+   *
+   * A világoskék szekció alatti sávnál kell, hogy a folt a szekcióba nyúljon
+   * vissza, ne a következőbe. A rajz ilyenkor függőlegesen tükrözve áll, tehát a
+   * tónussorrendet is meg kell fordítani — különben a felső felület kerülne
+   * alulra.
+   */
+  rise?: boolean;
   className?: string;
 }) {
-  const palette = tones(from);
-  const base = SURFACE[from] ?? from;
+  const palette = rise ? tones(to, from).reverse() : tones(from, to);
+  const base = SURFACE[rise ? to : from] ?? (rise ? to : from);
+  const tail = SURFACE[rise ? from : to] ?? (rise ? from : to);
   const last = BOUNDARIES[BOUNDARIES.length - 1]!;
 
   return (
     <div
       aria-hidden="true"
-      className={cn('sky-band', flip && 'sky-band--flip', className)}
+      className={cn('sky-band', flip && 'sky-band--flip', rise && 'sky-band--rise', className)}
       style={{ '--sky-band-height': DEPTH[depth] } as CSSProperties}
     >
       <svg
@@ -233,27 +302,34 @@ export function SkyBand({
         <path d={above(BOUNDARIES[0]!)} fill={`rgb(var(--${base}))`} />
 
         {BOUNDARIES.slice(0, -1).map((line, index) => (
-          <path
+          <g
             key={index}
-            d={ribbon(line, BOUNDARIES[index + 1]!)}
-            fill={`rgb(var(--${palette[index]}))`}
-          />
+            className="sky-band__layer"
+            style={{ '--sky-drift': DRIFT[index] } as CSSProperties}
+          >
+            <path d={ribbon(line, BOUNDARIES[index + 1]!)} fill={`rgb(var(--${palette[index]}))`} />
+            {/* A fehér fénykontúr a szalag felső élén. Ez teszi láthatóvá a
+                rétegeket — enélkül a szomszédos tónusok egymásba folynak. */}
+            <path
+              d={forward(line)}
+              fill="none"
+              stroke={`rgb(255 255 255 / ${0.55 - index * 0.06})`}
+              strokeWidth={1.5}
+              vectorEffect="non-scaling-stroke"
+            />
+          </g>
         ))}
 
-        <path d={below(last)} fill={`rgb(var(--${TO}))`} />
-
-        {/* A fehér fénykontúr minden határon. Ez teszi láthatóvá a rétegeket —
-            enélkül a szomszédos tónusok egymásba folynak. */}
-        {BOUNDARIES.map((line, index) => (
+        <g className="sky-band__layer" style={{ '--sky-drift': DRIFT[3] } as CSSProperties}>
+          <path d={below(last)} fill={`rgb(var(--${tail}))`} />
           <path
-            key={`line-${index}`}
-            d={forward(line)}
+            d={forward(last)}
             fill="none"
-            stroke={`rgb(255 255 255 / ${0.55 - index * 0.06})`}
+            stroke="rgb(255 255 255 / 0.34)"
             strokeWidth={1.5}
             vectorEffect="non-scaling-stroke"
           />
-        ))}
+        </g>
       </svg>
     </div>
   );

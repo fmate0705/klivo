@@ -319,16 +319,35 @@ odarakott alakzat, hanem az, hogy a sáv rétegei az egyik sarokban
    közötti terület, a visszaút a felső határ megfordított Bézier-lánca. Kitöltött
    formákkal a sarokban mindig a legutoljára rajzolt réteg takarna el mindent;
    szalagokkal viszont egymásba ágyazódnak, ahogy a referencián.
-2. **A lezúdulás és a halk hullám egyetlen görbe.** Minden határ a saroktól
-   indul mélyen, vízszintes érintővel (lapos fenék, nem hegyes csúcs), fölfut a
-   nyugalmi magasságára, és onnan fut végig a felületen. Rétegenként más a
-   mélység, a szélesség és a fázis — enélkül a négy határ párhuzamos lenne, és
-   egy vastag szalagnak látszana.
-3. **A sáv mély.** Jóval mélyebb a sima szekcióhatárnál, és ez nem díszítés: a
+2. **A lezúdulás és a hullám egyetlen függvény.** A határ mintapontokból épül —
+   a nyugalmi magasság plusz a hullám plusz a sarok felé simán felfutó
+   lezúdulás —, és a mintákon Catmull-Rom lánc fut át, ami az egész hosszon
+   folytonos érintőt ad. Az első változat fél periódusonként külön Bézier-ívekből
+   rakta össze a hullámot, és a csatlakozásoknál megtört az érintő: a sáv attól
+   látszott szaggatottnak, hibásnak.
+3. **Minden határ amplitúdója azonos, csak a fázisuk más.** Ez az egyetlen módja
+   annak, hogy soha ne keresztezzék egymást: eltérő amplitúdóval két szomszédos
+   határ valahol összeérne, a szalag ott nullára fogyna, a folytatásban pedig
+   kifordulna. A nyugalmi magasságok különbsége mindig nagyobb, mint a kitérés
+   kétszerese — ennyivel változhat két azonos amplitúdójú, eltérő fázisú hullám
+   távolsága. A vastagság így is végig változik, csak épp nem tud elfogyni.
+4. **A sáv mély.** Jóval mélyebb a sima szekcióhatárnál, és ez nem díszítés: a
    folt a sáv **magasságából** él. Sekély sávban a lezúdulás széles, lapos teknő
    lenne, mert a `preserveAspectRatio="none"` vízszintesen sokkal jobban nyújt,
    mint függőlegesen.
-4. **A `flip` viszi a másik sarokba.** Egy lapon így nem ugyanott ismétlődik.
+5. **A hullám nem ismétlődik.** Két egymásra rakott szinusz, nem egész számú
+   frekvenciaaránnyal: egyetlen szinuszból gépi, ismétlődő minta lenne.
+6. **A `flip` viszi a másik sarokba.** Egy lapon így nem ugyanott ismétlődik.
+7. **A világoskék szekció mindkét oldalán ez a sáv áll**: fölötte lefelé zúdul,
+   alatta (`rise`) fölfelé — a kettő közrefogja és megvezeti a szekciót. Az
+   alsót nem a szekció rajzolja, hanem a **következő**, ugyanúgy, ahogy minden
+   szekcióhatárt: ott a `from` értéke világoskék, és ebből tudja, hogy fordítva
+   kell állnia. A szekciónak emiatt **nincs** függőleges térköze: a két mély sáv
+   adja a levegőt, a szokásos szekció-térköz csak eltolná a hullámoktól a
+   tartalmat.
+8. **Görgetésre sodródik**, ugyanúgy, mint a szekcióhatárok, rétegenként más
+   ütemben. A rajz mindkét oldalon **túlnyúlik** a nézetdobozon, tehát a
+   sodródás nem enged rést a széleken.
 
 A sáv blokk, mint a többi szekcióhatár: helyet foglal, nem lóg bele semmibe, és
 nem kell hozzá z-index-trükk, hogy a folt a szöveg mögé kerüljön. Szöveget soha

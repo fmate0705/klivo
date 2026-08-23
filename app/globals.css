@@ -543,10 +543,44 @@
     transform: scaleX(-1);
   }
 
+  .sky-band--rise .sky-band__canvas {
+    transform: scaleY(-1);
+  }
+
+  .sky-band--flip.sky-band--rise .sky-band__canvas {
+    transform: scale(-1, -1);
+  }
+
   .sky-band__canvas {
     display: block;
     width: 100%;
     height: 100%;
+  }
+
+  /**
+   * A rétegek görgetésre sodródnak — ugyanaz az elv, mint a szekcióhatárokon.
+   *
+   * A rajz mindkét oldalon túlnyúlik a nézetdobozon, tehát a sodródás nem
+   * enged rést a széleken. Ahol a böngésző nem ismeri a görgetéshez kötött
+   * idővonalat, ott időzített, lassú sodródás lép a helyére.
+   */
+  @supports not (animation-timeline: view()) {
+    .sky-band__layer {
+      animation: sky-band-drift 52s var(--ease-in-out) infinite alternate;
+    }
+  }
+
+  @supports (animation-timeline: view()) {
+    .sky-band {
+      view-timeline-name: --sky-band;
+      view-timeline-axis: block;
+    }
+
+    .sky-band__layer {
+      animation: sky-band-scroll linear both;
+      animation-timeline: --sky-band;
+      animation-range: cover 10% cover 90%;
+    }
   }
 
   .curls__waterline--slim {
@@ -719,6 +753,24 @@
   }
   to {
     transform: scaleX(1);
+  }
+}
+
+@keyframes sky-band-scroll {
+  from {
+    transform: translate3d(calc(var(--sky-drift, 5%) * -1), 0, 0);
+  }
+  to {
+    transform: translate3d(var(--sky-drift, 5%), 0, 0);
+  }
+}
+
+@keyframes sky-band-drift {
+  from {
+    transform: translate3d(calc(var(--sky-drift, 3%) * -0.6), 0, 0);
+  }
+  to {
+    transform: translate3d(calc(var(--sky-drift, 3%) * 0.6), 0, 0);
   }
 }
 
@@ -1288,6 +1340,7 @@
 
   .wave-layer,
   .divider__layer,
+  .sky-band__layer,
   .intro__sheet,
   .process__fill,
   .process-step__number,
