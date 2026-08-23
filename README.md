@@ -84,7 +84,8 @@ app/
   media/[name]/      A feltöltött borítóképek kiszolgálása
   globals.css        Design tokenek + a hullámmotor
 components/
-  wave/              WaveLayer, WaveBand, WaveSwirl, WaveRule, Bubbles — a hullám formanyelv
+  wave/              WaveCurls (hero), WaveBand (szekcióhatár, külön fájlban),
+                     WaveLayer, WaveRule, Bubbles — a hullám formanyelv
   motion/            MotionDriver, MotionBoot, Reveal — az egész oldal mozgása
   sections/          A szekciók: hero, szolgáltatások, folyamat, GYIK, CTA…
   ui/                Gomb, kártya, konténer, szekció, címsor, kép

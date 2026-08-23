@@ -2,60 +2,70 @@ import type { Metadata } from 'next';
 import { fontDisplay, fontSans } from '@/app/fonts';
 import { ButtonLink } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
-import { WaveSwirl } from '@/components/wave/wave-swirl';
+import { SiteNav } from '@/components/site/site-nav';
+import { SiteFooter } from '@/components/site/site-footer';
+import { WaveCurls } from '@/components/wave/wave-curls';
 
 /**
  * A 404 oldal.
  *
  * A gyökérben él, nem a `(site)` csoportban, mert a Next.js a nem létező
  * útvonalakra — beleértve az elrendezésen kívülieket is — ezt szolgálja ki. Így
- * viszont nem örökli a betűtípus-változókat, ezért azokat itt is ki kell tenni;
- * enélkül a 404 lenne az egyetlen oldal az egész site-on, amely rendszerbetűvel
- * jelenne meg.
+ * viszont nem örökli sem a betűtípus-változókat, sem a keretet: mindkettőt itt
+ * kell kitenni. Enélkül a 404 lenne az egyetlen oldal az egész site-on, amely
+ * rendszerbetűvel, fejléc és lábléc nélkül jelenne meg — pont ott, ahol a
+ * látogató a legjobban rá van utalva a navigációra.
  *
- * Nem hibaüzenetet ad, hanem továbbvezet: aki eltévedt, annak három konkrét
- * hely kell, nem egy nagy „404” felirat.
+ * A vízvonal és a lábléc ugyanaz a mély kék, tehát nem kell közéjük átvezetés —
+ * ugyanúgy egybeolvadnak, mint a záró felhívás és a lábléc.
+ *
+ * **Egy cselekvés.** Aki eltévedt, annak nem választék kell, hanem kiút: a
+ * főoldal. A fejlécben és a láblécben ott a teljes navigáció, ha valami
+ * konkrétat keres.
  */
 export const metadata: Metadata = {
-  title: 'Nincs ilyen oldal',
+  title: 'Ez az oldal nem található',
   description: 'A keresett oldal nem található. Innen tovább tudsz lépni a Klivo oldalain.',
   robots: { index: false, follow: true },
 };
 
 export default function NotFound() {
   return (
-    <main
-      data-tone="dark"
-      className={`${fontSans.variable} ${fontDisplay.variable} relative isolate flex min-h-svh flex-col justify-center overflow-hidden bg-blue py-24 text-on-dark`}
-    >
-      <WaveSwirl />
+    // A lap kitölti a képernyőt: rövid tartalomnál a lábléc alatt különben
+    // üres fehér sáv maradna, ami félkész oldal benyomását kelti.
+    <div className={`${fontSans.variable} ${fontDisplay.variable} flex min-h-svh flex-col`}>
+      <SiteNav />
 
-      <Container className="wave-content">
-        <p data-numeric className="text-soft font-display text-h3">
-          404
-        </p>
+      <main
+        id="main"
+        className="relative isolate flex flex-1 flex-col justify-center overflow-hidden bg-wave-2 pb-28 pt-32 text-ink lg:pb-32 lg:pt-40"
+      >
+        <WaveCurls align="top" waterline />
 
-        <h1 className="mt-4 max-w-3xl font-display text-h1 lg:text-display">
-          Ez az oldal nincs meg.
-        </h1>
+        <Container className="wave-content">
+          <p
+            data-numeric
+            className="text-body-sm font-semibold uppercase tracking-[0.08em] text-wave-9"
+          >
+            404
+          </p>
 
-        <p className="text-soft mt-6 max-w-prose text-body-lg">
-          Vagy elköltözött, vagy sosem létezett. Nem baj — innen egy kattintással ott vagy, ahova
-          indultál.
-        </p>
+          <h1 className="mt-3 max-w-3xl font-display text-h1">Ez az oldal nem található</h1>
 
-        <div className="mt-9 flex flex-wrap gap-3">
-          <ButtonLink href="/" size="lg" arrow>
-            Vissza a főoldalra
-          </ButtonLink>
-          <ButtonLink href="/szolgaltatasok" variant="secondary" tone="dark" size="lg">
-            Szolgáltatások
-          </ButtonLink>
-          <ButtonLink href="/kapcsolat" variant="secondary" tone="dark" size="lg">
-            Kapcsolat
-          </ButtonLink>
-        </div>
-      </Container>
-    </main>
+          <p className="mt-6 max-w-prose text-body-lg font-medium text-ink">
+            Elképzelhető, hogy a cím megváltozott, vagy elgépelés történt. A tartalom többi része
+            változatlanul elérhető — a fenti menüből minden oldal egy kattintásra van.
+          </p>
+
+          <div className="mt-9">
+            <ButtonLink href="/" size="lg" arrow>
+              Vissza a főoldalra
+            </ButtonLink>
+          </div>
+        </Container>
+      </main>
+
+      <SiteFooter />
+    </div>
   );
 }

@@ -16,16 +16,15 @@ csúsznak, árnyékot vetnek egymásra, és nagy tónuskülönbség van között
 papírból lennének kivágva, vagy mintha víz alatt egymásra úsznának. Az egész
 oldal ebből az egy formából épül:
 
-- a szekcióhatárok (`WaveBand`),
-- a szekciók háttere (`WaveField`),
-- a nyitóképernyő örvénylő hullámai (`WaveSwirl`),
+- a szekcióhatárok (`WaveBand`, a `components/wave/section-divider.tsx`-ben),
+- a nyitóképernyő és az aloldalak fejlécének örvénylő taréjai (`WaveCurls`),
 - a blogbejegyzések borítója, ha nincs képe,
 - a csapattagok portréja mögötti felület,
 - a nyitó animáció,
 - a kártyacímek alatti apró elválasztó (`WaveRule`),
 - és a márkajel maga.
 
-Nyolc helyen, nyolc léptékben ugyanaz a forma. Ettől érzi az ember egyetlen
+Hét helyen, hét léptékben ugyanaz a forma. Ettől érzi az ember egyetlen
 tervezett felületnek az oldalt, nem összeollózott szekcióknak.
 
 **Két dolog teszi hullámmá, és mindkettő kötelező:**
@@ -186,7 +185,16 @@ lapba ahelyett, hogy ablakként ülne rajta.
 
 ## 5. A hullámmotor
 
-Három forma, három feladat. Mindhárom kizárólag `transform`-ot animál.
+Két forma, két feladat, **két teljesen külön fájl**. Mindkettő kizárólag
+`transform`-ot és `opacity`-t animál.
+
+> A szétválasztás szándékos. A szekcióhatár viselkedése kész és jó; a
+> nyitóképernyő motorját viszont többször át kellett írni. Amíg közös
+> rétegkomponensen és közös osztályneveken osztoztak, minden hero-átírás
+> egyben a határokat is átírta — és pontosan ez történt egyszer: az összes
+> működő szekcióhatár egyszerre romlott el. Azóta a határ a
+> `components/wave/section-divider.tsx`-ben lakik, saját `divider-*`
+> osztályokkal és saját kulcskockákkal, amelyekhez a hullámmotor nem nyúl.
 
 ### `WaveBand` — a szekcióhatár
 
@@ -226,40 +234,67 @@ görgetésfigyelő. Ahol a böngésző nem támogatja, időalapú sodródás lé
 >    Ezért `view-timeline-name: --wave-band` a sávon, és a rétegek erre a névre
 >    hivatkoznak.
 
-### `WaveField` — a szekciók háttere
+### `WaveCurls` — a nyitóképernyő és az aloldalak fejléce
 
-Ugyanaz a rétegzés, csak nem sávban, hanem a teljes felületen, és jóval
-lassabban (44–76 s). Ez a harmadik referenciakép nyugodt, folyó szalagjai. A
-rétegek szélesebbek a nézetnél, és csak a peremük látszik: egy nézetbe beférő,
-kerek folt körnek látszik, nem hullámnak — ami hullámmá teszi, az a hosszú,
-lapos ív.
+Örvénylő taréjok: minden hullám koncentrikus, elliptikus **ívsávokból** áll
+(`lib/wave-curl.ts`), és a saját elforgatása adja, melyik irányból érkezik. Egy
+vízszintes hullámvonal ezt nem tudja — akárhány réteget rakunk egymásra, annak
+mindig egy iránya van, a referenciakép hullámai viszont körbemennek.
 
-Négy változat van, felületenként egy. **A sötét változatok tónusai a skála
-sötét végén maradnak**, mert a világos szöveg `wave-7`-en már csak 3,7:1
-kontrasztot ad — és mert a szekció így a legsötétebb ponton ér véget, tehát
-varrás nélkül csatlakozik a következő hullámsávhoz.
+Egy taréj felépítése kívülről befelé: **sötét perem → fehér fénycsík → tömör
+test**, mindhárom köré vékony fehér kontúr. Ettől olvasódik megvilágított
+víztömegnek, és nem lapos gyűrűnek.
 
-### `WaveSwirl` — a nyitóképernyő
+A nézetdoboz **négyzetes**, a skálázás `slice`. Így a taraj se álló, se fekvő
+nézetben nem nyúlik meg — a forma ugyanaz marad, csak más részlete látszik. A
+korábbi motor `preserveAspectRatio="none"`-t használt, és széles képernyőn
+laposra húzódott: pont a jellegzetes ív tűnt el.
 
-Nyolcértékes `border-radius`-szal formált, egymásba érő organikus foltok — az
-első két referenciakép örvénylő, összevissza hullámai. Nyolc réteg, mindegyik
-más ütemben sodródik.
+**A nagy ívek középpontja a képen kívül van.** Ez a kompozíció fő szabálya, és
+két változat bukott el rajta. Ha egy nagy taréj középpontja beesik a képbe,
+akkor a sáv két vége is beesik — egy ívnek a semmiben végződő vége pedig
+pontosan úgy néz ki, mint egy félbevágott hullám a képernyő közepén. Kívülről
+indítva csak az ív _közepe_ látszik: a hullám a képernyő széléről érkezik,
+átível a felületen, és a másik szélen megy ki.
 
-**Követi a mutatót.** Minden réteg más mértékben húz a kurzor felé (12–66
-pixel), tehát a felület nem egyben tolódik el, hanem _hullámzik_. Két elem kell
-rétegenként: a `track` viszi a mutatókövetést, a `shape` a saját sodródását —
-egy elem `transform`-ján nem futhat egyszerre animáció és interaktív érték.
+**Három méret, nem egy.** Egyméretű hullámokból minta lesz, nem víz. A nagyok a
+keret mentén futnak, az aprók (kereten belüli középponttal) a hézagokat töltik
+ki. Az aprók vége látszik, ezért erősebb hegyesedést kapnak — hegyben elfogyó ív
+kis hullám, tompán elvágott ív viszont hiba.
 
-**A kompozíció felezve van.** A bal oldalon — ahol a címsor és a bekezdés ül —
-csak a skála mély vége szerepel; az élénk kékek a jobb oldalra kerülnek, ahol
-nincs olvasnivaló. A záró réteg a legmélyebb kék, teljes szélességben: enélkül a
-nyitóképernyő világos kékben érne véget, a következő hullámsáv viszont a mély
-kékből indul, és éles vonal maradna köztük.
+**Minden taréj más alakú.** Négy paraméter formálja: az ív hossza (`span`), a
+becsavarodás (`swirl`), a belső sávok rövidülése (`inset`) és a rövidülés
+elosztása a két vég között (`lead`). A becsavarodás a legfontosabb: a belső
+sávok középpontja a taréj csúcsa felé csúszik, a gyűrűk egyik oldalon
+összetorlódnak, a másikon szétnyílnak. Enélkül minden taréj ugyanaz a félhold,
+akárhogy forgatjuk.
 
-**Keskeny nézetben az élénk rétegek átlátszóbbak** (`--swirl-damp: 0.3`). Ott a
-szöveg teljes szélességben fut, tehát belelógna az élénk kékekbe — fehér szöveg
-a `wave-6`-on 2,8:1, ami olvashatatlan. A kompozíció formája nem változik, csak
-sötétebb lesz.
+**A tónust a hely adja, nem kézi érték.** A taréj csúcsának magasságából
+számolódik: a felső kétharmadban csak a skála világos vége szerepel, mert ott ül
+a címsor és a bekezdés — tintaszínű szöveg a `wave-5`-ön 7,5:1, a `wave-7`-en
+már csak 3,6:1. Kézzel osztott palettáknál ez minden átrendezésnél elcsúszott.
+Egyik tónus sem lehet `wave-2`, a felület saját színe: az a sáv eltűnne, és a
+taréj kilyukasztottnak látszana.
+
+**A rajzolási sorrend a tónus mélysége.** Vízben a közelebbi, sötétebb hullám
+takarja a távolabbit; ha a rétegsorrend a felsorolást követi, a kép lapos
+matricákra esik szét.
+
+**Követi a mutatót, de görgetésre nem mozog.** Minden taréj más mértékben húz a
+kurzor felé, a globális `--pointer-x/y` változókból — komponens-szintű
+JavaScript nélkül, szerver komponensként. Görgetéshez kötött forgás is volt itt,
+de harminc egyszerre forgó, saját rétegre emelt SVG-csoport minden görgetési
+képkockán újrarajzoltatta a teljes felületet, és érezhetően akadt. A görgetés a
+szekcióhatárok dolga.
+
+**Az aloldalak fejléce ugyanez, felülre igazítva** (`align="top"`): a
+rajzterület a doboznál másfélszer magasabb, tehát minden méretnél pontosan a
+világos felső kétharmad látszik. A `slice` skálázás magától a doboz arányától
+függően vágna, és a szöveg olvashatósága nem múlhat ezen.
+
+**A vízvonal zárja le.** A felület alján tömör `wave-9` blokk, hullámos felső
+éllel: a következő szekcióhatárnak egyszínű felülettel kell találkoznia, az
+örvények alja viszont tarka.
 
 ### `WaveRule` — az apró elválasztó
 
@@ -325,7 +360,8 @@ lenyíló magassága maga az interakció), és a statikus árnyék a hullámrét
   ír két CSS változót a `<html>`-re; a rétegek ezeket olvassák. Így az
   interaktivitás egyetlen bájt komponens-szintű JavaScriptbe sem kerül, és a
   hullámkomponensek szerver komponensek maradhatnak.
-- **A szekcióhatárok görgetésre sodródnak** (lásd `WaveBand`).
+- **A szekcióhatárok görgetésre sodródnak** (lásd `WaveBand`). A
+  nyitóképernyő taréjai viszont **nem** — lásd `WaveCurls`.
 - **A gombokon víz emelkedik** rámutatásra: egy hullámperemű réteg 220 ms alatt
   följebb ér. Csak `@media (hover: hover) and (pointer: fine)` mögött — érintésen
   a koppintás hamis hovert vált ki.

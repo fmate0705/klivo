@@ -1,21 +1,23 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { Container } from '@/components/ui/container';
-import { WaveSwirl } from '@/components/wave/wave-swirl';
+import { WaveCurls } from '@/components/wave/wave-curls';
 import { Bubbles } from '@/components/wave/bubbles';
 import { SmartImage } from '@/components/ui/smart-image';
 
 /**
  * Az aloldalak fejléce.
  *
- * Ugyanaz a világos felület és ugyanazok a mutatót követő hullámszalagok, mint
- * a főoldali nyitóképernyőn — csak **összenyomva**: az aloldalon a látogató már
- * döntött, hogy itt akar lenni, tehát nem egy újabb teljes képernyős bevezető
- * kell neki, hanem a tartalom. A közös formanyelv viszont megmarad, így minden
- * oldal ugyanannak az oldalnak érződik.
+ * Ugyanaz a hullámmotor, mint a főoldali nyitóképernyőn (`WaveCurls`), csak
+ * alacsonyabb felületen: az aloldalon a látogató már döntött, hogy itt akar
+ * lenni, tehát nem egy újabb teljes képernyős bevezető kell neki, hanem a
+ * tartalom. A közös formanyelv viszont megmarad, így minden oldal ugyanannak
+ * az oldalnak érződik.
  *
- * **Ha kép is van, a víz még lejjebb kezdődik.** A kép fehér felületen ül, és
- * keret nélkül — így beleolvad a lapba ahelyett, hogy ablakként ülne rajta.
+ * **A magasság fix.** Minden aloldal fejléce ugyanakkora, akármilyen hosszú a
+ * címsor, és akár van mellette kép, akár nincs. Tartalomhoz igazodó
+ * magasságnál oldalanként más méretű hullámfelület fogadná a látogatót — az
+ * pedig nem formanyelv, hanem esetlegesség.
  *
  * Morzsamenü nincs: az oldal két szint mély, a fejlécből minden elérhető, és
  * egy kétszavas morzsa csak zajt vitt a címsor fölé. A hierarchiát a
@@ -35,10 +37,13 @@ export function PageHeader({
 }) {
   return (
     <section
-      className="relative isolate overflow-hidden bg-white pb-28 pt-28 text-ink sm:pt-32 lg:pb-36 lg:pt-40"
+      // Fix magasság: minden aloldal fejléce ugyanakkora, függetlenül attól,
+      // milyen hosszú a címsor vagy van-e mellette kép. Enélkül oldalanként
+      // más magasságú hullámfelület fogadná a látogatót.
+      className="relative isolate flex min-h-[clamp(28rem,46vh,34rem)] flex-col justify-center overflow-hidden bg-wave-2 pb-28 pt-32 text-ink lg:min-h-[38rem] lg:pb-32 lg:pt-40"
       aria-labelledby="oldal-cim"
     >
-      <WaveSwirl className={image ? 'wave-swirl--header-low' : 'wave-swirl--header'} />
+      <WaveCurls align="top" waterline />
       <Bubbles />
 
       <Container className="wave-content">
@@ -55,7 +60,7 @@ export function PageHeader({
 
             {lead ? (
               <p
-                className="rise text-soft mt-6 max-w-prose text-body-lg"
+                className="rise mt-6 max-w-prose text-body-lg font-medium text-ink"
                 style={{ '--rise-delay': '90ms' } as React.CSSProperties}
               >
                 {lead}

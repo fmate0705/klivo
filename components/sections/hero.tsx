@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import { hero, primaryCta, secondaryCta } from '@/lib/content/site';
 import { ButtonLink } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
-import { WaveSwirl } from '@/components/wave/wave-swirl';
+import { WaveCurls } from '@/components/wave/wave-curls';
 import { Bubbles } from '@/components/wave/bubbles';
 import { WordCycle } from '@/components/hero/word-cycle';
 import { ScrollCue } from '@/components/hero/scroll-cue';
@@ -34,7 +34,7 @@ export function Hero() {
       className="relative isolate flex min-h-[90svh] flex-col overflow-hidden bg-wave-2 pb-8 pt-32 text-ink sm:pb-10 lg:pt-40"
       aria-labelledby="hero-cim"
     >
-      <WaveSwirl />
+      <WaveCurls waterline />
       <Bubbles />
 
       <Container className="wave-content flex flex-1 flex-col">
@@ -60,7 +60,7 @@ export function Hero() {
           </h1>
 
           <p
-            className="rise mt-9 max-w-prose text-body-lg font-medium text-ink-soft"
+            className="rise mt-9 max-w-prose text-body-lg font-medium text-ink"
             style={{ '--rise-delay': `${AFTER_TITLE_MS + 80}ms` } as CSSProperties}
           >
             {hero.subtitle}
@@ -79,10 +79,15 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Zárósor a mély vízen: itt már a sötét szalagok futnak, tehát fehér. */}
+        {/* Zárósor a mély vízen: itt már a sötét szalagok futnak, tehát fehér.
+
+            A felső vonal csak `sm`-től van meg. Mobilon a sor két sorba törik,
+            és a teteje kicsúszik a vízvonal fölé — a vonal ott a világos vízen
+            ülne, egy vízszintes karcként a hullámok fölött. A vízvonal hullámos
+            éle amúgy is elválasztja a sort a hero törzsétől. */}
         <div
           data-tone="dark"
-          className="rise border-soft mt-auto flex flex-col gap-4 border-t pt-6 text-on-dark sm:flex-row sm:items-baseline sm:justify-between"
+          className="rise border-soft mt-auto flex flex-col gap-4 pt-6 text-on-dark sm:flex-row sm:items-baseline sm:justify-between sm:border-t"
           style={{ '--rise-delay': `${AFTER_TITLE_MS + 280}ms` } as CSSProperties}
         >
           <p className="flex flex-wrap items-baseline gap-x-2 text-body-lg">

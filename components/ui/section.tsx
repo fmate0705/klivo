@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
-import { WaveBand, type Tone } from '@/components/wave/wave-band';
+import { WaveBand, type Tone } from '@/components/wave/section-divider';
 import { Bubbles } from '@/components/wave/bubbles';
 
 /**

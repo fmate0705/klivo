@@ -227,11 +227,20 @@
     background-color: rgb(var(--surface));
   }
 
-  [data-tone='dark'] .text-soft {
+  /**
+   * A hangnem-osztályok az elemre **magára** is vonatkoznak, nem csak a
+   * leszármazottaira. A nyitóképernyő zárósora egyszerre viseli a
+   * `data-tone="dark"` jelzőt és a `border-soft` osztályt — a puszta
+   * leszármazott-szelektor ott nem talált, és a világos hajszálvonal éles,
+   * világos csíkként húzódott át a mély kék vízvonalon.
+   */
+  [data-tone='dark'] .text-soft,
+  [data-tone='dark'].text-soft {
     color: rgb(var(--on-dark-muted));
   }
 
   [data-tone='dark'] .border-soft,
+  [data-tone='dark'].border-soft,
   [data-tone='dark'] .divide-soft > * + * {
     border-color: rgb(var(--line-dark));
   }
@@ -241,7 +250,8 @@
     color: rgb(var(--wave-1) / 0.45);
   }
 
-  [data-tone='dark'] .bg-raised {
+  [data-tone='dark'] .bg-raised,
+  [data-tone='dark'].bg-raised {
     background-color: rgb(var(--wave-1) / 0.08);
   }
 }
@@ -255,7 +265,8 @@
       színétől lépdel a lentebbiig. Görgetésre sodródik.
    2. `.wave-stack` — hullámok egy dobozon belül: kártyaborító, portré.
       A szekciók háttere **sima**; hullám csak a szekciók között van.
-   3. `.wave-swirl` — a nyitóképernyő márványos szalagjai. Ez követi a mutatót.
+   3. `.curls` — a nyitóképernyő örvénylő taréjai. Ez követi a mutatót, és
+      görgetésre gördül. A geometria a `lib/wave-curl.ts`-ben.
 
    **A forma SVG, nem `border-radius`.** A CSS-ellipszis egyetlen kupolát tud;
    egy hullám viszont váltakozó hegyekből és völgyekből áll, sima érintővel a
@@ -267,22 +278,28 @@
    ========================================================================== */
 
 @layer components {
-  /* ---- Szekcióhatár ---------------------------------------------------- */
+  /* ==========================================================================
+     Szekcióhatár — **önálló blokk, semmivel nem osztozik**
+     --------------------------------------------------------------------------
+     A `components/wave/section-divider.tsx` párja. Saját osztálynevek
+     (`divider-*`), mert korábban a nyitóképernyő hullámmotorjával közös
+     osztályokon osztozott, és annak átírása ezt is átírta volna. A határ
+     viselkedése kész és jó — ezért van elkülönítve.
+     ========================================================================== */
 
-  .wave-band {
+  .divider {
     position: relative;
     width: 100%;
-    height: var(--band-height, clamp(64px, 7vw, 108px));
-    background-color: rgb(var(--band-base));
+    height: var(--divider-height, clamp(88px, 8.5vw, 140px));
+    background-color: rgb(var(--divider-base));
     /**
      * `clip`, nem `hidden`.
      *
      * Az `overflow: hidden` görgetőkonténert csinál az elemből, és a
      * görgetésvezérelt idővonal a legközelebbi görgetőkonténerhez kötődik — egy
-     * soha nem görgő dobozhoz kötött idővonal pedig némán, hibaüzenet nélkül áll
-     * meg. Az `overflow: clip` ugyanúgy vág, de nem hoz létre
-     * görgetőkonténert. A `hidden` előtte a tartalék: aki a `clip`-et nem
-     * ismeri, átlépi, és marad a vágás.
+     * soha nem görgő dobozhoz kötött idővonal pedig némán, hibaüzenet nélkül
+     * áll meg. Az `overflow: clip` ugyanúgy vág, de nem hoz létre
+     * görgetőkonténert. A `hidden` előtte a tartalék.
      */
     overflow: hidden;
     overflow: clip;
@@ -291,40 +308,50 @@
   }
 
   /** Tükrözés: a hullám a másik irányba hajlik. */
-  .wave-band--flip {
+  .divider--flip {
     transform: scaleX(-1);
   }
 
   /**
    * Egy hullámréteg: tömör felület, a tetején hullámos taraj.
    *
-   * A tömör rész a réteg tetejétől a szülő aljáig ér, sőt egy kicsit túl is —
+   * A tömör rész a réteg tetejétől a sáv aljáig ér, sőt egy kicsit túl is —
    * enélkül a kitöltés végén éles vízszintes él maradna. A taraj **külön,
    * alacsony sáv** a blokk fölött: az útvonal 100 egység magas, és ha a teljes
    * réteget fedné, a függőleges nyújtás a sima ívet meredek sátorrá torzítaná.
    *
-   * A réteg kétszer olyan széles a szülőnél: a vízszintes sodródás így sehol
-   * nem enged rést a széleken.
+   * A réteg kétszer olyan széles a sávnál: a vízszintes sodródás így sehol nem
+   * enged rést a széleken.
    */
-  .wave-layer {
+  .divider__layer {
     position: absolute;
     left: -50%;
     width: 200%;
-    top: var(--layer-top, 50%);
+    top: var(--divider-top, 50%);
     bottom: -1px;
     display: block;
-    color: rgb(var(--layer-color));
+    color: rgb(var(--divider-color));
     background-color: currentColor;
     will-change: transform;
   }
 
-  .wave-layer__crest {
+  .divider__crest {
     position: absolute;
     left: 0;
     bottom: 100%;
     display: block;
     width: 100%;
-    height: var(--layer-crest, clamp(40px, 4.5vw, 86px));
+    /**
+     * A taraj sosem lehet magasabb, mint a saját rétegének távolsága a sáv
+     * tetejétől.
+     *
+     * A felső rétegnél a fix magasság kilógott a sávból, a `clip` levágta, és a
+     * hullám helyén **éles vízszintes vonal** maradt — a nyitóképernyő alatti
+     * határon ez látszott a legjobban, mert ott a legnagyobb a tónusugrás. A
+     * `min()` csak ezt a kilógást vágja vissza: az alsó rétegeknél a fix érték
+     * marad érvényben, tehát a többi határ változatlan.
+     */
+    height: min(clamp(40px, 4.5vw, 90px), var(--divider-top, 100%));
     /* Egy hajszálnyi átfedés: enélkül a taraj és a tömör blokk közé
        felskálázáskor bekerülhet egy világos pixelsor. */
     margin-bottom: -1px;
@@ -342,30 +369,28 @@
    * időzített, lassú sodródást kapnak. A hatás halkabb, de nincs üres állapot.
    */
   @supports not (animation-timeline: view()) {
-    .wave-band .wave-layer {
-      animation: wave-drift 46s var(--ease-in-out) infinite alternate;
+    .divider__layer {
+      animation: divider-drift 46s var(--ease-in-out) infinite alternate;
     }
   }
 
   @supports (animation-timeline: view()) {
     /**
      * A sáv **saját maga** az idővonal alanya, és a hullámok erre a névre
-     * hivatkoznak.
-     *
-     * A rövidebb `animation-timeline: view()` a hullámra magára mutatna, az
-     * pedig a sávnál kétszer szélesebb — a látható tartománya nem esik egybe a
-     * sávéval, és a haladás értelmezhetetlenre nyúlik. Névvel a mérce
-     * egyértelmű: a sáv az, ami átúszik a képernyőn.
+     * hivatkoznak. A rövidebb `view()` a rétegre magára mutatna, az pedig a
+     * sávnál kétszer szélesebb — a látható tartománya nem esik egybe a sávéval.
      */
-    .wave-band {
-      view-timeline-name: --wave-band;
+    .divider {
+      view-timeline-name: --divider;
       view-timeline-axis: block;
     }
 
-    .wave-band .wave-layer {
-      animation: band-scroll linear both;
-      animation-timeline: --wave-band;
-      animation-range: cover 0% cover 100%;
+    .divider__layer {
+      animation: divider-scroll linear both;
+      animation-timeline: --divider;
+      /* Szűkebb tartomány: a sodródás nagyobb részét a sáv látható szakasza
+         alatt teszi meg, tehát gyorsabbnak érződik. */
+      animation-range: cover 12% cover 88%;
     }
   }
 
@@ -382,17 +407,25 @@
     contain: paint;
   }
 
-  .wave-swirl__track .wave-layer,
   .wave-stack .wave-layer {
     animation: wave-drift var(--layer-duration, 64s) var(--ease-in-out) var(--layer-delay, 0s)
       infinite alternate;
   }
 
-  /* ---- A nyitóképernyő szalagjai --------------------------------------- */
+  /* ---- A nyitóképernyő örvényei ---------------------------------------- */
 
-  .wave-swirl {
+  /**
+   * A hullámmotor felülete.
+   *
+   * Kitölti a nyitóképernyőt, és a rajzterületet `slice` skálázással teríti rá:
+   * a taréj alakja így se álló, se fekvő nézetben nem torzul, csak más
+   * részlete látszik. A korábbi motor `preserveAspectRatio="none"`-nal
+   * dolgozott, és széles képernyőn laposra húzódott — épp a jellegzetes ív
+   * tűnt el belőle.
+   */
+  .curls {
     position: absolute;
-    inset: var(--swirl-start, 0) 0 0 0;
+    inset: var(--curls-start, 0) 0 0 0;
     z-index: 0;
     overflow: hidden;
     overflow: clip;
@@ -400,70 +433,61 @@
     contain: paint;
   }
 
-  /**
-   * Az aloldalak fejlécében a víz lejjebb kezdődik, keskeny nézetben pedig még
-   * lejjebb: ott a címsor és a felvezető több sorba törik, és a szöveg
-   * különben a hullámok alá kerülne.
-   */
-  .wave-swirl--header {
-    --swirl-start: 70%;
-  }
-
-  @media (min-width: 768px) {
-    .wave-swirl--header {
-      --swirl-start: 58%;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .wave-swirl--header {
-      --swirl-start: 48%;
-    }
-  }
-
-  /**
-   * Ha a fejlécben kép vagy űrlap is áll, a bal hasáb szövege lejjebb ér — a
-   * víz ezért még mélyebbről indul.
-   */
-  .wave-swirl--header-low {
-    --swirl-start: 82%;
-  }
-
-  @media (min-width: 768px) {
-    .wave-swirl--header-low {
-      --swirl-start: 74%;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .wave-swirl--header-low {
-      --swirl-start: 66%;
-    }
-  }
-
-  /**
-   * A mutatókövetés hordozója. A szalag maga viszi a saját sodródását — egy
-   * elem `transform`-ján nem futhat egyszerre animáció és interaktív érték.
-   */
-  /**
-   * A mutatókövetés hordozója — és a szalag dőlése.
-   *
-   * A referenciakép hullámai nem mind vízszintesek: néhány oldalról érkezik.
-   * A dőlést a hordozó adja, mert a szalag saját `transform`-ján már fut a
-   * sodródás. A nagyítás a dőlés miatt kell: elforgatva a sarkoknál kilátszana
-   * a háttér.
-   */
-  .wave-swirl__track {
-    position: absolute;
-    inset: 0;
+  .curls__canvas {
     display: block;
-    transform: translate3d(
-        calc(var(--pointer-x) * var(--layer-pull, 0px)),
-        calc(var(--pointer-y) * var(--layer-pull-y, 0px)),
-        0
-      )
-      rotate(var(--layer-tilt, 0deg)) scale(var(--layer-zoom, 1));
-    transition: transform 1100ms var(--ease-out);
+    width: 100%;
+    height: 100%;
+  }
+
+  /**
+   * A rajzterület másfélszer magasabb a doboznál, a tetejéhez igazítva.
+   *
+   * Így a látható rész mindig a felső kétharmad — akármilyen arányú a fejléc.
+   * Enélkül keskeny nézetben a teljes rajzterület látszana, benne az alsó
+   * harmad sötét taréjaival, épp a bevezető szöveg mögött.
+   */
+  .curls__canvas--top {
+    height: 154%;
+  }
+
+  /**
+   * A mutatókövetés hordozója.
+   *
+   * SVG-ben a `transform` felhasználói egységekben mozgat, nem képpontban —
+   * ezért a húzás mértéke itt szorzó, és a `--pointer-x` (−1…1) szorozza.
+   */
+  .curls__track {
+    transform: translate(
+      calc(var(--pointer-x) * var(--curl-pull, 0) * 1px),
+      calc(var(--pointer-y) * var(--curl-pull-y, 0) * 1px)
+    );
+    transition: transform 1200ms var(--ease-out);
+  }
+
+  /**
+   * A tömör vízvonal a felület alján. A taraj a blokk fölött ül, ugyanúgy,
+   * mint a szekcióhatároknál — így a kettő varrás nélkül találkozik.
+   */
+  .curls__waterline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: clamp(88px, 9vh, 124px);
+    display: block;
+    color: rgb(var(--wave-9));
+    background-color: currentColor;
+  }
+
+  .curls__waterline-crest {
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+    margin-bottom: -1px;
+    display: block;
+    width: 100%;
+    height: clamp(40px, 5vw, 96px);
+    color: inherit;
   }
 
   /**
@@ -560,6 +584,26 @@
  * Rétegenként más mértékben és irányban — ettől „folyik” a felület ahelyett,
  * hogy egyben tolódna el.
  */
+/* ---- A szekcióhatár saját keyframe-jei ---------------------------------- */
+
+@keyframes divider-scroll {
+  from {
+    transform: translate3d(calc(var(--divider-drift, 5%) * -1), 0, 0);
+  }
+  to {
+    transform: translate3d(var(--divider-drift, 5%), 0, 0);
+  }
+}
+
+@keyframes divider-drift {
+  from {
+    transform: translate3d(calc(var(--divider-drift, 3%) * -1), 0, 0);
+  }
+  to {
+    transform: translate3d(var(--divider-drift, 3%), 0, 0);
+  }
+}
+
 @keyframes band-scroll {
   from {
     transform: translate3d(calc(var(--layer-drift, 5%) * -1), 0, 0);
@@ -947,7 +991,7 @@
     position: fixed;
     inset: 0;
     z-index: 60;
-    /* A sávok szélesebbek a nézetnél; a `<html>` vízszintes vágása a
+    /* A taréjok szélesebbek a nézetnél; a `<html>` vízszintes vágása a
        `position: fixed` elemekre nem terjed ki. */
     overflow: hidden;
     pointer-events: none;
@@ -957,30 +1001,48 @@
     display: block;
   }
 
-  .intro__layer {
+  /**
+   * A függöny lapja.
+   *
+   * Három másodperc után egyben húzódik el fölfelé — a mozgás `transform`,
+   * tehát a compositoron marad, és nem számoltat elrendezést. A `forwards`
+   * miatt a végállapot megmarad: a lap fönt marad, nem villan vissza.
+   */
+  .intro__sheet {
     position: absolute;
     inset: 0;
-    animation: intro-lift var(--intro-duration, 900ms) var(--ease-in-out) var(--intro-delay, 0ms)
-      forwards;
+    background-color: rgb(var(--wave-2));
+    animation: intro-lift 900ms var(--ease-in-out) 2600ms forwards;
   }
 
-  /** A sáv maga: tömör felület, az alján hullámmal. */
-  .intro__wave {
+  /** A hullámos alsó él: a vízvonal folytatása lefelé. */
+  .intro__skirt {
     position: absolute;
     left: 0;
     right: 0;
-    top: -14%;
-    bottom: 0;
+    top: 100%;
+    height: clamp(48px, 6vh, 96px);
     display: block;
+    color: rgb(var(--wave-9));
   }
 
-  /* A függöny hullámai a tetejüktől lefelé tömörek, tehát a rétegnek fordítva
-     kell állnia: a taraj alul van. */
-  .intro__wave .wave-layer {
-    top: auto;
-    bottom: 0;
+  .intro__skirt-wave {
+    display: block;
+    width: 100%;
     height: 100%;
-    transform: scaleY(-1);
+    margin-top: -1px;
+  }
+
+  /**
+   * A taréjok lassan ráközelítenek, amíg a függöny áll.
+   *
+   * Ez az egyetlen mozgás, ami a várakozás alatt történik — épp elég ahhoz,
+   * hogy a lap ne tűnjön befagyottnak, és nem annyi, hogy elvonja a figyelmet
+   * a márkajelről. A mutatókövetés emellett fut: a `WaveCurls` a globális
+   * `--pointer-x/y` változókból dolgozik.
+   */
+  .intro .curls__canvas {
+    animation: intro-zoom 3500ms var(--ease-out) both;
   }
 
   .intro__mark {
@@ -989,7 +1051,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: intro-mark 2300ms var(--ease-out) forwards;
+    animation: intro-mark 3000ms var(--ease-out) forwards;
+  }
+}
+
+@keyframes intro-zoom {
+  from {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1);
   }
 }
 
@@ -1140,6 +1211,8 @@
   }
 
   .wave-layer,
+  .divider__layer,
+  .intro__sheet,
   .process__fill,
   .process-step__number,
   .process-step__dot,
@@ -1150,7 +1223,7 @@
     animation: none !important;
   }
 
-  .wave-swirl__track {
+  .curls__track {
     transform: none !important;
     transition: none !important;
   }

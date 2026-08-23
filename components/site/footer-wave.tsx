@@ -1,4 +1,4 @@
-import { WaveBand, type Tone } from '@/components/wave/wave-band';
+import { WaveBand, type Tone } from '@/components/wave/section-divider';
 
 /**
  * Átvezetés a láblécbe.

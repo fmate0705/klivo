@@ -44,7 +44,10 @@ for (const path of paths.length ? paths : ['/']) {
       window.scrollTo({ top: 0, behavior: 'instant' });
     });
   }
-  await page.waitForTimeout(1400);
+  // A nyitó függöny 3,5 másodpercig takarja a képernyőt: enélkül róla készülne
+  // a kép, nem az oldalról.
+  const curtain = await page.locator(`.intro__sheet`).count();
+  await page.waitForTimeout(curtain ? 3800 : 1400);
   const name = (path === '/' ? 'home' : path.replace(/\//g, '-').replace(/^-/, '')) + `-${width}`;
   await page.screenshot({ path: `${out}/${name}.png`, fullPage: full });
   console.log(`${out}/${name}.png`);

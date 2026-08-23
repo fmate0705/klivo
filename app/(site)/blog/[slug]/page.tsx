@@ -11,7 +11,7 @@ import { Section } from '@/components/ui/section';
 import { Reveal, staggerDelay } from '@/components/motion/reveal';
 import { PostCover } from '@/components/blog/post-cover';
 import { PostCard } from '@/components/blog/post-card';
-import { WaveSwirl } from '@/components/wave/wave-swirl';
+import { WaveCurls } from '@/components/wave/wave-curls';
 import { CtaBand } from '@/components/sections/cta-band';
 
 /**
@@ -68,8 +68,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       />
 
       <article>
-        <header className="relative isolate overflow-hidden bg-white pb-28 pt-28 text-ink sm:pt-32 lg:pb-32 lg:pt-40">
-          <WaveSwirl className="wave-swirl--header" />
+        <header className="relative isolate flex min-h-[clamp(28rem,46vh,34rem)] flex-col justify-center overflow-hidden bg-wave-2 pb-28 pt-32 text-ink lg:min-h-[38rem] lg:pb-32 lg:pt-40">
+          <WaveCurls align="top" waterline />
 
           <Container className="wave-content">
             <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
@@ -80,7 +80,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
                 <h1 className="rise mt-3 font-display text-h1">{post.title}</h1>
 
-                <p className="text-soft mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-body-sm">
+                <p className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-body-sm font-medium text-ink">
                   <time dateTime={toDateAttribute(published)}>{formatDate(published)}</time>
                   <span aria-hidden="true">·</span>
                   <span>{post.readingMinutes} perc olvasás</span>

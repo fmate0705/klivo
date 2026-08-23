@@ -1,17 +1,20 @@
 import type { CSSProperties } from 'react';
 import { cn } from '@/lib/cn';
-import { WaveLayer } from '@/components/wave/wave-layer';
+import { WAVE_VIEWBOX, wavePath, waveLine } from '@/lib/wave-path';
 
 /**
- * A szekcióhatár hulláma.
+ * A szekcióhatár hulláma — **önálló, semmivel nem osztozó modul**.
+ *
+ * Ez a fájl a szekciók közötti átvezetés teljes kódja: a komponens, a formák és
+ * az osztálynevek is csak ide tartoznak (`divider-*`). Korábban közös
+ * rétegkomponensen és közös CSS-osztályokon osztozott a nyitóképernyő
+ * hullámmotorjával, és emiatt a hero átírása egyben ezt is átírta volna.
+ * A határ viselkedése viszont kész és jó — ezért van külön.
  *
  * Három sima, hosszú hullám egymáson: a fenti szekció színétől a lentebbiig
  * lépdelnek, és mindegyik gerincén ott a vékony **fehér fénykontúr**. Ez a
  * kontúr a referenciaképek egyik kulcsa — enélkül a szomszédos tónusok
  * egymásba folynak, és nem látszik, hogy rétegek vannak.
- *
- * Három réteg, nem öt. Az öt réteg zsúfolt volt: a sáv nem átvezetésnek
- * látszott, hanem díszítésnek.
  *
  * A rétegek görgetésre sodródnak vízszintesen, egymáshoz képest eltérő
  * mértékben — ettől él a felület, miközben semmi nem ugrik.
@@ -45,7 +48,7 @@ const SCALE = [
   'wave-9',
 ] as const;
 
-/** A négy szekciófelület helye a skálán. */
+/** A szekciófelületek helye a skálán. */
 const SURFACE: Record<string, (typeof SCALE)[number]> = {
   white: 'wave-1',
   sky: 'wave-3',
@@ -76,8 +79,7 @@ const ACCENT = ['wave-4', 'wave-6'] as const;
  *
  * A sáv teteje a fenti szekció felülete, az alja a lentebbié; a közbenső
  * rétegek egyenletesen osztják el a kettő közti utat. Ha a két felület közel
- * van egymáshoz a skálán, a kiemelő tónusok lépnek a helyükre — lásd
- * `ACCENT`.
+ * van egymáshoz a skálán, a kiemelő tónusok lépnek a helyükre — lásd `ACCENT`.
  */
 function toneStep(from: Tone, to: Tone, index: number, total: number): string {
   const a = indexOf(from);
@@ -96,14 +98,14 @@ function toneStep(from: Tone, to: Tone, index: number, total: number): string {
 /**
  * A három réteg alakja.
  *
- * Hosszú hullámok (1–1,6 hegy a teljes szélességen) és kicsi kitérés: a
- * referenciaképek hullámai nyugodtak, nem fodrozódnak. A fázis rétegenként
- * más, tehát a gerincek nem esnek egybe.
+ * Hosszú hullámok (1–2 hegy a teljes szélességen) és mérsékelt kitérés: a
+ * referenciaképek határai nyugodtak, nem fodrozódnak. A fázis rétegenként más,
+ * tehát a gerincek nem esnek egybe.
  */
 const SHAPES = [
-  { crests: 0.9, amplitude: 0.34, phase: 0, top: 0.26, skew: 0.4, drift: '5%', line: 0.55 },
-  { crests: 1.3, amplitude: 0.3, phase: 0.55, top: 0.52, skew: 0.3, drift: '-8%', line: 0.5 },
-  { crests: 1.8, amplitude: 0.24, phase: 0.25, top: 0.74, skew: 0.45, drift: '12%', line: 0.45 },
+  { crests: 0.9, amplitude: 0.34, phase: 0, top: 0.26, skew: 0.4, drift: '9%', line: 0.55 },
+  { crests: 1.3, amplitude: 0.3, phase: 0.55, top: 0.52, skew: 0.3, drift: '-14%', line: 0.5 },
+  { crests: 1.8, amplitude: 0.24, phase: 0.25, top: 0.74, skew: 0.45, drift: '20%', line: 0.45 },
 ];
 
 const DEPTH: Record<'sm' | 'md' | 'lg', string> = {
@@ -136,31 +138,61 @@ export function WaveBand({
   return (
     <div
       aria-hidden="true"
-      className={cn('wave-band', flip && 'wave-band--flip', className)}
+      className={cn('divider', flip && 'divider--flip', className)}
       style={
         {
-          '--band-base': `var(--${SURFACE[from] ?? from})`,
-          '--band-height': DEPTH[depth],
+          '--divider-base': `var(--${SURFACE[from] ?? from})`,
+          '--divider-height': DEPTH[depth],
         } as CSSProperties
       }
     >
       {shapes.map((shape, index) => {
         const last = index === shapes.length - 1;
         const tone = last ? (SURFACE[to] ?? to) : toneStep(from, to, index, shapes.length);
+
         return (
-          <WaveLayer
+          <span
             key={index}
-            tone={tone}
-            top={shape.top}
-            crest="clamp(40px, 4.5vw, 90px)"
-            crests={shape.crests}
-            amplitude={shape.amplitude}
-            phase={shape.phase}
-            skew={shape.skew}
-            line={shape.line}
-            drift={shape.drift}
-            zIndex={index}
-          />
+            className="divider__layer"
+            style={
+              {
+                '--divider-color': `var(--${tone})`,
+                '--divider-top': `${shape.top * 100}%`,
+                '--divider-drift': shape.drift,
+                zIndex: index,
+              } as CSSProperties
+            }
+          >
+            <svg
+              className="divider__crest"
+              viewBox={WAVE_VIEWBOX}
+              preserveAspectRatio="none"
+              focusable="false"
+            >
+              <path
+                d={wavePath({
+                  crests: shape.crests,
+                  amplitude: shape.amplitude,
+                  phase: shape.phase,
+                  skew: shape.skew,
+                  fill: 'down',
+                })}
+                fill="currentColor"
+              />
+              <path
+                d={waveLine({
+                  crests: shape.crests,
+                  amplitude: shape.amplitude,
+                  phase: shape.phase,
+                  skew: shape.skew,
+                })}
+                fill="none"
+                stroke={`rgb(255 255 255 / ${shape.line})`}
+                strokeWidth={1.5}
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+          </span>
         );
       })}
     </div>

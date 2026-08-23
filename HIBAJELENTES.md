@@ -306,7 +306,8 @@ felület váltakozik — fehér, világoskék, kék, mély kék —, és a szekc
 mindig **másik** felületbe vezetnek át. A szöveg sem fekete: mély tengerkék
 tinta, hogy a lap egyetlen színcsaládban maradjon.
 
-**Három hullámforma egy helyett.** A szekcióhatár (`WaveBand`) görgetésre
+**Három hullámforma egy helyett.** _(A `WaveField` és a `WaveSwirl` azóta
+megszűnt — lásd a 2/d szakaszt.)_ A szekcióhatár (`WaveBand`) görgetésre
 sodródik, a szekcióháttér (`WaveField`) lassan, alig érzékelhetően lélegzik, a
 nyitóképernyő (`WaveSwirl`) pedig örvénylő, egymásba érő foltokból áll, és
 követi a mutatót. A három más ütemben és más léptékben mozog, tehát nem
@@ -335,6 +336,83 @@ sávok kaszkádja csak 700 ms után indul — így a függöny 1,9 másodpercig 
 a képeknek van idejük megérkezni.
 
 ---
+
+## 2/d. A hullámmotor átírása
+
+A visszajelzés az volt, hogy a nyitóképernyő hullámai ne egy síkon mozogjanak,
+hanem több irányból érkezzenek és becsavarodjanak, mint a referenciaképeken;
+töltsék ki a teljes felületet; az aloldalak fejlécei ugyanezt a hátteret
+használják egységes magassággal; és a szekcióhatárok logikájához **ne** nyúljak
+hozzá. Menet közben derült ki a többi: a görgetésanimáció akadt, a hullámok
+elhelyezkedése nem stimmelt, és minden taréj ugyanaz a félhold volt.
+
+**A geometria.** Minden taréj koncentrikus, elliptikus ívsávokból áll
+(`lib/wave-curl.ts`), és a saját elforgatása adja, melyik irányból érkezik. Egy
+vízszintes hullámvonal ezt nem tudja: akárhány rétegben rakjuk egymásra, mindig
+egy iránya van.
+
+**A szekcióhatár külön fájlba került.** A `components/wave/section-divider.tsx`
+a határ teljes kódja: komponens, formák, osztálynevek (`divider-*`) és
+kulcskockák. Korábban közös rétegkomponensen és közös CSS-osztályokon osztozott
+a hullámmotorral — és amikor a hero átírásakor a közös kód is változott, az
+összes addig működő szekcióhatár egyszerre romlott el. A szétválasztás azóta
+megakadályozza, hogy ez megismétlődjön.
+
+### 2/d.1 A kompozíció háromszor volt rossz, három különböző okból
+
+1. **Kézzel elhelyezett taréjok** → a jobb oldal zsúfolt lett, a bal fele üres.
+2. **Rácsra rendezett taréjok** → egyenletes lett, de a kereten belüli
+   középpontok miatt a sávok _vége_ a kép közepére esett: tompán elvágott
+   félhullámok a képernyő közepén.
+3. **Kereten kívüli középpont, nagy sugár** → a végek kikerültek, de az ívek
+   ellaposodtak, és a felület négy sarokból induló csíkra esett szét.
+
+A megoldás mindháromból tanult: a **nagy** ívek középpontja a kereten kívül van
+(a végük így nem látszik), az **apró** tarajoké a kereten belül, erős
+hegyesedéssel (a hegyben elfogyó vég hullám, a tompa vég hiba), és a méretek
+váltakoznak — egyméretű hullámokból minta lesz, nem víz.
+
+### 2/d.2 Minden taréj ugyanaz a félhold volt
+
+Az összes taréj ugyanazt a szögtartományt használta, tehát az elforgatás és a
+méret volt köztük az egyetlen különbség. Négy paraméter került be: az ív hossza,
+a **becsavarodás** (a belső sávok középpontja a csúcs felé csúszik, így a
+gyűrűk egyik oldalon összetorlódnak, a másikon szétnyílnak), a belső sávok
+rövidülése, és a rövidülés elosztása a két vég között. Ettől lett harminc
+különböző hullám egy alakzat harminc példánya helyett.
+
+### 2/d.3 A taréj közepe eltűnt a háttérben
+
+A legvilágosabb tónushármas belső sávja pont `wave-2` volt — a nyitóképernyő
+saját felülete. Az a sáv nem látszott, és a taréj kilyukasztottnak tűnt. Azóta
+egyik tónus sem lehet a felület színe.
+
+### 2/d.4 A rétegsorrend a felsorolás sorrendje volt
+
+Világos sarlók feküdtek rá sötét tömegekre, és a kép lapos matricákra esett
+szét. A rajzolási sorrend most a tónus mélysége: a közelebbi, sötétebb hullám
+takarja a távolabbit.
+
+### 2/d.5 A görgetésre forgó taréjok akadtak
+
+Harminc SVG-csoport forgott egyszerre görgetésre, mindegyiket `will-change`
+saját rétegre emelte — ez minden görgetési képkockán
+újrarajzoltatta a teljes felületet. A forgás kikerült; a felület a mutatótól él,
+a görgetés a szekcióhatárok dolga. Ezzel együtt kikerült harminc réteg, hatvan
+beágyazott CSS-változó, és a vonaltulajdonságok a sávokról a csoportra
+költöztek (öröklődnek, tehát sávonként háromszor szerepeltek fölöslegesen).
+
+### 2/d.6 A vízszintes vonal a hero zárósora fölött
+
+A zárósor felső szegélye mobilon kicsúszott a vízvonal fölé, és egy vízszintes
+karcként ült a világos hullámokon. A szegély azóta csak `sm`-től van meg — ahol
+a sor egy sorba fér, tehát biztosan a mély kéken belül marad.
+
+### 2/d.7 A 404 oldal alatt fehér sáv maradt
+
+Rövid tartalomnál a lábléc alatt üres fehér rész maradt. A lap most
+`min-h-svh` magas oszlop, és a törzs nyúlik ki — a lábléc mindig a képernyő
+alján ér véget.
 
 ## 3. Amit szándékosan másképp csináltam
 
@@ -409,17 +487,22 @@ lehessen véletlenül így élesíteni.
 ## 5. Mérési eredmények az új oldalon
 
 Produkciós buildből, 4× lassított CPU-val és 10 Mbit/s hálózaton mérve
-(Chromium):
+(Chromium, 1440×900):
 
-| Oldal                               | TTFB  | FCP    | LCP    | CLS   | Átvitel |
-| ----------------------------------- | ----- | ------ | ------ | ----- | ------- |
-| `/`                                 | 10 ms | 644 ms | 924 ms | 0.000 | 371 kB  |
-| `/szolgaltatasok/weboldal-keszites` | 7 ms  | 520 ms | 520 ms | 0.000 | 348 kB  |
-| `/blog`                             | 4 ms  | 476 ms | 736 ms | 0.000 | 341 kB  |
+| Oldal                               | TTFB | FCP    | LCP     | Átvitel |
+| ----------------------------------- | ---- | ------ | ------- | ------- |
+| `/`                                 | 5 ms | 576 ms | 1212 ms | 509 kB  |
+| `/szolgaltatasok/weboldal-keszites` | 6 ms | 520 ms | 520 ms  | 490 kB  |
+| `/blog`                             | 4 ms | 540 ms | 908 ms  | 505 kB  |
 
-Görgetés közben, 4× lassított CPU-n, futó hullámanimációkkal: medián képkocka
-16,7 ms, 95. percentilis 17,9 ms, leglassabb 20,4 ms, egy hosszú feladat.
-Vagyis a hullámok nem esznek képkockát — kizárólag `transform` animálódik, tehát
-a mozgás a compositoron marad.
+Az átvitel a `transferSize` összege, tehát a betűtípusokkal és a képekkel együtt
+értendő. A főoldal LCP-je azért magasabb a többinél, mert ott a nyitó függöny is
+fut.
+
+Görgetés közben, ugyanezen a 4× lassított CPU-n, futó hullámanimációkkal:
+**medián 16,7 ms, 95. percentilis 16,8 ms, leglassabb 16,8 ms** — vagyis
+egyetlen kiesett képkocka sincs. Ez a nyitóképernyő görgetésre forgó taréjainak
+eltávolítása után mérve; addig harminc, saját rétegre emelt SVG-csoport
+rajzolódott újra minden képkockán, és a görgetés érezhetően akadt.
 
 Kiinduló JavaScript az egész oldalra: 103 kB megosztva, oldalanként +0,2–3,7 kB.
