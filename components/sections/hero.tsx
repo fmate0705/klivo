@@ -10,8 +10,9 @@ import { ScrollCue } from '@/components/hero/scroll-cue';
 /**
  * A nyitóképernyő.
  *
- * Mély tengerkék felület, rajta az örvénylő hullámok — az első két
- * referenciakép összevissza, egymásba folyó formái, amelyek a mutatót követik.
+ * Mély tengerkék felület, rajta az egymásra torlódó hullámtestek, amelyek a
+ * mutatót követik. A szöveg fehér: a hullámmező felső kétharmadában csak a két
+ * legmélyebb kék fut, tehát a címsor mindig 5,8:1 fölött marad.
  * A középpontban egyetlen dolog: a mondat, a lehető legnagyobb méretben. Egy ügynökségi
  * oldalon az első képernyőn a *mondat* a bizonyíték; ha az halk, az egész oldal
  * az. A kép a következő szekciókban jön, amikor már van mit illusztrálnia.
@@ -31,7 +32,8 @@ const AFTER_TITLE_MS = FIRST_LINE_DELAY_MS + hero.titleLines.length * LINE_STEP_
 export function Hero() {
   return (
     <section
-      className="relative isolate flex min-h-[90svh] flex-col overflow-hidden bg-wave-2 pb-8 pt-32 text-ink sm:pb-10 lg:pt-40"
+      data-tone="dark"
+      className="relative isolate flex min-h-[90svh] flex-col overflow-hidden bg-wave-9 pb-8 pt-32 text-on-dark sm:pb-10 lg:pt-40"
       aria-labelledby="hero-cim"
     >
       <WaveCurls waterline />
@@ -60,7 +62,7 @@ export function Hero() {
           </h1>
 
           <p
-            className="rise mt-9 max-w-prose text-body-lg font-medium text-ink"
+            className="rise mt-9 max-w-prose text-body-lg font-medium text-on-dark"
             style={{ '--rise-delay': `${AFTER_TITLE_MS + 80}ms` } as CSSProperties}
           >
             {hero.subtitle}
@@ -70,10 +72,10 @@ export function Hero() {
             className="rise mt-10 flex flex-wrap items-center gap-3"
             style={{ '--rise-delay': `${AFTER_TITLE_MS + 180}ms` } as CSSProperties}
           >
-            <ButtonLink href={primaryCta.href} size="lg" arrow>
+            <ButtonLink href={primaryCta.href} tone="dark" size="lg" arrow>
               {primaryCta.label}
             </ButtonLink>
-            <ButtonLink href={secondaryCta.href} variant="secondary" size="lg">
+            <ButtonLink href={secondaryCta.href} variant="secondary" tone="dark" size="lg">
               {secondaryCta.label}
             </ButtonLink>
           </div>

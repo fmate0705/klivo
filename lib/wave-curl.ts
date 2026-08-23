@@ -187,7 +187,12 @@ export type Curl = {
  * taraja kívül széles, befelé összeszűkül. Egyenletes osztásból koncentrikus
  * körök lennének, nem hullám.
  */
-export function curlBands(curl: Curl): { band: ArcBand; tone: string }[] {
+/**
+ * @param size A rajzterület mérete, amihez a 0–1 közötti arányok mérődnek.
+ *   Alapból a négyzetes `CURL_SIZE`; a hullámmező a saját szélességét adja át,
+ *   hogy az örvény ugyanolyan arányú maradjon egy fekvő nézetdobozban is.
+ */
+export function curlBands(curl: Curl, size: number = CURL_SIZE): { band: ArcBand; tone: string }[] {
   const {
     cx,
     cy,
@@ -203,7 +208,7 @@ export function curlBands(curl: Curl): { band: ArcBand; tone: string }[] {
     inset: insetRatio = 0.055,
     lead = 0.5,
   } = curl;
-  const outer = radius * CURL_SIZE;
+  const outer = radius * size;
   const innermost = outer * inner;
   const count = tones.length;
 
@@ -246,8 +251,8 @@ export function curlBands(curl: Curl): { band: ArcBand; tone: string }[] {
     return {
       tone,
       band: {
-        cx: cx * CURL_SIZE + dirX * shift,
-        cy: cy * CURL_SIZE + dirY * shift,
+        cx: cx * size + dirX * shift,
+        cy: cy * size + dirY * shift,
         rxOuter: radii[index] as number,
         rxInner: radii[index + 1] as number,
         squash,

@@ -77,10 +77,6 @@
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
     --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 
-    /* A mutató helyzete −1..1 tartományban. A MotionDriver írja. */
-    --pointer-x: 0;
-    --pointer-y: 0;
-
     /**
      * CEF token-interfész.
      *
@@ -453,15 +449,46 @@
   /**
    * A mutatókövetés hordozója.
    *
-   * SVG-ben a `transform` felhasználói egységekben mozgat, nem képpontban —
-   * ezért a húzás mértéke itt szorzó, és a `--pointer-x` (−1…1) szorozza.
+   * Három egymásra fektetett réteg, mélységenként más mértékű húzással. Az
+   * eltolást a `MotionDriver` írja **közvetlenül erre a három elemre**, a
+   * `data-pull` attribútumokból. Korábban a `<html>` egy CSS-változójából
+   * számolódott, csakhogy egy gyökéren megváltozó egyedi tulajdonság az **egész
+   * dokumentumra** újraszámoltatja a stílust — minden képkockán. Ez volt a
+   * lassulás forrása, és ettől jelentek meg a rajzolási hibák is.
    */
   .curls__track {
-    transform: translate(
-      calc(var(--pointer-x) * var(--curl-pull, 0) * 1px),
-      calc(var(--pointer-y) * var(--curl-pull-y, 0) * 1px)
-    );
+    position: absolute;
+    inset: 0;
+    display: block;
     transition: transform 1200ms var(--ease-out);
+  }
+
+  /**
+   * Saját compositor-réteg — **csak ott, ahol tényleg mozog**.
+   *
+   * Három réteg, nem huszonkettő: így megéri és el is fér. Az eltolás a saját
+   * rétegen rajzolás nélkül fut; enélkül a mutató minden mozdulata
+   * újrarajzoltatta a teljes, képernyő méretű hullámrajzot.
+   *
+   * Érintőképernyőn nincs lebegő kurzor, a `MotionDriver` ott el sem indítja a
+   * követést — három teljes képernyős réteg viszont ott is elvinné a GPU
+   * memóriát, pont azon az eszközön, ahol a legkevesebb van belőle.
+   */
+  @media (hover: hover) and (pointer: fine) {
+    .curls__track {
+      will-change: transform;
+    }
+  }
+
+  /**
+   * A betöltő függöny rétegei nem követik a mutatót.
+   *
+   * Három másodpercig látszanak, és közben úgyis ráközelítenek — a
+   * mutatókövetés itt három további, teljes képernyős compositor-réteget
+   * tartana életben az egész munkamenetre, a nyitóképernyőé mellett.
+   */
+  .intro .curls__track {
+    will-change: auto;
   }
 
   /**
@@ -477,6 +504,18 @@
     display: block;
     color: rgb(var(--wave-9));
     background-color: currentColor;
+  }
+
+  /**
+   * Az aloldalak fejlécén keskenyebb.
+   *
+   * A nyitóképernyőn a vízvonal a zárósor háttere is, tehát legalább akkora
+   * kell legyen; a fejlécen viszont nincs zárósor, és a széles, alacsony doboz
+   * amúgy is csak a rajzterület felső kétharmadát mutatja — ott minden
+   * fölösleges képpont egy nagy, üres mélykék sáv.
+   */
+  .curls__waterline--slim {
+    height: clamp(44px, 4.5vh, 72px);
   }
 
   .curls__waterline-crest {
@@ -1011,7 +1050,9 @@
   .intro__sheet {
     position: absolute;
     inset: 0;
-    background-color: rgb(var(--wave-2));
+    /* Ugyanaz a mély kék, mint a nyitóképernyőé: a függöny felhúzása így nem
+       felületváltás, csak a takarás megszűnése. */
+    background-color: rgb(var(--wave-9));
     animation: intro-lift 900ms var(--ease-in-out) 2600ms forwards;
   }
 
@@ -1038,8 +1079,8 @@
    *
    * Ez az egyetlen mozgás, ami a várakozás alatt történik — épp elég ahhoz,
    * hogy a lap ne tűnjön befagyottnak, és nem annyi, hogy elvonja a figyelmet
-   * a márkajelről. A mutatókövetés emellett fut: a `WaveCurls` a globális
-   * `--pointer-x/y` változókból dolgozik.
+   * a márkajelről. Mutatókövetés itt nincs: az három további, teljes képernyős
+   * compositor-réteget tartana életben az egész munkamenetre.
    */
   .intro .curls__canvas {
     animation: intro-zoom 3500ms var(--ease-out) both;
@@ -1226,6 +1267,7 @@
   .curls__track {
     transform: none !important;
     transition: none !important;
+    will-change: auto;
   }
 
   /* A vonal teli marad: az információt a mozgás nem viheti el. */

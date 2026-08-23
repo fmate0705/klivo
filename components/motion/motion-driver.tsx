@@ -78,29 +78,58 @@ export function MotionDriver() {
     // Érintőképernyőn nincs lebegő kurzor: a követés ott csak fölösleges munka.
     if (!window.matchMedia('(pointer: fine)').matches) return;
 
-    const root = document.documentElement;
     let frame = 0;
     let x = 0;
     let y = 0;
 
+    /**
+     * A mozgatott rétegek.
+     *
+     * Az eltolás **közvetlenül ezekre az elemekre** kerül, nem a `<html>` egy
+     * CSS-változójába. A gyökéren megváltozó egyedi tulajdonság ugyanis az egész
+     * dokumentumra újraszámoltatja a stílust, és ezt minden képkockán megtenné —
+     * ettől akadt a felület, és ettől maradtak beragadt csempék a képernyőn.
+     * Három elem stílusát írni ehhez képest semmi.
+     *
+     * A nyitó függöny rétegei kimaradnak: azok három másodpercig élnek, és
+     * közben úgyis ráközelítenek.
+     */
+    let layers: HTMLElement[] = [];
+    const collect = () => {
+      layers = [...document.querySelectorAll<HTMLElement>('.curls__track')].filter(
+        (node) => !node.closest('.intro'),
+      );
+    };
+
+    collect();
+
     const apply = () => {
       frame = 0;
-      root.style.setProperty('--pointer-x', x.toFixed(3));
-      root.style.setProperty('--pointer-y', y.toFixed(3));
+      for (const layer of layers) {
+        const pull = Number(layer.dataset.pull ?? 0);
+        const pullY = Number(layer.dataset.pullY ?? 0);
+        layer.style.transform = `translate(${(x * pull).toFixed(1)}px, ${(y * pullY).toFixed(1)}px)`;
+      }
     };
 
     const onMove = (event: PointerEvent) => {
       x = (event.clientX / window.innerWidth) * 2 - 1;
       y = (event.clientY / window.innerHeight) * 2 - 1;
       // Képkockánként legfeljebb egy írás. Enélkül egy gyors kurzormozgás
-      // néhány száz stílus-újraszámolást indítana másodpercenként.
+      // néhány száz stílusírást indítana másodpercenként.
       if (!frame) frame = window.requestAnimationFrame(apply);
     };
 
     window.addEventListener('pointermove', onMove, { passive: true });
 
+    // Oldalváltáskor új hullámmező kerül a DOM-ba; a régi elemekre mutató
+    // hivatkozások különben ottmaradnának, és semmi nem mozogna.
+    const nodes = new MutationObserver(collect);
+    nodes.observe(document.body, { childList: true, subtree: true });
+
     return () => {
       window.removeEventListener('pointermove', onMove);
+      nodes.disconnect();
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);

@@ -38,27 +38,28 @@ export default function NotFound() {
 
       <main
         id="main"
-        className="relative isolate flex flex-1 flex-col justify-center overflow-hidden bg-wave-2 pb-28 pt-32 text-ink lg:pb-32 lg:pt-40"
+        data-tone="dark"
+        className="relative isolate flex flex-1 flex-col justify-center overflow-hidden bg-wave-9 pb-28 pt-32 text-on-dark lg:pb-32 lg:pt-40"
       >
         <WaveCurls align="top" waterline />
 
         <Container className="wave-content">
           <p
             data-numeric
-            className="text-body-sm font-semibold uppercase tracking-[0.08em] text-wave-9"
+            className="text-body-sm font-semibold uppercase tracking-[0.08em] text-on-dark/70"
           >
             404
           </p>
 
           <h1 className="mt-3 max-w-3xl font-display text-h1">Ez az oldal nem található</h1>
 
-          <p className="mt-6 max-w-prose text-body-lg font-medium text-ink">
+          <p className="mt-6 max-w-prose text-body-lg font-medium text-on-dark">
             Elképzelhető, hogy a cím megváltozott, vagy elgépelés történt. A tartalom többi része
             változatlanul elérhető — a fenti menüből minden oldal egy kattintásra van.
           </p>
 
           <div className="mt-9">
-            <ButtonLink href="/" size="lg" arrow>
+            <ButtonLink href="/" tone="dark" size="lg" arrow>
               Vissza a főoldalra
             </ButtonLink>
           </div>

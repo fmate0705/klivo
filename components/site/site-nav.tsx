@@ -112,7 +112,12 @@ export function SiteNav() {
           className={cn(
             'pointer-events-auto relative flex items-center justify-between gap-3 rounded-pill border px-3 py-2 sm:pl-5 sm:pr-2.5',
             'transition-[transform,background-color,border-color,box-shadow] duration-panel ease-standard',
-            'bg-surface/85 supports-[backdrop-filter]:backdrop-blur-xl',
+            // Az elmosás mértéke szándékosan mérsékelt. A sáv a hullámmező
+            // fölött lebeg, és a `backdrop-filter` minden képkockán újramintázza
+            // az alatta lévő réteget — nagy sugárnál ez a legdrágább művelet az
+            // egész oldalon, és rajzolási hibákat is okozott (üres, szürke sáv a
+            // fejléc helyén).
+            'bg-surface/90 supports-[backdrop-filter]:backdrop-blur-md',
             scrolled ? 'translate-y-0 border-line shadow-float' : 'translate-y-1 border-line/70',
           )}
         >

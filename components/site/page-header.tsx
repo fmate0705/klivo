@@ -40,7 +40,8 @@ export function PageHeader({
       // Fix magasság: minden aloldal fejléce ugyanakkora, függetlenül attól,
       // milyen hosszú a címsor vagy van-e mellette kép. Enélkül oldalanként
       // más magasságú hullámfelület fogadná a látogatót.
-      className="relative isolate flex min-h-[clamp(28rem,46vh,34rem)] flex-col justify-center overflow-hidden bg-wave-2 pb-28 pt-32 text-ink lg:min-h-[38rem] lg:pb-32 lg:pt-40"
+      data-tone="dark"
+      className="relative isolate flex min-h-[clamp(28rem,46vh,34rem)] flex-col justify-center overflow-hidden bg-wave-9 pb-28 pt-32 text-on-dark lg:min-h-[38rem] lg:pb-32 lg:pt-40"
       aria-labelledby="oldal-cim"
     >
       <WaveCurls align="top" waterline />
@@ -60,7 +61,7 @@ export function PageHeader({
 
             {lead ? (
               <p
-                className="rise mt-6 max-w-prose text-body-lg font-medium text-ink"
+                className="rise mt-6 max-w-prose text-body-lg font-medium text-on-dark"
                 style={{ '--rise-delay': '90ms' } as React.CSSProperties}
               >
                 {lead}

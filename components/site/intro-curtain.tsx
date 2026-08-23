@@ -10,9 +10,9 @@ import { WAVE_VIEWBOX, wavePath } from '@/lib/wave-path';
  * is az oldal formanyelvében történik, nem egy általános pörgő karika — mire a
  * függöny elhúzódik, a látogató már látta, mi lesz az oldal nyelve.
  *
- * **Él, amíg tart.** A taréjok lassan ráközelítenek, és közben követik a
- * mutatót: a globális `--pointer-x/y` változókból dolgoznak, tehát a függöny
- * ugyanúgy interaktív, mint alatta a nyitóképernyő. Három másodperc után az
+ * **Él, amíg tart.** A hullámok lassan ráközelítenek. Mutatókövetés itt nincs:
+ * a függöny három másodpercig él, és a követés három további, teljes képernyős
+ * compositor-réteget tartana életben az egész munkamenetre. Három másodperc után az
  * egész lap fölfelé húzódik, és az alsó éle **hullám**, nem egyenes vonal — a
  * felület alján ülő vízvonal folytatódik lefelé egy hullámos szoknyában.
  *
@@ -45,7 +45,7 @@ export function IntroCurtain() {
         </span>
 
         <span className="intro__mark">
-          <span className="flex items-center gap-3 text-ink">
+          <span className="flex items-center gap-3 text-on-dark">
             <LogoMark className="h-9 w-9" />
             <span className="font-display text-h3 font-bold tracking-tight">Klivo</span>
           </span>

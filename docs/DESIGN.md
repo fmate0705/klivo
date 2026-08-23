@@ -17,7 +17,7 @@ papírból lennének kivágva, vagy mintha víz alatt egymásra úsznának. Az e
 oldal ebből az egy formából épül:
 
 - a szekcióhatárok (`WaveBand`, a `components/wave/section-divider.tsx`-ben),
-- a nyitóképernyő és az aloldalak fejlécének örvénylő taréjai (`WaveCurls`),
+- a nyitóképernyő és az aloldalak fejlécének hullámmezője (`WaveCurls`),
 - a blogbejegyzések borítója, ha nincs képe,
 - a csapattagok portréja mögötti felület,
 - a nyitó animáció,
@@ -236,65 +236,70 @@ görgetésfigyelő. Ahol a böngésző nem támogatja, időalapú sodródás lé
 
 ### `WaveCurls` — a nyitóképernyő és az aloldalak fejléce
 
-Örvénylő taréjok: minden hullám koncentrikus, elliptikus **ívsávokból** áll
-(`lib/wave-curl.ts`), és a saját elforgatása adja, melyik irányból érkezik. Egy
-vízszintes hullámvonal ezt nem tudja — akárhány réteget rakunk egymásra, annak
-mindig egy iránya van, a referenciakép hullámai viszont körbemennek.
+Egymásra torlódó **hullámtestek**. Minden hullám egy tömör sziluett: hullámos
+felső él, alatta tömör test, ami a következő hullámig tart. A felület úgy épül
+fel, ahogy egy papírkivágás — hátulról előre, mindegyik réteg eltakarja az alatta
+lévő test alsó részét.
 
-Egy taréj felépítése kívülről befelé: **sötét perem → fehér fénycsík → tömör
-test**, mindhárom köré vékony fehér kontúr. Ettől olvasódik megvilágított
-víztömegnek, és nem lapos gyűrűnek.
+**Egy hullám két testből áll.** Előbb a világos _perem_ kerül fel, utána egy
+hajszálnyival lejjebb a sötét _test_; a test eltakarja a perem nagy részét, és
+csak egy szalag marad belőle a gerinc mentén. Ez a referenciakép szerkezete:
+sötét víztömegek, mindegyik tetején egy megvilágított taraj. Egyetlen testtel ez
+nem áll elő, csak nagy, lapos színfoltok. A test hulláma egy hajszálnyival
+**laposabb** (`swell`), ezért a taraj a hullámhegyeken kiszélesedik, a
+völgyekben elvékonyodik.
 
-A nézetdoboz **négyzetes**, a skálázás `slice`. Így a taraj se álló, se fekvő
-nézetben nem nyúlik meg — a forma ugyanaz marad, csak más részlete látszik. A
-korábbi motor `preserveAspectRatio="none"`-t használt, és széles képernyőn
-laposra húzódott: pont a jellegzetes ív tűnt el.
+**A felület mély kék.** A hullámok között nincs fehér: minden kitöltés a kék
+skáláról jön, fehér csak a kontúr. Ezért lehet a nyitóképernyő szövege fehér, és
+ezért emelkedik ki belőle a világos gomb.
 
-**A nagy ívek középpontja a képen kívül van.** Ez a kompozíció fő szabálya, és
-két változat bukott el rajta. Ha egy nagy taréj középpontja beesik a képbe,
-akkor a sáv két vége is beesik — egy ívnek a semmiben végződő vége pedig
-pontosan úgy néz ki, mint egy félbevágott hullám a képernyő közepén. Kívülről
-indítva csak az ív _közepe_ látszik: a hullám a képernyő széléről érkezik,
-átível a felületen, és a másik szélen megy ki.
+**A felső mezőben csak a skála sötét vége szerepel — a peremben is.** Fehér
+szöveg a `wave-8`-on 5,8:1, a `wave-9`-en 8,3:1; a `wave-7` 3,9:1, ami a nagy
+címsornak elég, a bekezdésnek nem. A tarajok fönt ezért nem világos szalagok,
+hanem egy fokozatnyi elmozdulások a mély kékek között — a rétegzést ott a
+**fehér kontúr** viszi, nem a tónuskülönbség.
 
-**Három méret, nem egy.** Egyméretű hullámokból minta lesz, nem víz. A nagyok a
-keret mentén futnak, az aprók (kereten belüli középponttal) a hézagokat töltik
-ki. Az aprók vége látszik, ezért erősebb hegyesedést kapnak — hegyben elfogyó ív
-kis hullám, tompán elvágott ív viszont hiba.
+**A rajzterület 68 százaléka alatt nyílik ki a skála.** Ez a határ nem
+esztétikai: mobilon a nyitóképernyő két gombja a 70 százalékig ér le, és a
+másodlagos gomb átlátszó, fehér kerettel. Alatta már nincs se szöveg, se
+áttetsző felület — onnan jönnek a referencia világos tarajai és a becsavarodó
+örvények (`lib/wave-curl.ts`).
 
-**Minden taréj más alakú.** Négy paraméter formálja: az ív hossza (`span`), a
-becsavarodás (`swirl`), a belső sávok rövidülése (`inset`) és a rövidülés
-elosztása a két vég között (`lead`). A becsavarodás a legfontosabb: a belső
-sávok középpontja a taréj csúcsa felé csúszik, a gyűrűk egyik oldalon
-összetorlódnak, a másikon szétnyílnak. Enélkül minden taréj ugyanaz a félhold,
-akárhogy forgatjuk.
+**A hullámhegy meredeksége arány, nem méret.** A kompozíció a magasság és a fél
+hullámhossz _arányát_ adja meg (`steep`), és a tényleges kitérés ebből
+számolódik. A rajz függőleges nyújtása tizennégyszeres is lehet: ha a magasságot
+közvetlenül írnánk be, abból hegyes sátor lenne a lágy ív helyett.
 
-**A tónust a hely adja, nem kézi érték.** A taréj csúcsának magasságából
-számolódik: a felső kétharmadban csak a skála világos vége szerepel, mert ott ül
-a címsor és a bekezdés — tintaszínű szöveg a `wave-5`-ön 7,5:1, a `wave-7`-en
-már csak 3,6:1. Kézzel osztott palettáknál ez minden átrendezésnél elcsúszott.
-Egyik tónus sem lehet `wave-2`, a felület saját színe: az a sáv eltűnne, és a
-taréj kilyukasztottnak látszana.
+**A gerinc a rajzterületen kívül kezdődik és végződik.** A kitöltés és a fehér
+kontúr egy útvonalon van — a kitöltött alakzat oldalsó és alsó élei mind a
+képen kívülre esnek, tehát a körvonalból csak a gerinc látszik, és nem kell
+külön vonal-útvonal. Cserébe a hívónak biztosítania kell, hogy tényleg kívül
+essenek: a vízszintes nyújtás **összenyomja** a beépített túllógást, és a záróél
+egy a semmiben végződő fehér vonalként jelenik meg a hullámok fölött.
 
-**A rajzolási sorrend a tónus mélysége.** Vízben a közelebbi, sötétebb hullám
-takarja a távolabbit; ha a rétegsorrend a felsorolást követi, a kép lapos
-matricákra esik szét.
+**A nézetdoboz fekvő, a skálázás `slice`.** A hullámtestek vízszintesen futnak,
+és így se álló, se fekvő nézetben nem nyúlnak meg. Az aloldalak fejléce ugyanez
+a mező, a rajzterület tetejéhez igazítva (`align="top"`): a széles, alacsony
+doboz csak a felső kétharmadot mutatja, tehát pontosan a sötét mezőt — a szöveg
+olvashatósága nem múlhat a doboz arányán.
 
-**Követi a mutatót, de görgetésre nem mozog.** Minden taréj más mértékben húz a
-kurzor felé, a globális `--pointer-x/y` változókból — komponens-szintű
-JavaScript nélkül, szerver komponensként. Görgetéshez kötött forgás is volt itt,
-de harminc egyszerre forgó, saját rétegre emelt SVG-csoport minden görgetési
-képkockán újrarajzoltatta a teljes felületet, és érezhetően akadt. A görgetés a
-szekcióhatárok dolga.
-
-**Az aloldalak fejléce ugyanez, felülre igazítva** (`align="top"`): a
-rajzterület a doboznál másfélszer magasabb, tehát minden méretnél pontosan a
-világos felső kétharmad látszik. A `slice` skálázás magától a doboz arányától
-függően vágna, és a szöveg olvashatósága nem múlhat ezen.
+**Követi a mutatót, de görgetésre nem mozog.** A mező **három**, egymásra
+fektetett rétegből áll — három mélységi sík —, és a `MotionDriver` közvetlenül
+ezek stílusába írja az eltolást, a `data-pull` attribútumokból. Ez
+teljesítménykérdés, és a felület kétszer is elbukott rajta: hullámonkénti
+eltolásnál az SVG-n belüli `transform` nem kerül külön compositor-rétegre, tehát
+a teljes, képernyő méretű rajz újrarajzolódik; a mutató helyét hordozó
+gyökér-CSS-változó pedig az **egész dokumentumra** újraszámoltatja a stílust,
+képkockánként. Mindkettő akadó felületet és látható rajzolási hibákat adott —
+üres fejlécsávot, eltűnő szövegsorokat, beragadt csempéket. A rétegre emelés
+(`will-change`) csak finom mutató mögött aktív: érintőképernyőn nincs mit
+követni. Görgetéshez kötött forgás is volt itt; az ugyanezen bukott el. A
+görgetés a szekcióhatárok dolga.
 
 **A vízvonal zárja le.** A felület alján tömör `wave-9` blokk, hullámos felső
-éllel: a következő szekcióhatárnak egyszínű felülettel kell találkoznia, az
-örvények alja viszont tarka.
+éllel: a következő szekcióhatárnak egyszínű felülettel kell találkoznia, a mező
+alja viszont tarka. A nyitóképernyőn ez a zárósor háttere is; a fejléceken nincs
+zárósor, ott keskenyebb (`--slim`).
 
 ### `WaveRule` — az apró elválasztó
 
@@ -355,7 +360,7 @@ lenyíló magassága maga az interakció), és a statikus árnyék a hullámrét
 
 ### Interaktivitás
 
-- **A nyitóképernyő hullámai követik a mutatót.** Egyetlen `pointermove` figyelő
+- **A nyitóképernyő és a fejlécek hullámai követik a mutatót.** Egyetlen `pointermove` figyelő
   van az egész oldalra (`MotionDriver`), amely képkockánként legfeljebb egyszer
   ír két CSS változót a `<html>`-re; a rétegek ezeket olvassák. Így az
   interaktivitás egyetlen bájt komponens-szintű JavaScriptbe sem kerül, és a

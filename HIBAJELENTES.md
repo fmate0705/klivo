@@ -414,6 +414,89 @@ Rövid tartalomnál a lábléc alatt üres fehér rész maradt. A lap most
 `min-h-svh` magas oszlop, és a törzs nyúlik ki — a lábléc mindig a képernyő
 alján ér véget.
 
+### 2/d.8 A nyitóképernyő világos volt, a szöveg sötét
+
+A referencia egy **mély kék tenger**, világos tarajokkal — a felület nem
+világos, hanem sötét. A nyitóképernyő, az aloldalak fejléce, a 404 oldal és a
+betöltő függöny felülete ezért `wave-9` lett, a szöveg fehér, az elsődleges gomb
+pedig fehér alapon mély kék felirattal: így a gomb _kiemelkedik_ a felületből,
+nem beleolvad.
+
+Ez a hullámmotor átépítését is jelentette. A korábbi, gyűrűs örvények világos
+felületre készültek; a mostani mező **egymásra torlódó hullámtestekből** áll,
+és minden hullám két testből: egy világos peremből és a rögtön alatta következő
+sötét víztömegből. A perem nagy részét a test eltakarja, és pont annyi marad
+belőle, amennyi egy megvilágított tarajnak látszik.
+
+### 2/d.9 A világos taraj mobilon a bekezdés sorai mögé került
+
+Az első változatban a világos peremek végigfutottak az egész mezőn. Gépen ez
+rendben volt — ott a szöveg a bal oldalon ül, a világos részek jobbra —, mobilon
+viszont a szöveg a teljes szélességet kitölti, és a perem pont a bekezdés sorai
+mögé esett: fehér szöveg a `wave-4`-en **1,5:1**.
+
+A mező azóta két zónára oszlik. A rajzterület felső 68 százalékában — a szöveg
+mögött — csak a `wave-8` és a `wave-9` szerepel, **a peremben is**; a rétegzést
+ott a fehér kontúr viszi, nem a tónuskülönbség. A 68 százalék nem esztétikai
+határ: mobilon a két gomb a 70 százalékig ér le, és a másodlagos gomb átlátszó,
+fehér kerettel.
+
+### 2/d.10 Hegyes sátrak lágy hullámok helyett
+
+A hullámtestek függőleges nyújtása tizennégyszeres is lehet — a kitérés így
+fölnagyítódik, a hullámhossz viszont nem. Ahol a kettő aránya elszaladt, a sima
+Bézier-ívből hegyes sátor lett. A kompozíció azóta nem magasságot ad meg, hanem
+**meredekséget**: a magasság és a fél hullámhossz arányát, amiből a tényleges
+kitérés számolódik.
+
+### 2/d.11 A semmiben végződő fehér vonalak a hullámok fölött
+
+A kitöltés és a fehér kontúr egy útvonalra került (két külön path megduplázta
+volna a beágyazott rajzot). Ez arra épít, hogy a kitöltött alakzat oldalsó és
+alsó éle a rajzterületen kívül van. A vízszintes nyújtás viszont **összenyomja**
+a hullámútvonal beépített túllógását, és a keskeny hullámoknál a záróél
+beesett a képbe: egy vékony, a semmiben végződő fehér vonal a hullámok fölött.
+A gerinc vízszintes tartományát azóta a hívó számolja ki, a rajzterület széleitől
+visszafelé.
+
+---
+
+### 2/d.12 Akadó felület és beragadt csempék a képernyőn
+
+A nyitóképernyő láthatóan akadt, és néha rajzolási hibák maradtak a képen: üres,
+szürke sáv a fejléc helyén, eltűnő szövegsorok, felirat nélküli gomb, és a
+háttérből odaragadt téglalapok a tartalom fölött. Három ok adódott össze:
+
+1. **A mutató helyzete a `<html>` egy CSS-változójában utazott.** Egy gyökéren
+   megváltozó egyedi tulajdonság az **egész dokumentumra** újraszámoltatja a
+   stílust — és ez minden képkockán megtörtént, amíg a kurzor mozgott.
+2. **Minden hullám saját eltolást kapott.** Az SVG-n belüli `transform` nem
+   kerül külön compositor-rétegre, tehát huszonvalahány csoport mozgatása a
+   teljes, képernyő méretű rajz újrarajzolását jelentette képkockánként.
+3. **A fejléc erős `backdrop-filter`-rel ült ezen a felületen.** Az elmosás
+   minden képkockán újramintázta az alatta folyamatosan újrarajzolódó réteget —
+   ez volt a legdrágább művelet az egész oldalon.
+
+Most a hullámmező **három**, egymásra fektetett rétegből áll (három mélységi
+sík), a mutatókövetés pedig közvetlenül erre a három HTML-elemre írja az
+eltolást. A `will-change: transform` valódi compositor-réteget ad nekik, tehát a
+mozgás rajzolás nélkül fut. A fejléc elmosása mérsékeltebb lett.
+
+Mérve, 4× lassított CPU-n, a kurzor mozgatása közben: **medián 100 ms → 16,7 ms**
+képkockánként a főoldalon. Vagyis 6 helyett 60 képkocka másodpercenként.
+
+### 2/d.13 Rétegek ott is, ahol nincs kurzor
+
+A `will-change: transform` a mutatókövetés miatt kell — érintőképernyőn viszont
+nincs lebegő kurzor, a mozgás el sem indul, három teljes képernyős
+compositor-réteg viszont ott is elvinné a GPU memóriát, pont azon az eszközön,
+ahol a legkevesebb van belőle. A rétegre emelés ezért
+`@media (hover: hover) and (pointer: fine)` mögött van. Ugyanezért nem követi a
+mutatót a betöltő függöny sem: három másodpercig él, és közben úgyis
+ráközelítenek a hullámok.
+
+---
+
 ## 3. Amit szándékosan másképp csináltam
 
 ### 3.1 Az admin csak blogot kezel — az árakat és a cégadatokat nem
@@ -499,10 +582,15 @@ Az átvitel a `transferSize` összege, tehát a betűtípusokkal és a képekkel
 értendő. A főoldal LCP-je azért magasabb a többinél, mert ott a nyitó függöny is
 fut.
 
-Görgetés közben, ugyanezen a 4× lassított CPU-n, futó hullámanimációkkal:
-**medián 16,7 ms, 95. percentilis 16,8 ms, leglassabb 16,8 ms** — vagyis
-egyetlen kiesett képkocka sincs. Ez a nyitóképernyő görgetésre forgó taréjainak
-eltávolítása után mérve; addig harminc, saját rétegre emelt SVG-csoport
-rajzolódott újra minden képkockán, és a görgetés érezhetően akadt.
+Képkockaidők ugyanezen a 4× lassított CPU-n:
+
+| Mérés                         | Medián  | 95. perc. | Leglassabb |
+| ----------------------------- | ------- | --------- | ---------- |
+| Görgetés                      | 16,7 ms | 16,8 ms   | 16,8 ms    |
+| Kurzormozgás a főoldalon      | 16,7 ms | 16,8 ms   | 33,4 ms    |
+| Kurzormozgás, a javítás előtt | 100 ms  | 116,8 ms  | 133,4 ms   |
+
+Vagyis görgetés közben egyetlen kiesett képkocka sincs, a mutatókövetés pedig
+6 helyett 60 képkockát ad másodpercenként — lásd a 2/d.12 pontot.
 
 Kiinduló JavaScript az egész oldalra: 103 kB megosztva, oldalanként +0,2–3,7 kB.
