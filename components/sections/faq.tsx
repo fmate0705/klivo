@@ -53,7 +53,10 @@ export function Faq({
   lead?: string;
   tone?: SectionTone;
 }) {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  // Alapból egyik kérdés sincs nyitva. Egy előre kinyitott válasz azt sugallja,
+  // hogy az a fontos — pedig a látogató a sajátját keresi, és a nyitott blokk
+  // csak lejjebb tolja a többit.
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
   const baseId = useId();
 
   return (

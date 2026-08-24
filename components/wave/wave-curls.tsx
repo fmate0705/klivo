@@ -62,10 +62,10 @@ const FIELD_VIEWBOX = `0 0 ${FIELD_WIDTH} ${FIELD_HEIGHT}`;
  */
 // prettier-ignore
 const WAVES: StackWave[] = [
-  { x: 0.5, y: 0.02, angle: -6, wide: 0.66, tall: 14, crests: 0.8, steep: 0.3, phase: 0.1, rim: 20, swell: 0.86, rimTone: 'wave-7', bodyTone: 'wave-8', line: 0.1 },
-  { x: 0.6, y: 0.06, angle: 9, wide: 0.5, tall: 13.5, crests: 1.6, steep: 0.26, phase: 0.35, rim: 14, swell: 0.9, rimTone: 'wave-7', bodyTone: 'wave-9', line: 0.08 },
-  { x: 0.46, y: 0.1, angle: 5, wide: 0.74, tall: 13, crests: 1.2, steep: 0.32, phase: 0.55, rim: 18, swell: 0.88, rimTone: 'wave-7', bodyTone: 'wave-9', line: 0.11 },
-  { x: 0.54, y: 0.19, angle: -10, wide: 0.58, tall: 12, crests: 0.9, steep: 0.28, phase: 0.3, rim: 22, swell: 0.84, rimTone: 'wave-7', bodyTone: 'wave-8', line: 0.09 },
+  { x: 0.5, y: 0.02, angle: -6, wide: 0.66, tall: 14, crests: 0.8, steep: 0.3, phase: 0.1, rim: 20, swell: 0.86, rimTone: 'wave-8', bodyTone: 'wave-9', line: 0.1 },
+  { x: 0.6, y: 0.06, angle: 9, wide: 0.5, tall: 13.5, crests: 1.6, steep: 0.26, phase: 0.35, rim: 14, swell: 0.9, rimTone: 'wave-9', bodyTone: 'wave-8', line: 0.08 },
+  { x: 0.46, y: 0.1, angle: 5, wide: 0.74, tall: 13, crests: 1.2, steep: 0.32, phase: 0.55, rim: 18, swell: 0.88, rimTone: 'wave-8', bodyTone: 'wave-9', line: 0.11 },
+  { x: 0.54, y: 0.19, angle: -10, wide: 0.58, tall: 12, crests: 0.9, steep: 0.28, phase: 0.3, rim: 22, swell: 0.84, rimTone: 'wave-9', bodyTone: 'wave-8', line: 0.09 },
   { x: 0.44, y: 0.28, angle: 7, wide: 0.7, tall: 11, crests: 1.4, steep: 0.24, phase: 0.8, rim: 20, swell: 0.88, rimTone: 'wave-8', bodyTone: 'wave-9', line: 0.1 },
   { x: 0.36, y: 0.32, angle: -13, wide: 0.44, tall: 10.5, crests: 1.9, steep: 0.3, phase: 0.62, rim: 16, swell: 0.9, rimTone: 'wave-8', bodyTone: 'wave-9', line: 0.08 },
   { x: 0.56, y: 0.36, angle: -4, wide: 0.62, tall: 10, crests: 1, steep: 0.34, phase: 0.15, rim: 24, swell: 0.85, rimTone: 'wave-9', bodyTone: 'wave-8', line: 0.11 },
@@ -167,8 +167,13 @@ export function WaveCurls({
         <span
           key={bandIndex}
           className="curls__track"
-          data-pull={6 + bandIndex * 7}
-          data-pull-y={-3 - bandIndex * 3}
+          // A három sík eltérő mértékben húz a mutató felé — ez adja a
+          // mélységet. Az értékek képpontban értendők, és szándékosan a
+          // láthatóság határa fölött vannak: alattuk a mozgás inkább sejthető,
+          // mint látható, fölöttük viszont a háttér elvonja a figyelmet a
+          // címsorról.
+          data-pull={10 + bandIndex * 12}
+          data-pull-y={-5 - bandIndex * 5}
         >
           <svg
             className={cn('curls__canvas', align === 'top' && 'curls__canvas--top')}

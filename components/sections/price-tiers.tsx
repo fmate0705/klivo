@@ -19,9 +19,10 @@ import { WaveRule } from '@/components/wave/wave-rule';
  * éves díja is van. Éves fizetésnél a listaár áthúzva mellette marad — a
  * kedvezmény csak akkor kedvezmény, ha látszik, mihez képest.
  *
- * **A kiemelt csomag** jelölése egy felirat a kártya tetején és egy erősebb
- * keret. Nem nagyítás és nem eltolás: egy kilógó kártya megbontja a rács
- * alapvonalát, és a szomszédjai mellette hibásnak látszanak.
+ * **A kiemelt csomag** jelölése egy csillag a kártya jobb felső sarkában (a
+ * csomag nevével egy sorban) és egy erősebb keret. Nem nagyítás és nem eltolás:
+ * egy kilógó kártya megbontja a rács alapvonalát, és a szomszédjai mellette
+ * hibásnak látszanak.
  */
 export function PriceTiers({
   tiers,
@@ -54,14 +55,15 @@ export function PriceTiers({
               <Card
                 className={cn('flex w-full flex-col', tier.popular && 'border-wave-7 shadow-lift')}
               >
-                {tier.popular ? (
-                  <p className="mb-4 inline-flex w-fit items-center rounded-pill bg-blue px-3 py-1 text-body-sm font-semibold text-on-dark">
-                    Legkelendőbb
-                  </p>
-                ) : null}
-
-                <h3 className="text-h5">{tier.name}</h3>
-                {tier.note ? <p className="text-soft mt-1.5 text-body-sm">{tier.note}</p> : null}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="text-h5">{tier.name}</h3>
+                    {tier.note ? (
+                      <p className="text-soft mt-1.5 text-body-sm">{tier.note}</p>
+                    ) : null}
+                  </div>
+                  {tier.popular ? <PopularMark /> : null}
+                </div>
 
                 <p data-numeric className="mt-5 font-display text-h3">
                   {priceOf(useYear ? (tier.yearPriceKey as never) : tier.priceKey)}
@@ -92,6 +94,33 @@ export function PriceTiers({
         })}
       </ul>
     </div>
+  );
+}
+
+/**
+ * A legkelendőbb csomag jele.
+ *
+ * Kör alakú, mély kék korong a kártya jobb felső sarkában, a csomag nevével egy
+ * sorban. Korábban egy „Legkelendőbb” feliratú címke ült a név **fölött**: az
+ * egy egész sort elvitt a kártya tetejéről, és mivel csak az egyik kártyán volt
+ * ott, a négy csomag neve nem egy vonalban kezdődött.
+ *
+ * **A jelentés nem vész el.** A csillag magában nem mond semmit, ezért a felirat
+ * megmarad képernyőolvasónak (`sr-only`), és `title`-ként a mutató alatt is
+ * előjön. A csillag csak jelzés, nem az információ hordozója — a kártya erősebb
+ * kerete (`border-wave-7`) is ugyanezt mondja.
+ */
+function PopularMark() {
+  return (
+    <span
+      title="Legkelendőbb"
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-blue text-on-dark shadow-raise"
+    >
+      <span className="sr-only">Legkelendőbb</span>
+      <svg aria-hidden="true" viewBox="0 0 16 16" className="h-4 w-4" fill="currentColor">
+        <path d="M8 2.2 9.7 6.25 14.09 6.62 10.76 9.5 11.76 13.78 8 11.5 4.24 13.78 5.24 9.5 1.91 6.62 6.3 6.25Z" />
+      </svg>
+    </span>
   );
 }
 

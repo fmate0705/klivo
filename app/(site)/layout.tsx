@@ -2,6 +2,7 @@ import { getOrganization } from '@/lib/organization';
 import { organizationJsonLd, websiteJsonLd } from '@/lib/seo/jsonld';
 import { JsonLd } from '@/components/seo/json-ld';
 import { MotionDriver } from '@/components/motion/motion-driver';
+import { ImageWarmup } from '@/components/motion/image-warmup';
 import { IntroCurtain } from '@/components/site/intro-curtain';
 import { SiteNav } from '@/components/site/site-nav';
 import { SiteFooter } from '@/components/site/site-footer';
@@ -28,6 +29,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 
       <IntroCurtain />
       <MotionDriver />
+      <ImageWarmup />
 
       <a
         href="#main"

@@ -532,6 +532,36 @@
    * sarokfolt is benne van a rajzban, tehát nincs mit a szekcióba lógatni — és
    * nincs is szükség z-index-trükkre, hogy a folt a tartalom mögé kerüljön.
    */
+
+  /**
+   * A kártyák kiemelése rámutatásra.
+   *
+   * Négy képpont emelkedés és egy százaléknyi növekedés — együtt annyi, hogy a
+   * kártya „megmozdul a kéz alatt”, de egy rácsban ne legyen nyugtalan. Csak
+   * `transform` és `box-shadow` változik, tehát a mozgás a compositoron marad,
+   * és nem számoltat elrendezést a szomszédos kártyákra.
+   *
+   * **Csak finom mutatóval.** Érintésen a koppintás hamis hovert vált ki, és a
+   * kártya ottragadna kiemelve. A `focus-within` a billentyűzetes bejárást
+   * fedi: aki tabbal ér a kártya hivatkozásához, ugyanazt a visszajelzést kapja.
+   */
+  .card-lift {
+    transition:
+      transform 200ms var(--ease-out),
+      box-shadow 200ms var(--ease-out),
+      border-color 200ms var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card-lift:hover {
+      transform: translate3d(0, -4px, 0) scale(1.01);
+    }
+  }
+
+  .card-lift:focus-within {
+    transform: translate3d(0, -4px, 0) scale(1.01);
+  }
+
   .sky-band {
     position: relative;
     width: 100%;

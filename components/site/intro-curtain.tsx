@@ -45,9 +45,11 @@ export function IntroCurtain() {
         </span>
 
         <span className="intro__mark">
-          <span className="flex items-center gap-3 text-on-dark">
-            <LogoMark className="h-9 w-9" />
-            <span className="font-display text-h3 font-bold tracking-tight">Klivo</span>
+          <span className="flex items-center gap-4 text-on-dark sm:gap-6">
+            <LogoMark className="h-[clamp(2.75rem,7vw,5.5rem)] w-[clamp(2.75rem,7vw,5.5rem)]" />
+            <span className="font-display text-[clamp(2.5rem,6.5vw,5rem)] font-bold leading-none tracking-tight">
+              Klivo
+            </span>
           </span>
         </span>
       </div>

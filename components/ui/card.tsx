@@ -27,11 +27,13 @@ export function Card({
   return (
     <div
       className={cn(
-        'border-soft bg-raised relative rounded-card border p-6 sm:p-7',
-        interactive && [
-          'group transition-[transform,box-shadow,border-color] duration-ui ease-standard',
-          'hover:-translate-y-px hover:shadow-float focus-within:-translate-y-px focus-within:shadow-float',
-        ],
+        'border-soft bg-raised card-lift relative rounded-card border p-6 sm:p-7',
+        // A kiemelés **minden** kártyán ott van, nem csak a kattinthatókon: a
+        // rámutatásra megmozduló felület a lap egészét élővé teszi, és a
+        // kártyarácsokban ettől érződik kézzelfoghatónak a tartalom.
+        // Az árnyékerősítés viszont csak a kattinthatóké — ott az emelkedés
+        // ígéret is: „ez visz valahová”.
+        interactive && 'group hover:shadow-float focus-within:shadow-float',
         className,
       )}
     >

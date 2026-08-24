@@ -23,7 +23,17 @@ import { WaveRule } from '@/components/wave/wave-rule';
  * tartalmat nézi az ember, és a sarokban felbukkanó panel nem tolakszik.
  */
 
-const STORAGE_KEY = 'klivo-cookie-consent';
+export const CONSENT_STORAGE_KEY = 'klivo-cookie-consent';
+
+/**
+ * A süti-tájékoztató **újranyitásának** jelzése.
+ *
+ * A GDPR szerint a látogatónak bármikor meg kell tudnia változtatni a
+ * választását, nem csak az első megjelenéskor. A süti tájékoztató oldalán ezért
+ * van egy gomb, ami törli a mentett választ, és ezzel az eseménnyel visszahívja
+ * a buborékot — újratöltés nélkül, azonnal.
+ */
+export const CONSENT_REOPEN_EVENT = 'klivo:consent-reopen';
 
 /** Ennyi idő után úszik be. A nyitó függöny 2,3 másodpercig tart. */
 const APPEAR_DELAY_MS = 2800;
@@ -35,7 +45,7 @@ export function CookieConsent() {
     // A tárolóhoz hozzáférés privát módban vagy zárolt tárolónál dobhat.
     let seen = false;
     try {
-      seen = window.localStorage.getItem(STORAGE_KEY) !== null;
+      seen = window.localStorage.getItem(CONSENT_STORAGE_KEY) !== null;
     } catch {
       seen = true;
     }
@@ -49,9 +59,20 @@ export function CookieConsent() {
     return () => window.clearTimeout(timer);
   }, []);
 
+  // Újranyitás a süti tájékoztató oldaláról. A figyelő akkor is él, amikor a
+  // buborék rejtve van: a komponens ilyenkor is a fában marad, csak nem rajzol.
+  useEffect(() => {
+    const reopen = () => {
+      setState('entering');
+      window.requestAnimationFrame(() => setState('visible'));
+    };
+    window.addEventListener(CONSENT_REOPEN_EVENT, reopen);
+    return () => window.removeEventListener(CONSENT_REOPEN_EVENT, reopen);
+  }, []);
+
   function dismiss() {
     try {
-      window.localStorage.setItem(STORAGE_KEY, new Date().toISOString());
+      window.localStorage.setItem(CONSENT_STORAGE_KEY, new Date().toISOString());
     } catch {
       // Ha nem tudjuk megjegyezni, a buborék legközelebb újra megjelenik.
       // Kellemetlen, de nem hiba: a tájékoztatás így is megtörtént.

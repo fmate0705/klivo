@@ -1,6 +1,17 @@
 import type { CSSProperties } from 'react';
 import { cn } from '@/lib/cn';
 import type { Tone } from '@/components/wave/section-divider';
+import {
+  above,
+  below,
+  ease,
+  forward,
+  ribbon,
+  spline,
+  wave,
+  type Boundary,
+  type Point,
+} from '@/lib/wave-ribbon';
 
 /**
  * A világoskék szekciók hullámsávja — **saját**, a `WaveBand`-től független.
@@ -56,12 +67,6 @@ const W = 1000;
 const H = 1000;
 const OVER = 260;
 
-type Point = [number, number];
-type Segment = { c1: Point; c2: Point; end: Point };
-
-/** Egy réteg felső határa: kezdőpont és köbös Bézier-szakaszok. */
-type Boundary = { start: Point; segments: Segment[] };
-
 /**
  * Egy réteghatár alakja.
  *
@@ -104,50 +109,6 @@ const SHAPES: Shape[] = [
 const SAMPLES = 26;
 
 /**
- * A hullám függvénye.
- *
- * Két, egymásra rakott szinusz: az alap adja a nagy ívet, a második a
- * részletet. Egyetlen szinuszból gépi, ismétlődő minta lenne — kettőből, nem
- * egész számú frekvenciaaránnyal, már olyan, mintha kézzel rajzolták volna.
- */
-function wave(t: number): number {
-  return 0.66 * Math.sin(2 * Math.PI * t) + 0.34 * Math.sin(4 * Math.PI * t + 1.1);
-}
-
-/** Sima átmenet 0 és 1 között — a lezúdulás pereme ettől nem törik meg. */
-function ease(value: number): number {
-  const t = Math.min(1, Math.max(0, value));
-  return t * t * (3 - 2 * t);
-}
-
-/**
- * Mintapontokból sima köbös lánc (Catmull-Rom → Bézier).
- *
- * A vezérlőpontok a szomszédos minták különbségéből jönnek, tehát a
- * csatlakozásoknál az érintő folytonos: a görbe áthalad minden mintaponton, és
- * sehol nem törik meg. A végeken a szomszéd hiányzik, ezért ott a pont maga lép
- * a helyére.
- */
-function spline(points: Point[]): Boundary {
-  const segments: Segment[] = [];
-
-  for (let index = 0; index < points.length - 1; index += 1) {
-    const previous = points[Math.max(0, index - 1)]!;
-    const current = points[index]!;
-    const next = points[index + 1]!;
-    const after = points[Math.min(points.length - 1, index + 2)]!;
-
-    segments.push({
-      c1: [current[0] + (next[0] - previous[0]) / 6, current[1] + (next[1] - previous[1]) / 6],
-      c2: [next[0] - (after[0] - current[0]) / 6, next[1] - (after[1] - current[1]) / 6],
-      end: next,
-    });
-  }
-
-  return { start: points[0]!, segments };
-}
-
-/**
  * Egy réteghatár: hullám + a sarokban egy lezúdulás.
  *
  * A kettő **nem két külön szakasz**, hanem ugyanannak a függvénynek a két tagja.
@@ -169,57 +130,6 @@ function boundary(shape: Shape): Boundary {
   }
 
   return spline(points);
-}
-
-const round = (value: number) => Math.round(value * 10) / 10;
-const at = (point: Point) => `${round(point[0])} ${round(point[1])}`;
-
-/** A határ oda-útja. */
-function forward(line: Boundary): string {
-  return (
-    `M${at(line.start)}` +
-    line.segments.map((s) => ` C${at(s.c1)} ${at(s.c2)} ${at(s.end)}`).join('')
-  );
-}
-
-/**
- * A határ vissza-útja, `M` nélkül.
- *
- * Egy köbös szakasz megfordítása a végpontok cseréje és a két vezérlőpont
- * felcserélése — enélkül a szalag alsó és felső éle nem ugyanaz a görbe lenne.
- */
-function backward(line: Boundary): string {
-  const points: Point[] = [line.start, ...line.segments.map((s) => s.end)];
-  let out = '';
-  for (let index = line.segments.length - 1; index >= 0; index -= 1) {
-    const segment = line.segments[index]!;
-    out += ` C${at(segment.c2)} ${at(segment.c1)} ${at(points[index]!)}`;
-  }
-  return out;
-}
-
-const lastEnd = (line: Boundary) => line.segments[line.segments.length - 1]!.end;
-
-/**
- * Egy szalag: két határ közötti terület.
- *
- * A rétegek **nem** egymásra festett, alul kitöltött formák, hanem valódi
- * szalagok. Kitöltéssel a sarokban mindig a legutoljára rajzolt réteg takarna el
- * mindent — így viszont mindegyik réteg pontosan a saját sávját foglalja el, és
- * a sarokban egymásba ágyazódnak.
- */
-function ribbon(upper: Boundary, lower: Boundary): string {
-  return `${forward(upper)} L${at(lastEnd(lower))}${backward(lower)} Z`;
-}
-
-/** A sáv legfelső területe: a fölötte lévő szekció színe. */
-function above(line: Boundary): string {
-  return `M${-OVER} ${-OVER} L${W + OVER} ${-OVER} L${at(lastEnd(line))}${backward(line)} Z`;
-}
-
-/** A sáv legalsó területe: az alatta lévő szekció színe. */
-function below(line: Boundary): string {
-  return `${forward(line)} L${W + OVER} ${H + OVER} L${-OVER} ${H + OVER} Z`;
 }
 
 const BOUNDARIES = SHAPES.map(boundary);
@@ -299,7 +209,7 @@ export function SkyBand({
         preserveAspectRatio="none"
         focusable="false"
       >
-        <path d={above(BOUNDARIES[0]!)} fill={`rgb(var(--${base}))`} />
+        <path d={above(BOUNDARIES[0]!, -OVER, -OVER, W + OVER)} fill={`rgb(var(--${base}))`} />
 
         {BOUNDARIES.slice(0, -1).map((line, index) => (
           <g
@@ -321,7 +231,7 @@ export function SkyBand({
         ))}
 
         <g className="sky-band__layer" style={{ '--sky-drift': DRIFT[3] } as CSSProperties}>
-          <path d={below(last)} fill={`rgb(var(--${tail}))`} />
+          <path d={below(last, -OVER, W + OVER, H + OVER)} fill={`rgb(var(--${tail}))`} />
           <path
             d={forward(last)}
             fill="none"

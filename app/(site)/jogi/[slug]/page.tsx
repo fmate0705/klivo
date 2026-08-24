@@ -10,6 +10,7 @@ import { Container } from '@/components/ui/container';
 import { Section } from '@/components/ui/section';
 import { PageHeader } from '@/components/site/page-header';
 import { FooterWave } from '@/components/site/footer-wave';
+import { CookieSettings } from '@/components/site/cookie-settings';
 
 /**
  * A jogi dokumentumok.
@@ -78,6 +79,11 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
             className="prose"
             dangerouslySetInnerHTML={{ __html: renderMarkdown(document.body) }}
           />
+
+          {/* A süti tájékoztató nem csak leírja a szabályt, hanem eszközt is ad
+              hozzá: a hozzájárulást ugyanolyan könnyen kell tudni visszavonni,
+              ahogy megadták. */}
+          {document.slug === 'cookie-tajekoztato' ? <CookieSettings /> : null}
 
           <p className="text-soft border-soft mt-12 border-t pt-6 text-body-sm">
             Hatályos: {document.updated}

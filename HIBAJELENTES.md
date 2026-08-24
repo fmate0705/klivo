@@ -538,13 +538,81 @@ nekifutásból állt össze, és mindegyik bukás megtanított egy szabályt.
    merőleges, tehát a látható darab **függőleges szalag** lett — annak semmi
    köze a hullámhoz.
 
-A mostani változat mindhárom szabályt betartja: a tarajok **fölfelé**
-domborodnak (a középpontjuk a felület alatt van), a sávok vége a felület alá
-esik (nincs a semmiben végződő ív), és a réteg **teljes szélességű**, mert a bal
-széle így a nézet széle — ott nincs mit levágni. A kompozíció mégis a jobb alsó
-sarokban ül, a szöveghasábtól távol.
+A negyedik nekifutás után már mindhárom szabály teljesült — a tarajok **fölfelé**
+domborodtak, a sávok vége a felület alá esett, és a réteg teljes szélességű volt,
+tehát nem maradt levágott él. Egy baj maradt: a szekcióhatárral nem ért össze.
+Innen folytatódik a történet a 2/e.1-ben.
 
 ---
+
+---
+
+## 2/e. A világoskék szekciók saját sávja és a kártyák
+
+### 2/e.1 A sarokba tett hullám sosem ért össze a szekcióhatárral
+
+A 2/d.16 utolsó változata már jó irányba nézett, de maradt egy rés: a
+sarokhullám a szekció **belsejében** rajzolódott, a szekcióhatárt viszont a
+`WaveBand` rajzolta a szekció **fölött**. Két külön réteg, két külön koordináta-
+rendszer, két külön görgetés-sodródás — a kettő találkozásánál mindig maradt
+vagy egy hajszálnyi rés, vagy egy takarás. Átfedéssel, `z-index`-szel és
+negatív margóval is próbáltam: mindegyik csak eltolta a hibát.
+
+A megoldás az volt, hogy **egy rajz lett belőlük**. A `SkyBand` a világoskék
+szekciók saját szekcióhatára: ugyanabban az SVG-ben viszi a sáv hullámait és a
+sarokba lezúduló nyúlványt, tehát nincs mit összeilleszteni. A
+`components/wave/section-divider.tsx` érintetlen maradt — a többi szekcióhatár
+változatlanul azt használja.
+
+### 2/e.2 A szalagok „bugosnak” néztek ki
+
+Az első `SkyBand` határgörbéi külön-külön megírt, fél periódusú Bézier-ívekből
+álltak, és rétegenként **más amplitúdóval**. Két baj lett belőle:
+
+- **Érintőtörés.** A fél periódusok találkozásánál az érintő ugrott, tehát a
+  hullám nem folyt, hanem szögben megtört.
+- **Keresztező határok.** Eltérő amplitúdónál két szomszédos határgörbe
+  belemetsz egymásba: a köztük lévő szalag ott nullára fogy, majd **kifordul** —
+  ez adta a „bugos” hatást.
+
+A mostani mértan (`lib/wave-ribbon.ts`) mindkettőt kizárja: a határ
+mintavételezett pontsorból, Catmull-Rom spline-nal készül (C1-folytonos, nincs
+törés), **minden határ azonos amplitúdójú**, és csak fázisban tér el. A
+peremek közti hézag nagyobb, mint kétszer az amplitúdó — így matematikailag sem
+tudnak keresztezni.
+
+### 2/e.3 A csapattagok portréja alatt szaggatott volt a hullám
+
+Ugyanez a hiba, más helyen: a portrék alatt három, alul kitöltött `WaveLayer`
+feküdt egymáson. Ahol a következő réteg kifutott az előző alól, az él megtört, és
+a felület teteje hullámpapírszerű lett. A `WavePanel` már a fenti szalagmértant
+használja.
+
+### 2/e.4 A fejléc világos pereme a felvezető bekezdés mögé került
+
+A kontrasztmérés a szolgáltatás-aloldalon 3,94:1-et mutatott 390 és 768 pixelen:
+fehér felvezető szöveg a `wave-7`-en. A `WaveCurls` dokumentációja már kimondta,
+hogy a felső mezőben **a peremben is** csak a skála két legmélyebb tónusa
+szerepelhet — a táblázat viszont négy sorban `wave-7` peremet adott. Fehér
+szöveg a `wave-7`-en 3,9:1: nagy címsornak elég, bekezdésnek nem. A négy sor
+pereme `wave-8`/`wave-9`-re váltott; a rétegzést ott úgyis a fehér kontúr viszi,
+nem a tónuskülönbség.
+
+### 2/e.5 A süti-hozzájárulást nem lehetett visszavonni
+
+A buborék egyszer megjelent, a válasz a `localStorage`-ba került, és onnantól
+nem volt út vissza. A GDPR szerint a hozzájárulást **ugyanolyan könnyen kell
+tudni visszavonni**, ahogy megadták. A süti tájékoztató oldala ezért kapott egy
+gombot (`CookieSettings`): törli a mentett választ, és egy eseménnyel azonnal
+visszahívja a buborékot — újratöltés nélkül, tehát a látogató látja is, hogy
+történt valami.
+
+### 2/e.6 A GYIK első válasza alapból nyitva volt
+
+Egy nyitott válasz azt sugallja, hogy az a fontos kérdés — miközben csak az
+első. Ráadásul a lenyíló magassága az egyetlen animált elrendezési tulajdonság
+az oldalon, és nyitott alapállapotból az első interakció mindig csukás volt.
+Alapból most mind zárva van.
 
 ## 3. Amit szándékosan másképp csináltam
 

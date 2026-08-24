@@ -5,7 +5,7 @@ import { Section, type SectionBand, type SectionTone } from '@/components/ui/sec
 import { SectionHeading } from '@/components/ui/heading';
 import { Reveal } from '@/components/motion/reveal';
 import { SmartImage } from '@/components/ui/smart-image';
-import { WaveLayer } from '@/components/wave/wave-layer';
+import { WavePanel } from '@/components/wave/wave-panel';
 import { WaveRule } from '@/components/wave/wave-rule';
 
 /**
@@ -110,43 +110,19 @@ export function Team({
 /**
  * A portré felülete.
  *
- * Három hullámréteg a kék skálából, a tag sorszámától függő tónusokkal — a
- * sor nem lesz egyhangú, de ugyanaz a tag mindig ugyanúgy néz ki.
+ * A hullámokat a `WavePanel` rajzolja — ugyanaz a sima szalaglogika, mint a
+ * szekciósávoké (`lib/wave-ribbon.ts`). Korábban három, egymásra fektetett,
+ * alul kitöltött hullámréteg volt itt, és a rétegek élei megtörtek ott, ahol a
+ * következő réteg alóluk kifutott: a portré teteje ettől szaggatott,
+ * hullámpapírszerű lett.
+ *
+ * A tag sorszáma választja ki a tónusnégyest: a sor nem lesz egyhangú, de
+ * ugyanaz a tag mindig ugyanúgy néz ki.
  */
-const BACKDROPS = [
-  ['wave-3', 'wave-5', 'wave-7'],
-  ['wave-4', 'wave-6', 'wave-8'],
-  ['wave-2', 'wave-4', 'wave-6'],
-  ['wave-5', 'wave-7', 'wave-9'],
-];
-
 function TeamPortrait({ member, index }: { member: TeamMember; index: number }) {
-  const tones = BACKDROPS[index % BACKDROPS.length] as string[];
-
   return (
-    <div className="border-soft relative aspect-[4/5] w-full overflow-hidden rounded-panel border bg-wave-2 shadow-raise">
-      <span aria-hidden="true" className="wave-stack">
-        {[
-          { top: 0.38, crests: 1, amplitude: 0.34, phase: 0.2, duration: '52s', drift: '3%' },
-          { top: 0.6, crests: 1.5, amplitude: 0.26, phase: 0.7, duration: '66s', drift: '-4%' },
-          { top: 0.82, crests: 2, amplitude: 0.2, phase: 0.35, duration: '58s', drift: '5%' },
-        ].map((layer, layerIndex) => (
-          <WaveLayer
-            key={layerIndex}
-            tone={tones[layerIndex] as string}
-            top={layer.top}
-            crest="clamp(26px, 5vw, 52px)"
-            crests={layer.crests}
-            amplitude={layer.amplitude}
-            phase={layer.phase}
-            line={0.6}
-            drift={layer.drift}
-            duration={layer.duration}
-            delay={`-${layerIndex * 11}s`}
-            zIndex={layerIndex}
-          />
-        ))}
-      </span>
+    <div className="border-soft group relative aspect-[4/5] w-full overflow-hidden rounded-panel border bg-wave-2 shadow-raise transition-[transform,box-shadow] duration-ui ease-standard hover:-translate-y-1 hover:shadow-float">
+      <WavePanel index={index} />
 
       {member.photo ? (
         <SmartImage
@@ -156,7 +132,7 @@ function TeamPortrait({ member, index }: { member: TeamMember; index: number }) 
           height={1000}
           sizes="(min-width: 1024px) 20rem, (min-width: 640px) 15rem, 100vw"
           className="wave-content h-full"
-          imageClassName="h-full object-cover object-bottom"
+          imageClassName="h-full object-cover object-bottom transition-transform duration-panel ease-standard group-hover:scale-[1.03]"
         />
       ) : (
         <span aria-hidden="true" className="wave-content flex h-full items-center justify-center">

@@ -356,6 +356,21 @@ nem takar, mert nincs is benne szöveg — így keskeny nézetben sem kell kikap
 A `components/wave/section-divider.tsx` érintetlen: a többi szekcióhatár
 változatlanul azt használja.
 
+### `WavePanel` — a portrék háttere
+
+A csapattagok képe alatti kék felület. Ugyanazt a `lib/wave-ribbon.ts`
+szalagmértant használja, mint a `SkyBand`: mintavételezett pontsor, Catmull-Rom
+spline, és két határgörbe közötti valódi tartomány.
+
+Korábban három, egymásra fektetett, alul kitöltött hullámréteg volt itt
+(`WaveLayer`). A rétegek élei megtörtek ott, ahol a következő réteg alóluk
+kifutott, és a portré teteje szaggatott, hullámpapírszerű lett. A szalagoknál ez
+nem fordulhat elő: a határok **azonos amplitúdójúak**, csak fázisban térnek el,
+tehát soha nem keresztezik egymást.
+
+A tag sorszáma választja ki a tónusnégyest — a sor nem lesz egyhangú, de ugyanaz
+a tag mindig ugyanúgy néz ki.
+
 ### `WaveRule` — az apró elválasztó
 
 A márkajel egyetlen hulláma, két pixel vastag vonalként. Ez az egy elem SVG és
@@ -415,11 +430,19 @@ lenyíló magassága maga az interakció), és a statikus árnyék a hullámrét
 
 ### Interaktivitás
 
-- **A nyitóképernyő és a fejlécek hullámai követik a mutatót.** Egyetlen `pointermove` figyelő
-  van az egész oldalra (`MotionDriver`), amely képkockánként legfeljebb egyszer
-  ír két CSS változót a `<html>`-re; a rétegek ezeket olvassák. Így az
-  interaktivitás egyetlen bájt komponens-szintű JavaScriptbe sem kerül, és a
-  hullámkomponensek szerver komponensek maradhatnak.
+- **A nyitóképernyő és a fejlécek hullámai követik a mutatót.** Egyetlen
+  `pointermove` figyelő van az egész oldalra (`MotionDriver`), amely
+  képkockánként legfeljebb egyszer ír — **közvetlenül a három hullámréteg
+  `style.transform`-jába**, a `data-pull` és `data-pull-y` attribútumok alapján.
+  Nem a `<html>` CSS változóiba: egy gyökérszintű változó minden képkockán az
+  egész dokumentum stílusait újraszámoltatta. Így az interaktivitás egyetlen
+  bájt komponens-szintű JavaScriptbe sem kerül, és a hullámkomponensek szerver
+  komponensek maradhatnak.
+- **A kártyák rámutatásra megemelkednek**: négy pixel föl és egy százalék
+  nagyítás (`.card-lift`), 200 ms alatt, `--ease-out` görbével. Minden kártya
+  megkapja, nem csak a kattinthatók — az `interactive` jelző már csak az árnyékot
+  erősíti. Rámutatásra és `focus-within`-re egyaránt: billentyűzettel is
+  ugyanaz a visszajelzés.
 - **A szekcióhatárok görgetésre sodródnak** (lásd `WaveBand`). A
   nyitóképernyő taréjai viszont **nem** — lásd `WaveCurls`.
 - **A gombokon víz emelkedik** rámutatásra: egy hullámperemű réteg 220 ms alatt
@@ -455,6 +478,13 @@ Az eszközmakettek csak hűvös árnyalatot kaptak: azok fotorealisztikus képer
 
 **A képek fehér szekcióba kerülnek.** Fehér háttéren az illusztráció széle
 eltűnik, és a kép a lap részének látszik, nem ablaknak rajta.
+
+**A hajlat alatti képek a nyitó függöny alatt töltődnek.** Amíg a függöny fut,
+a hálózat üresen állna; az `ImageWarmup` ezt az időt tölti ki: tétlen időben
+(`requestIdleCallback`) legfeljebb hat lusta képet előre letölt egy külön
+`Image` példánnyal, a `sizes` és a `srcset` átmásolásával — enélkül a böngésző
+más felbontást választana, és ugyanaz a kép kétszer utazna. Aki adatot spórol
+(`saveData`) vagy 2G-n van, annak semmit nem töltünk előre.
 
 ---
 
