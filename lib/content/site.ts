@@ -881,35 +881,6 @@ export const hourlyRates = {
 } as const;
 
 /* -------------------------------------------------------------------------- */
-/* Bizalmi jelzések                                                            */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Egyetlen szám kerül ki az oldalra, és az is olyan, aminek van jelentése egy
- * megrendelőnek: a rendelkezésre állás. Technikai mérőszámokat (LCP, CLS és
- * társai) szándékosan nem mutatunk — nem mondanak semmit annak, aki nem
- * fejlesztő.
- */
-export const assurances = [
-  {
-    title: 'Elérhető oldal',
-    body: 'A rendelkezésre állás tartósan 98% fölött van, és mi figyeljük, nem te.',
-  },
-  {
-    title: 'Napi mentés',
-    body: 'Minden nap készül mentés, tehát mindig van hová visszaállni.',
-  },
-  {
-    title: 'Havi statisztika',
-    body: 'Havonta megkapod, hányan jártak az oldaladon, és merről jöttek.',
-  },
-  {
-    title: 'Egy ár, előre',
-    body: 'A díjakat a szerződés előtt rögzítjük — az óradíjat is.',
-  },
-] as const;
-
-/* -------------------------------------------------------------------------- */
 /* Jogi oldalak                                                                */
 /* -------------------------------------------------------------------------- */
 

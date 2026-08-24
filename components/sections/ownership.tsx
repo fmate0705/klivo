@@ -1,4 +1,4 @@
-import { assurances, ownership } from '@/lib/content/site';
+import { ownership } from '@/lib/content/site';
 import { Container } from '@/components/ui/container';
 import { Section, type SectionTone, type SectionBand } from '@/components/ui/section';
 import { SectionHeading } from '@/components/ui/heading';
@@ -12,13 +12,9 @@ import { WaveRule } from '@/components/wave/wave-rule';
  * A négy pont négy egyszerű kártya, egy sorban. Rövid cím, egy mondat — nincs
  * mit átfutni, a szem egyben látja mind a négyet.
  *
- * Utána egy tömör, négyoszlopos sáv zárja a szekciót az üzemeltetési
- * vállalásokkal. A kettő ugyanarról szól — miért nyugodt az, aki nálunk van —,
- * ezért egy szekcióban van a helyük, nem kettőben.
- *
- * A vállalások közül egyetlen szám kerül ki (a rendelkezésre állás), és az is
- * olyan, aminek egy megrendelő számára jelentése van. LCP-t és CLS-t
- * szándékosan nem mutatunk: azok fejlesztői mérőszámok.
+ * A szekció itt véget is ér. Volt alatta egy négyoszlopos sáv az üzemeltetési
+ * vállalásokkal, de az ugyanazt mondta el másodszor, amit a négy kártya — a
+ * tulajdonjog kérdésére nem válaszolt, csak hosszabbá tette a szekciót.
  */
 export function Ownership({ band, tone = 'white' }: { band?: SectionBand; tone?: SectionTone }) {
   return (
@@ -37,15 +33,6 @@ export function Ownership({ band, tone = 'white' }: { band?: SectionBand; tone?:
             </Reveal>
           ))}
         </ul>
-
-        <div className="border-soft mt-16 grid gap-8 border-t pt-10 sm:mt-24 sm:grid-cols-2 lg:grid-cols-4">
-          {assurances.map((item, index) => (
-            <Reveal key={item.title} delay={staggerDelay(index, 40)}>
-              <h3 className="text-body font-semibold">{item.title}</h3>
-              <p className="mt-2 text-body-sm text-soft">{item.body}</p>
-            </Reveal>
-          ))}
-        </div>
       </Container>
     </Section>
   );
