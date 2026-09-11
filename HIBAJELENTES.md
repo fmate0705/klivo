@@ -708,6 +708,38 @@ A `scripts/contrast.mjs` fogta meg.
 
 ---
 
+### 2/f.6 A megosztási kép még a régi, szürke-narancs arculatot vitte
+
+A `app/opengraph-image.tsx` átcsúszott a kék átdolgozáson: grafitszürke háttér
+(`#14161C`, `#1C1F27`, `#242833`), **narancs** márkajel (`#E8825F`), és a
+hullámok helyett három elmosódott kör. Egyik szín sem szerepel a palettán, a
+narancs pedig kimondottan tilos (nincs második színcsalád).
+
+Ez a fajta hiba azért marad meg sokáig, mert **a saját oldalon nem látszik**: a
+megosztási kép csak akkor kerül elő, amikor valaki belinkeli a lapot. A
+címlapon minden rendben volt.
+
+Három dolog változott:
+
+- **A hullámok az oldal mértanából jönnek** (`lib/wave-ribbon.ts`), nem
+  „hullámszerű" formákból: ugyanaz a spline, ugyanaz a szalaglogika, ugyanaz a
+  fehér kontúr. A tónusok a vízvonal alatt világosodnak, mint a
+  nyitóképernyőn.
+- **A szöveg a vízvonal fölé került.** Az első változatban alul volt, és a
+  világos szalagokra csúszott — ugyanaz a hiba, ami a nyitóképernyőn is
+  előjött. Fölül csak a két legmélyebb kék fut: a címsor 8,3:1, a felvezető
+  7,0:1.
+- **Az oldal betűivel szedve.** Ez nem kozmetika: a `next/font` woff2-t tesz a
+  buildbe, azt viszont a képgenerátor nem olvassa, és a beépített tartalék betű
+  **csak 400-as súlyú**. A `fontWeight: 700` így némán elveszett, és a címsor
+  vékonyan jelent meg — a kép egy másik márkáé volt. Az Outfit 700 és a Plus
+  Jakarta 500 ezért TTF-ként bekerült az `assets/fonts/` alá, és a kép build
+  időben onnan olvassa.
+
+A favicon (`app/icon.tsx`) ellenőrizve: az már a helyes palettán van.
+
+---
+
 ## 3. Amit szándékosan másképp csináltam
 
 ### 3.1 Az admin csak blogot kezel — az árakat és a cégadatokat nem

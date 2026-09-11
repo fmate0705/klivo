@@ -79,6 +79,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 #   docker compose exec klivo_web node scripts/seed-content.mjs
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 
+# A megosztási kép betűi. A kép build időben generálódik, tehát ezek ott már
+# megvannak — ez a sor arra az esetre szól, ha az útvonal valaha dinamikussá
+# válna. Két fájl, együtt 110 kB: olcsóbb, mint egy betűtípus nélkül renderelt,
+# néma módon elrontott megosztási kép.
+COPY --from=builder --chown=nextjs:nodejs /app/assets ./assets
+
 # A bevetett tartalom, amelyet a Docker az első csatoláskor bemásol az üres
 # named volume-ba. Ettől működik a blog azonnal egy friss deploy után.
 COPY --from=builder --chown=nextjs:nodejs /app/data ./data

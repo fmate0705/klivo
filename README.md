@@ -106,6 +106,9 @@ lib/
                      megkeresések, beállítások, feltöltések
   seo/               Metaadat és strukturált adat (JSON-LD)
   markdown.ts        Szűk nyelvtanú Markdown renderer (escape, majd markup)
+assets/fonts/        Az Outfit és a Plus Jakarta TTF-ben — a megosztási kép
+                     build időben ebből szedi a címsort (a next/font woff2-jét
+                     a képgenerátor nem olvassa)
 data/                posts.json, works.json, partners.json, team.json,
                      leads.json, settings.json, uploads/ — csatolt kötetre való
 ```
