@@ -7,16 +7,22 @@ import { Logo } from '@/components/site/logo';
 import { cn } from '@/lib/cn';
 
 /**
- * Az admin két dolgot csinál: bejegyzéseket kezel és megkereséseket mutat.
+ * Az admin a **változó** tartalmat kezeli: referenciákat, partnereket,
+ * bejegyzéseket, a csapatot, a kérdéseket és a beérkező megkereséseket.
  *
  * Árak és cégadatok szándékosan nincsenek benne. Az árak tartalmi döntések és a
  * kódban élnek (`lib/content/pricing.ts`), a cég- és jogi adatok pedig a
  * `.env`-ben. Ezeket két helyről is szerkeszthetővé tenni azt jelentené, hogy
  * két egymásnak ellentmondó impresszum állhat elő, és senki nem tudná, melyik
  * az igazi.
+ *
+ * A sorrend a használat gyakoriságát követi, nem a fejlesztés sorrendjét: elöl
+ * az, amihez a szerkesztő naponta hozzányúl.
  */
 const links = [
   { href: '/admin', label: 'Áttekintés' },
+  { href: '/admin/referenciak', label: 'Referenciák' },
+  { href: '/admin/partnerek', label: 'Partnerek' },
   { href: '/admin/bejegyzesek', label: 'Bejegyzések' },
   { href: '/admin/csapat', label: 'Csapat' },
   { href: '/admin/gyik', label: 'GYIK' },

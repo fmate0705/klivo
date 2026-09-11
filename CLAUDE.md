@@ -77,6 +77,17 @@ az eddig talált hibák), [`README.md`](README.md) (szerkezet, parancsok).
 - **Kliens komponens nem importálhat a tárolóból.** A tároló `revalidateTag`-et
   húz be, ami csak szerveren létezik, és a build elszáll tőle. Ami a szerkesztő
   felületnek is kell (pl. `FAQ_PAGES`), az `lib/content/` alá megy.
+- **Kapcsolható szekció nem döntheti el magáról, hogy megjelenik-e.** Minden
+  szekció a **fölötte lévő** felületről érkezik (`band.from`). Ha egy szekció
+  maga dönt a láthatóságáról, az alatta lévő rossz színről indítja a sávját, és
+  látható varrás marad. A főoldali referencia szekció ezért nem olvas: az adatot
+  a lap adja neki, és ugyanott dől el a következő szekció `from` értéke is.
+- **SVG csak fertőtlenítve mehet a feltöltésbe.** Az SVG dokumentum, nem kép:
+  azonos originről kiszolgálva szkriptet futtathat. A `lib/svg-sanitize.ts`
+  engedélyezőlistával újraírja, a `/media/…` pedig `default-src 'none'; sandbox`
+  CSP-t küld rá. A felismerést kisbetűsítve végezd, de a **kimenetre a
+  szabványos írásmód** kerüljön — az SVG kis- és nagybetűérzékeny, a `viewbox`
+  és a `lineargradient` némán nem rajzolódik ki.
 - **Ne buildelj futó szerver mellé.** A `next build` felülírja a `.next`-et a
   futó `next start` alól: a kiszolgált HTML régi chunkokra hivatkozik, azok
   400-at adnak, és a lap stílus nélkül, óriási elemekkel jelenik meg. Állítsd

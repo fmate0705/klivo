@@ -12,6 +12,20 @@ import { readUpload } from '@/lib/store/uploads';
  */
 export const runtime = 'nodejs';
 
+/**
+ * A feltöltött fájlokra szánt, szigorított irányelv.
+ *
+ * Az SVG dokumentum, nem kép: ha valaki közvetlenül nyitja meg a `/media/…`
+ * címet, a böngésző oldalként rendereli. A `default-src 'none'` és a `sandbox`
+ * miatt ott semmi nem futhat le, és semmi nem tölthető be kívülről — akkor sem,
+ * ha a fertőtlenítő (`lib/svg-sanitize.ts`) egyszer hibázna.
+ *
+ * A `next.config.mjs` ugyanerre az útvonalra is küld egy irányelvet. Két
+ * `Content-Security-Policy` fejlécnél a böngésző a **metszetüket** érvényesíti,
+ * tehát a kettő nem gyengíti, hanem erősíti egymást.
+ */
+const MEDIA_CSP = "default-src 'none'; style-src 'unsafe-inline'; sandbox";
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ name: string }> },
@@ -28,6 +42,10 @@ export async function GET(
       'content-type': file.contentType,
       'cache-control': 'public, max-age=31536000, immutable',
       'x-content-type-options': 'nosniff',
+      'content-security-policy': MEDIA_CSP,
+      // Megnyitni igen, futtatókörnyezetnek látszani nem: a böngésző így
+      // dokumentumként sem kapja meg a lap jogosultságait.
+      'content-disposition': 'inline',
     },
   });
 }

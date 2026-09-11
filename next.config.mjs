@@ -78,6 +78,30 @@ const nextConfig = {
     return [
       { source: '/:path*', headers: securityHeaders },
       {
+        /**
+         * A feltöltött fájlok.
+         *
+         * Az admin SVG emblémát is feltölthet, az SVG pedig dokumentum, nem
+         * kép: közvetlenül megnyitva a böngésző oldalként rendereli. A fenti,
+         * oldalra szabott irányelv `script-src 'unsafe-inline'`-t enged (a Next
+         * bootstrapja miatt), ami itt pont a rossz válasz lenne.
+         *
+         * Két `Content-Security-Policy` fejléc esetén a böngésző a
+         * **metszetüket** érvényesíti, tehát ez a sor szigorít, nem lazít. A
+         * feltöltés emellett fertőtleníti is az SVG-t
+         * (`lib/svg-sanitize.ts`) — két független réteg, mert egy tárolt XSS
+         * ára aránytalanul nagy.
+         */
+        source: '/media/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+          },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+        ],
+      },
+      {
         // Az admin felületet sem proxy, sem böngésző nem cache-elheti.
         source: '/admin/:path*',
         headers: [

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { legalPages, services } from '@/lib/content/site';
 import { listPublishedPosts } from '@/lib/store/posts';
+import { listPublishedWorks } from '@/lib/store/works';
 import { absoluteUrl } from '@/lib/site-url';
 
 /**
@@ -18,6 +19,7 @@ import { absoluteUrl } from '@/lib/site-url';
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await listPublishedPosts();
+  const works = await listPublishedWorks();
   const now = new Date();
 
   const staticPages: MetadataRoute.Sitemap = [
@@ -30,6 +32,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     { url: absoluteUrl('/folyamat'), lastModified: now, changeFrequency: 'yearly', priority: 0.7 },
     { url: absoluteUrl('/rolunk'), lastModified: now, changeFrequency: 'yearly', priority: 0.6 },
+    {
+      url: absoluteUrl('/referenciak'),
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
     { url: absoluteUrl('/blog'), lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: absoluteUrl('/kapcsolat'), lastModified: now, changeFrequency: 'yearly', priority: 0.9 },
   ];
@@ -48,6 +56,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const workPages: MetadataRoute.Sitemap = works.map((work) => ({
+    url: absoluteUrl(`/referenciak/${work.slug}`),
+    lastModified: new Date(work.updatedAt),
+    changeFrequency: 'yearly',
+    priority: 0.7,
+  }));
+
   const legal: MetadataRoute.Sitemap = legalPages.map((page) => ({
     url: absoluteUrl(`/jogi/${page.slug}`),
     lastModified: now,
@@ -55,5 +70,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.3,
   }));
 
-  return [...staticPages, ...servicePages, ...postPages, ...legal];
+  return [...staticPages, ...servicePages, ...workPages, ...postPages, ...legal];
 }

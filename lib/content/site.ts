@@ -68,6 +68,7 @@ export const nav: NavItem[] = [
       },
     ],
   },
+  { label: 'Referenciák', href: '/referenciak' },
   { label: 'Folyamat', href: '/folyamat' },
   { label: 'Rólunk', href: '/rolunk' },
   { label: 'Blog', href: '/blog' },
@@ -90,6 +91,7 @@ export const footerNav = [
   {
     title: 'Ügynökség',
     links: [
+      { label: 'Referenciák', href: '/referenciak' },
       { label: 'Folyamat', href: '/folyamat' },
       { label: 'Rólunk', href: '/rolunk' },
       { label: 'Blog', href: '/blog' },
@@ -138,6 +140,11 @@ export const pageMeta = {
     title: 'Rólunk — kis csapat, egyenes beszéd',
     description:
       'A Klivo magyar webügynökség. Weboldalakat és webalkalmazásokat építünk és üzemeltetünk. Fix ár, gyors tempó, személyes válaszok.',
+  },
+  works: {
+    title: 'Referenciák — ügyfélmunkák és esettanulmányok',
+    description:
+      'Valódi ügyfélmunkák a Klivótól: mi volt a feladat, mit építettünk és mi lett belőle. Weboldalak, webshopok, egyedi fejlesztések.',
   },
   blog: {
     title: 'Blog — weboldal, keresőoptimalizálás, AI',

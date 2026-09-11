@@ -450,6 +450,27 @@ lenyíló magassága maga az interakció), és a statikus árnyék a hullámrét
   a koppintás hamis hovert vált ki.
 - **A görgetésjelző egér ikonjában a pont mozog** le-föl, 2200 ms-os ciklusban.
 
+### A partnersáv csúszása
+
+A nyitóképernyő alatt futó embléma-sáv. Két azonos sáv áll egymás után, és
+mindkettő a **saját szélességével** tolódik el balra: a ciklus végén a második
+pontosan ott áll, ahol az első indult, tehát az újraindulás nem látszik.
+Egyetlen sávval és egy visszaugrással ugyanez minden körben megpattanna.
+
+Tisztán `transform`, `linear` ütemben — folyamatos mozgásnak nincs kezdete és
+vége, és minden gyorsulás azt sugallná, hogy történik valami. CSS animáció, nem
+`requestAnimationFrame`: az betöltés közben képkockákat veszít, ez nem.
+
+Rámutatásra és fókuszra megáll. Az előbbi azért, hogy egy nevet el lehessen
+olvasni; az utóbbi azért, mert egy fókuszált logó különben kicsúszna a
+képernyőről a fókuszgyűrűjével együtt.
+
+Az emblémák **világos korongon** ülnek (`LogoMark`). A logókat az admin tölti
+fel, tehát bármilyen színűek lehetnek: egy sötét logó a mély kéken eltűnne. A
+monokróm, fehérre festett sáv ezt megoldaná, de elvenné a márkák saját színét —
+amihez általában ragaszkodnak. A korong mindkettőt megtartja, és ugyanez a
+megoldás viszi a referencia kártyák emblémáit is.
+
 ### Csökkentett mozgás
 
 A `prefers-reduced-motion: reduce` nem lassítás: a folyamatos mozgás teljesen

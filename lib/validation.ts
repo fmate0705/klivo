@@ -14,6 +14,13 @@
  *    legegyszerűbb módja annak, hogy valaki teleírja az adatfájlt.
  */
 
+import {
+  MAX_BLOCK_ITEMS,
+  MAX_WORK_BLOCKS,
+  WORK_BLOCK_LIMITS,
+  type WorkBlock,
+} from '@/lib/content/work-blocks';
+import { DEFAULT_SETTINGS, WORKS_COUNT_RANGE, type SiteSettings } from '@/lib/content/settings';
 export type FieldErrors = Record<string, string>;
 
 export type ValidationResult<T> = { ok: true; value: T } | { ok: false; errors: FieldErrors };
@@ -295,5 +302,338 @@ export function validateFaqItem(
   return {
     ok: true,
     value: { question, answer, pages, order: Number.isFinite(order) ? order : 0 },
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Referencia (esettanulmány)                                                  */
+/* -------------------------------------------------------------------------- */
+
+export type WorkFormInput = {
+  client: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  industry: string;
+  year: string;
+  services: string[];
+  siteUrl: string;
+  logo: string;
+  cover: string;
+  coverAlt: string;
+  blocks: WorkBlock[];
+  order: number;
+  published: boolean;
+};
+
+export const WORK_LIMITS = {
+  client: 80,
+  title: 140,
+  slug: 120,
+  excerpt: 320,
+  industry: 60,
+  year: 20,
+  service: 60,
+  services: 8,
+  siteUrl: 300,
+  media: 300,
+  coverAlt: 160,
+} as const;
+
+/**
+ * Oldalon belüli médiaútvonal.
+ *
+ * Külső URL egyrészt követhetővé tenné a látogatót egy idegen szerveren,
+ * másrészt bármikor eltűnhet a képünk alól. A `//` kezdet azért külön eset,
+ * mert az protokoll-relatív **külső** cím, miközben `/`-rel kezdődik.
+ */
+function isLocalPath(value: string): boolean {
+  return value.startsWith('/') && !value.startsWith('//');
+}
+
+/** Egy referenciablokk ellenőrzése. Ismeretlen típusra `undefined`. */
+function cleanBlock(input: unknown, index: number): WorkBlock | undefined {
+  const data = (input ?? {}) as Record<string, unknown>;
+  const id = text(data.id).slice(0, 40) || `blokk-${index}`;
+  const limits = WORK_BLOCK_LIMITS;
+
+  /** Egy médiamező: csak oldalon belüli útvonal maradhat meg. */
+  const media = (value: unknown): string => {
+    const path = text(value).slice(0, limits.image);
+    return isLocalPath(path) ? path : '';
+  };
+
+  const list = (value: unknown, limit: number): string[] =>
+    Array.isArray(value)
+      ? value
+          .map((item) => text(item).slice(0, limit))
+          .filter(Boolean)
+          .slice(0, MAX_BLOCK_ITEMS)
+      : [];
+
+  switch (text(data.type)) {
+    case 'lead':
+      return { id, type: 'lead', text: text(data.text).slice(0, limits.lead) };
+
+    case 'text':
+      return {
+        id,
+        type: 'text',
+        title: text(data.title).slice(0, limits.title),
+        body: text(data.body).slice(0, limits.body),
+      };
+
+    case 'image':
+      return {
+        id,
+        type: 'image',
+        image: media(data.image),
+        alt: text(data.alt).slice(0, limits.alt),
+        caption: text(data.caption).slice(0, limits.caption),
+      };
+
+    case 'split':
+      return {
+        id,
+        type: 'split',
+        title: text(data.title).slice(0, limits.title),
+        body: text(data.body).slice(0, limits.body),
+        image: media(data.image),
+        alt: text(data.alt).slice(0, limits.alt),
+        flip: data.flip === true || data.flip === 'true',
+      };
+
+    case 'stats':
+      return {
+        id,
+        type: 'stats',
+        title: text(data.title).slice(0, limits.title),
+        items: (Array.isArray(data.items) ? data.items : [])
+          .map((item) => {
+            const row = (item ?? {}) as Record<string, unknown>;
+            return {
+              value: text(row.value).slice(0, limits.statValue),
+              label: text(row.label).slice(0, limits.statLabel),
+            };
+          })
+          .filter((item) => item.value || item.label)
+          .slice(0, MAX_BLOCK_ITEMS),
+      };
+
+    case 'quote':
+      return {
+        id,
+        type: 'quote',
+        text: text(data.text).slice(0, limits.quote),
+        author: text(data.author).slice(0, limits.author),
+        role: text(data.role).slice(0, limits.role),
+      };
+
+    case 'list':
+      return {
+        id,
+        type: 'list',
+        title: text(data.title).slice(0, limits.title),
+        items: list(data.items, limits.listItem),
+      };
+
+    case 'gallery':
+      return {
+        id,
+        type: 'gallery',
+        images: (Array.isArray(data.images) ? data.images : [])
+          .map((item) => {
+            const row = (item ?? {}) as Record<string, unknown>;
+            return { src: media(row.src), alt: text(row.alt).slice(0, limits.alt) };
+          })
+          .filter((image) => image.src)
+          .slice(0, MAX_BLOCK_ITEMS),
+      };
+
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Egy referencia ellenőrzése.
+ *
+ * **A blokkokra nem hibaüzenet jár, hanem vágás.** Egy félig kitöltött blokk
+ * nem hiba: a szerkesztő épp dolgozik rajta, és egy piros üzenet a huszadik
+ * blokknál csak akadály lenne. Ami viszont nem mehet át: az ismeretlen típus (a
+ * megjelenítés nem tudna vele mit kezdeni) és a külső médiaútvonal — mindkettőt
+ * némán eldobjuk. A megjelenítés az üres blokkokat úgyis kihagyja.
+ */
+export function validateWork(input: unknown): ValidationResult<WorkFormInput> {
+  const data = (input ?? {}) as Record<string, unknown>;
+  const errors: FieldErrors = {};
+
+  const client = text(data.client);
+  const title = text(data.title);
+  const rawSlug = text(data.slug);
+  const excerpt = text(data.excerpt);
+  const industry = text(data.industry);
+  const year = text(data.year);
+  const siteUrl = text(data.siteUrl);
+  const logo = text(data.logo);
+  const cover = text(data.cover);
+  const coverAlt = text(data.coverAlt);
+  const order = Number(data.order);
+  const published = data.published === true || data.published === 'true';
+
+  const services = Array.isArray(data.services)
+    ? data.services
+        .map((item) => text(item).slice(0, WORK_LIMITS.service))
+        .filter(Boolean)
+        .slice(0, WORK_LIMITS.services)
+    : [];
+
+  const blocks = (Array.isArray(data.blocks) ? data.blocks : [])
+    .slice(0, MAX_WORK_BLOCKS)
+    .map((block, index) => cleanBlock(block, index))
+    .filter((block): block is WorkBlock => block !== undefined);
+
+  if (client.length < 2) errors.client = 'Kérjük, add meg az ügyfél nevét.';
+  else if (client.length > WORK_LIMITS.client) errors.client = 'Az ügyfél neve túl hosszú.';
+
+  if (title.length < 3) errors.title = 'A címnek legalább 3 karakternek kell lennie.';
+  else if (title.length > WORK_LIMITS.title) errors.title = 'A cím túl hosszú.';
+
+  const slug = rawSlug ? slugify(rawSlug) : slugify(`${client} ${title}`);
+  if (!slug || !SLUG_PATTERN.test(slug)) {
+    errors.slug = 'Az URL-részlet csak kisbetűt, számot és kötőjelet tartalmazhat.';
+  }
+
+  if (excerpt.length < 10) errors.excerpt = 'Írj egy rövid, egymondatos összefoglalót.';
+  else if (excerpt.length > WORK_LIMITS.excerpt) errors.excerpt = 'Az összefoglaló túl hosszú.';
+
+  if (industry.length > WORK_LIMITS.industry) errors.industry = 'Az ágazat neve túl hosszú.';
+  if (year.length > WORK_LIMITS.year) errors.year = 'Az évszám túl hosszú.';
+  if (coverAlt.length > WORK_LIMITS.coverAlt) errors.coverAlt = 'A képleírás túl hosszú.';
+
+  // Az élő oldal az egyetlen mező, ami kifelé mutathat — ott viszont csak
+  // `https`. Egy `javascript:` cím ugyanúgy „link”, csak épp kódot futtat.
+  if (siteUrl) {
+    if (siteUrl.length > WORK_LIMITS.siteUrl || !/^https?:\/\/[^\s]+$/i.test(siteUrl)) {
+      errors.siteUrl = 'Az oldal címe teljes cím legyen, például https://pelda.hu.';
+    }
+  }
+
+  if (logo && (!isLocalPath(logo) || logo.length > WORK_LIMITS.media)) {
+    errors.logo = 'A logó útvonalának az oldalon belülre kell mutatnia.';
+  }
+
+  if (cover && (!isLocalPath(cover) || cover.length > WORK_LIMITS.media)) {
+    errors.cover = 'A borító útvonalának az oldalon belülre kell mutatnia.';
+  }
+
+  if (Object.keys(errors).length > 0) return { ok: false, errors };
+
+  return {
+    ok: true,
+    value: {
+      client,
+      title,
+      slug,
+      excerpt,
+      industry,
+      year,
+      services,
+      siteUrl,
+      logo,
+      cover,
+      coverAlt,
+      blocks,
+      order: Number.isFinite(order) ? Math.trunc(order) : 0,
+      published,
+    },
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Partner embléma                                                             */
+/* -------------------------------------------------------------------------- */
+
+export type PartnerFormInput = {
+  name: string;
+  logo: string;
+  url: string;
+  order: number;
+};
+
+export const PARTNER_LIMITS = { name: 80, logo: 300, url: 300 } as const;
+
+/**
+ * Egy partner ellenőrzése.
+ *
+ * A név **kötelező**, és nem udvariasságból: ez lesz a logó alternatív szövege.
+ * Név nélkül a sáv képernyőolvasóval néma képek sorozata lenne. Az embléma is
+ * kötelező — az egész sáv az emblémákról szól.
+ */
+export function validatePartner(input: unknown): ValidationResult<PartnerFormInput> {
+  const data = (input ?? {}) as Record<string, unknown>;
+  const errors: FieldErrors = {};
+
+  const name = text(data.name);
+  const logo = text(data.logo);
+  const url = text(data.url);
+  const order = Number(data.order);
+
+  if (name.length < 2) errors.name = 'Kérjük, add meg a cég nevét.';
+  else if (name.length > PARTNER_LIMITS.name) errors.name = 'A cégnév túl hosszú.';
+
+  if (!logo) errors.logo = 'Tölts fel egy emblémát.';
+  else if (!isLocalPath(logo) || logo.length > PARTNER_LIMITS.logo) {
+    errors.logo = 'Az embléma útvonalának az oldalon belülre kell mutatnia.';
+  }
+
+  if (url) {
+    if (url.length > PARTNER_LIMITS.url || !/^https?:\/\/[^\s]+$/i.test(url)) {
+      errors.url = 'Az oldal címe teljes cím legyen, például https://pelda.hu.';
+    }
+  }
+
+  if (Object.keys(errors).length > 0) return { ok: false, errors };
+
+  return {
+    ok: true,
+    value: { name, logo, url, order: Number.isFinite(order) ? Math.trunc(order) : 0 },
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Megjelenési beállítások                                                     */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * A megjelenési kapcsolók ellenőrzése.
+ *
+ * Itt nincs hibaüzenet: minden mező **beszorítható** értelmes tartományba, és
+ * egy kapcsolóhoz nem tartozik értelmes hibaszöveg. Ismeretlen azonosító
+ * egyszerűen kiesik — a megjelenítés úgyis csak a létező, publikált
+ * referenciákat veszi figyelembe.
+ */
+export function cleanSettings(input: unknown): SiteSettings {
+  const data = (input ?? {}) as Record<string, unknown>;
+  const partners = (data.partners ?? {}) as Record<string, unknown>;
+  const works = (data.works ?? {}) as Record<string, unknown>;
+
+  const count = Number(works.count);
+  const clamped = Number.isFinite(count)
+    ? Math.min(WORKS_COUNT_RANGE.max, Math.max(WORKS_COUNT_RANGE.min, Math.trunc(count)))
+    : DEFAULT_SETTINGS.works.count;
+
+  return {
+    partners: { enabled: partners.enabled !== false },
+    works: {
+      enabled: works.enabled !== false,
+      count: clamped,
+      ids: Array.isArray(works.ids)
+        ? [...new Set(works.ids.map((id) => text(id).slice(0, 40)).filter(Boolean))].slice(
+            0,
+            WORKS_COUNT_RANGE.max,
+          )
+        : [],
+    },
   };
 }

@@ -58,8 +58,6 @@ címen vagy telefonszámon érsz el minket. ${contact.responseTime}
 
 function aszf({ contact, company }: Organization): string {
   return `
-> Ez a dokumentum minta-szöveg. Közzététel előtt jogi szakemberrel ellenőriztetni kell.
-
 ## 1. A szolgáltató
 
 ${company.legalName} (székhely: ${company.seat}, adószám: ${company.taxNumber}),
@@ -146,8 +144,6 @@ Hatályos: ${company.effectiveDate}
 
 function adatkezeles({ contact, company }: Organization): string {
   return `
-> Ez a dokumentum minta-szöveg. Közzététel előtt jogi szakemberrel ellenőriztetni kell.
-
 ## 1. Az adatkezelő
 
 ${company.legalName}

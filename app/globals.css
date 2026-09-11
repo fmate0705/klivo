@@ -1356,6 +1356,70 @@
 }
 
 /* ==========================================================================
+   A partnersáv csúszása
+   --------------------------------------------------------------------------
+   Két azonos sáv fut egymás után, és mindkettő a **saját szélességével**
+   tolódik el balra. A ciklus végén a második sáv pontosan ott áll, ahol az
+   első indult — az újraindulás tehát nem látszik. Egyetlen sávval és egy
+   modulo-ugrással ugyanez mindig megpattan a visszaálláskor.
+
+   Tisztán `transform`: a compositoron fut, nem számoltat elrendezést. CSS
+   animáció, nem `requestAnimationFrame` — az betöltés közben képkockákat
+   veszít, ez nem.
+   ========================================================================== */
+
+@layer components {
+  .marquee {
+    display: flex;
+    width: 100%;
+    /* `clip`, nem `hidden`: az utóbbi görgetőkonténert csinál az elemből, és
+       ezzel elrontja a lapon futó görgetésvezérelt idővonalakat. */
+    overflow-x: clip;
+    /* A szélek elhalványulnak, tehát a sáv nem élesen vágva ér véget. Festési
+       tulajdonság, nem animált — nem kerül a mozgás útjába. */
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  }
+
+  .marquee__track {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 1.25rem;
+    padding-right: 1.25rem;
+    animation: marquee-slide 56s linear infinite;
+  }
+
+  /* Rámutatásra megáll: aki el akar olvasni egy nevet, tudja olvasni. Csak
+     finom mutatóval — érintésen a koppintás hamis hovert vált ki, és a sáv
+     ottragadna. */
+  @media (hover: hover) and (pointer: fine) {
+    .marquee:hover .marquee__track {
+      animation-play-state: paused;
+    }
+  }
+
+  /* A billentyűzetes bejárás is megállítja: különben a fókuszált logó
+     kicsúszna a képernyőről a fókuszgyűrűjével együtt. */
+  .marquee:focus-within .marquee__track {
+    animation-play-state: paused;
+  }
+
+  .marquee__item {
+    flex: none;
+  }
+}
+
+@keyframes marquee-slide {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+/* ==========================================================================
    Csökkentett mozgás
    --------------------------------------------------------------------------
    Nem lassítás: a folyamatos, önjáró mozgás leáll, a megjelenések azonnaliak
@@ -1366,6 +1430,29 @@
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  /* A partnersáv nem csúszik: a klón eltűnik, az eredeti pedig tördelve
+     áll. Az információ megmarad, csak a mozgás nem. */
+  .marquee {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+
+  .marquee__track {
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: none;
+  }
+
+  .marquee__track--clone {
+    display: none;
+  }
+
+  /* Állóképen az ismétlés nem folytonosság, hanem kettőzés: ugyanaz a
+     partner jelenne meg kétszer egymás mellett. */
+  .marquee__item--repeat {
+    display: none;
   }
 
   .wave-layer,

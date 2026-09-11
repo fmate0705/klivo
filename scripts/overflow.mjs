@@ -16,6 +16,7 @@ const paths = [
   '/folyamat',
   '/szolgaltatasok',
   '/szolgaltatasok/weboldal-keszites',
+  '/referenciak',
   '/blog',
   '/blog/mit-jelent-az-ai-seo',
   '/kapcsolat',

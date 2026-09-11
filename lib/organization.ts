@@ -153,21 +153,6 @@ export function getOrganization(): Organization {
   };
 }
 
-/**
- * Igaz, ha az adat még helyőrző — vagyis a `.env` megfelelő sora üres.
- *
- * A jogi oldalak ezzel tudnak figyelmeztetést mutatni ahelyett, hogy egy
- * `[adószám]` feliratot érvényes impresszumként tálalnának.
- */
-export function isPlaceholder(value: string): boolean {
-  return value.includes('[');
-}
-
-/** Igaz, ha bármelyik jogi adat hiányzik a `.env`-ből. */
-export function hasIncompleteLegalData(organization: Organization): boolean {
-  return [...Object.values(organization.company), organization.contact.email].some(isPlaceholder);
-}
-
 /* -------------------------------------------------------------------------- */
 /* Származtatott értékek                                                       */
 /* -------------------------------------------------------------------------- */

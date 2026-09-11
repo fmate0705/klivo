@@ -143,6 +143,11 @@ export function createDocument<T extends object>(fileName: string, defaults: T) 
       return { ...defaults, ...stored };
     },
 
+    /** A fájl ujjlenyomata — ugyanazért kell, mint a gyűjteményeknél. */
+    fingerprint(): string {
+      return fingerprint(fileName);
+    },
+
     async update(patch: Partial<T>): Promise<T> {
       return withLock(fileName, async () => {
         const stored = await readJson<Partial<T>>(fileName, {});

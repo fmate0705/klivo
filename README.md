@@ -33,17 +33,20 @@ Mindkettő kimenetét másold a `.env`-be, aztán indítsd újra a szervert. Bel
 
 Ez a legfontosabb kérdés a napi használatnál. Minden adatnak **egy** helye van.
 
-| Mit szeretnél módosítani                  | Hol                      | Mikor lép életbe  |
-| ----------------------------------------- | ------------------------ | ----------------- |
-| Blogbejegyzés (írás, kép, publikálás)     | Admin → Bejegyzések      | Azonnal           |
-| Beérkezett megkeresések                   | Admin → Üzenetek         | Azonnal           |
-| Cégadatok, adószám, székhely, elérhetőség | `.env`                   | Újraindítás után  |
-| Jogi határidők (felmondás, adatőrzés)     | `.env`                   | Újraindítás után  |
-| Árak                                      | `lib/content/pricing.ts` | Új telepítés után |
-| Szolgáltatás-szövegek, GYIK, navigáció    | `lib/content/site.ts`    | Új telepítés után |
-| Jogi dokumentumok szövege                 | `lib/legal.ts`           | Új telepítés után |
-| Színek, betűk, térköz                     | `app/globals.css`        | Új telepítés után |
-| Hullámok ritmusa a főoldalon              | `app/(site)/page.tsx`    | Új telepítés után |
+| Mit szeretnél módosítani                   | Hol                      | Mikor lép életbe  |
+| ------------------------------------------ | ------------------------ | ----------------- |
+| Referencia (esettanulmány, oldalfelépítés) | Admin → Referenciák      | Azonnal           |
+| Főoldali referencia szekció (hány, melyik) | Admin → Referenciák      | Azonnal           |
+| Partner emblémák és a sáv ki-be kapcsolása | Admin → Partnerek        | Azonnal           |
+| Blogbejegyzés (írás, kép, publikálás)      | Admin → Bejegyzések      | Azonnal           |
+| Beérkezett megkeresések                    | Admin → Üzenetek         | Azonnal           |
+| Cégadatok, adószám, székhely, elérhetőség  | `.env`                   | Újraindítás után  |
+| Jogi határidők (felmondás, adatőrzés)      | `.env`                   | Újraindítás után  |
+| Árak                                       | `lib/content/pricing.ts` | Új telepítés után |
+| Szolgáltatás-szövegek, GYIK, navigáció     | `lib/content/site.ts`    | Új telepítés után |
+| Jogi dokumentumok szövege                  | `lib/legal.ts`           | Új telepítés után |
+| Színek, betűk, térköz                      | `app/globals.css`        | Új telepítés után |
+| Hullámok ritmusa a főoldalon               | `app/(site)/page.tsx`    | Új telepítés után |
 
 **Miért nem szerkeszthető minden az adminból.** A cégadatok korábban két helyről
 is módosíthatók voltak (`.env` és admin), és az admin felülírta a `.env`-et.
@@ -80,25 +83,31 @@ hiányos cégadatokkal ne lehessen véletlenül élesíteni.
 app/
   (site)/            A nyilvános oldal — fejléc, lábléc, hullámok
   admin/             Az admin felület (JWT mögött)
-  api/               Kapcsolati űrlap, admin munkamenet, bejegyzések, feltöltés
-  media/[name]/      A feltöltött borítóképek kiszolgálása
+  api/               Kapcsolati űrlap, admin munkamenet, bejegyzések,
+                     referenciák, partnerek, beállítások, feltöltés
+  media/[name]/      A feltöltött képek és emblémák kiszolgálása
   globals.css        Design tokenek + a hullámmotor
 components/
   wave/              WaveCurls (hero), WaveBand (szekcióhatár, külön fájlban),
                      WaveLayer, WaveRule, Bubbles — a hullám formanyelv
   motion/            MotionDriver, MotionBoot, Reveal — az egész oldal mozgása
   sections/          A szekciók: hero, szolgáltatások, folyamat, GYIK, CTA…
-  ui/                Gomb, kártya, konténer, szekció, címsor, kép
+  ui/                Gomb, kártya, konténer, szekció, címsor, kép, embléma
+  works/             Referencia kártya, borító és a sablonblokkok rajzolása
   blog/  site/  admin/  seo/
 lib/
-  content/           site.ts (szövegek, navigáció, SEO), pricing.ts (árak)
+  content/           site.ts (szövegek, navigáció, SEO), pricing.ts (árak),
+                     work-blocks.ts (a referencia sablonok), settings.ts
+  svg-sanitize.ts    Feltöltött SVG újraírása engedélyezőlistával
   organization.ts    Cég- és jogi adatok — kizárólag a .env-ből
   legal.ts           A jogi dokumentumok szövege
   auth/              JWT, jelszó (PBKDF2), sebességkorlát, munkamenet
-  store/             JSON adattár: bejegyzések, csapat, megkeresések, feltöltések
+  store/             JSON adattár: bejegyzések, referenciák, partnerek, csapat,
+                     megkeresések, beállítások, feltöltések
   seo/               Metaadat és strukturált adat (JSON-LD)
   markdown.ts        Szűk nyelvtanú Markdown renderer (escape, majd markup)
-data/                posts.json, team.json, leads.json, uploads/ — csatolt kötetre való
+data/                posts.json, works.json, partners.json, team.json,
+                     leads.json, settings.json, uploads/ — csatolt kötetre való
 ```
 
 ---
@@ -124,7 +133,23 @@ A `verify` a kapu: commit előtt ennek végig kell futnia.
 
 ## Admin
 
-Három dolgot csinál, és szándékosan nem többet.
+A **változó** tartalmat kezeli, és szándékosan nem többet.
+
+**Referenciák.** Esettanulmányok: ügyfél, embléma, borító, és az oldal törzse
+**sablonokból**. A szerkesztő a bal oldali palettáról húz be szekciókat
+(felvezető, szöveg, kép és szöveg, kép, eredmények, idézet, felsorolás,
+galéria), sorba rendezi, és kitölti őket. Szabad HTML sehol nincs: a tipográfia
+és az elrendezés a kódban van (`components/works/work-blocks.tsx`), a szerkesztő
+a tartalmat adja. A húzás mellett minden blokknak van „föl”/„le” gombja is —
+egérrel és billentyűzettel is átrendezhető.
+
+Ugyanezen a képernyőn állítható a **főoldali szekció**: látszódjon-e, hány
+referencia férjen bele, és melyek — a kijelölés sorrendje a megjelenés
+sorrendje. Kijelölés nélkül a kézi sorrend eleje áll be.
+
+**Partnerek.** A nyitóképernyő alatt csúszó embléma-sáv: cégnév, embléma,
+opcionális link, sorrend, és egy kapcsoló az egész sávra. A kikapcsolás nem
+töröl semmit, csak elrejt. SVG is feltölthető — fertőtlenítve, lásd lentebb.
 
 **Bejegyzések.** Írás Markdownban (szűk, dokumentált nyelvtan — lásd
 `lib/markdown.ts`), borítókép feltöltése, publikálás, törlés. A slug a címből
@@ -153,9 +178,17 @@ elküldetlen e-mail néma adatvesztés volna.
   oldal, illetve végpont külön is ellenőrzi a munkamenetet.
 - Biztonsági fejlécek (CSP, HSTS, `frame-ancestors`, `nosniff`) a
   `next.config.mjs`-ben, minden válaszra.
-- Feltöltés: csak WebP/JPEG/PNG/AVIF, legfeljebb 4 MB, szervergenerált fájlnév.
-  SVG **nincs** engedélyezve: futtathat szkriptet, tehát azonos originről
-  kiszolgálva tárolt XSS lenne.
+- Feltöltés: WebP/JPEG/PNG/AVIF, legfeljebb 4 MB, szervergenerált fájlnév.
+- **SVG csak emblémának, és csak fertőtlenítve.** Az SVG dokumentum, nem kép:
+  futtathat szkriptet és tölthet külső erőforrást, tehát azonos originről
+  kiszolgálva tárolt XSS lenne. A `lib/svg-sanitize.ts` ezért
+  **engedélyezőlista alapján újraírja** a fájlt — csak az ismert elemek és
+  attribútumok maradnak meg, a szkript, az eseménykezelő, a beágyazott HTML és
+  minden külső hivatkozás kiesik —, és a lemezre már a megtisztított változat
+  kerül. Emellett a `/media/…` válasz `default-src 'none'; sandbox` CSP-t kap
+  (a route és a `next.config.mjs` is küld egyet; két CSP fejlécnél a böngésző a
+  **metszetüket** érvényesíti). Két független réteg, mert egy tárolt XSS ára
+  aránytalanul nagy. A viselkedést a `tests/svg-sanitize.test.ts` rögzíti.
 
 ---
 

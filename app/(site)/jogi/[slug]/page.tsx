@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { legalPages } from '@/lib/content/site';
 import { getLegalDocument } from '@/lib/legal';
-import { getOrganization, hasIncompleteLegalData } from '@/lib/organization';
+import { getOrganization } from '@/lib/organization';
 import { renderMarkdown } from '@/lib/markdown';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { breadcrumbJsonLd } from '@/lib/seo/jsonld';
@@ -19,10 +19,7 @@ import { CookieSettings } from '@/components/site/cookie-settings';
  * jönnek, és paraméterként kerülnek beléjük. Egy adószám- vagy címváltozáshoz
  * nem kell a kódhoz nyúlni, és nem fordulhat elő, hogy az impresszum és az ÁSZF
  * két különböző adatot mutat.
- *
- * Ha a `.env`-ben maradt kitöltetlen mező, az oldal tetején figyelmeztetés
- * jelenik meg. Ez szándékosan feltűnő: egy hiányos impresszum jogi kockázat, és
- * a `[szögletes zárójeles]` helyőrző önmagában könnyen elsikkad a szövegben.
+
  */
 export function generateStaticParams() {
   return legalPages.map((page) => ({ slug: page.slug }));
@@ -46,8 +43,6 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
   const document = getLegalDocument(slug, organization);
   if (!document) notFound();
 
-  const incomplete = hasIncompleteLegalData(organization);
-
   return (
     <>
       <JsonLd
@@ -61,20 +56,6 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
 
       <Section tone="white" band={{ from: 'blue', layers: 3, depth: 'lg' }}>
         <Container width="prose">
-          {incomplete ? (
-            <div
-              role="note"
-              className="mb-10 rounded-card border border-danger/30 bg-sky p-5 text-body-sm"
-            >
-              <strong className="block font-semibold">Hiányos cégadatok</strong>
-              <p className="mt-2 text-ink-soft">
-                A dokumentumban <code>[szögletes zárójeles]</code> helyőrzők látszanak. Töltsd ki a
-                hiányzó sorokat a <code>.env</code> fájlban, és indítsd újra a szervert. Élesítés
-                előtt a jogi szövegeket nézesd át jogi szakemberrel.
-              </p>
-            </div>
-          ) : null}
-
           <div
             className="prose"
             dangerouslySetInnerHTML={{ __html: renderMarkdown(document.body) }}

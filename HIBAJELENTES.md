@@ -614,6 +614,74 @@ első. Ráadásul a lenyíló magassága az egyetlen animált elrendezési tulaj
 az oldalon, és nyitott alapállapotból az első interakció mindig csukás volt.
 Alapból most mind zárva van.
 
+---
+
+## 2/f. Referenciák, partnersáv, oldalszerkesztő
+
+### 2/f.1 Az SVG feltöltés tárolt XSS lett volna
+
+A partner emblémák SVG-ben érkeznek — az a logóformátum. A feltöltő viszont
+szándékosan tiltotta az SVG-t, és jó okkal: az SVG **dokumentum**, nem kép.
+Futtathat szkriptet, tölthet külső erőforrást, és mivel a `/media/…` azonos
+originről szolgálja ki, egy rosszindulatú fájl közvetlenül megnyitva a lap
+jogosultságaival futott volna. Rontott a helyzeten, hogy az oldalra szabott CSP
+`script-src 'unsafe-inline'`-t enged (a Next bootstrapja miatt) — tehát épp az
+a direktíva hiányzott volna, ami itt számít.
+
+A tiltás feloldása helyett **két független réteg** került a helyére:
+
+1. **Engedélyezőlistás újraírás** (`lib/svg-sanitize.ts`). Nem azt keressük, mi
+   a veszélyes — azt nem lehet kimerítően felsorolni —, hanem újraépítjük a
+   fájlt: csak az ismert elemek és attribútumok maradnak meg. A lemezre már a
+   megtisztított változat kerül, az eredeti sosem.
+2. **Szigorított irányelv a `/media/…` válaszon**: `default-src 'none'; sandbox`.
+   A route és a `next.config.mjs` is küld egyet; két `Content-Security-Policy`
+   fejlécnél a böngésző a **metszetüket** érvényesíti, tehát a kettő erősíti
+   egymást.
+
+Két hiba derült ki menet közben, mindkettő a teszteken:
+
+- **A kisbetűsítés elrontotta az SVG-t.** A felismeréshez kisbetűsítettem a
+  neveket, és a kimenetre is azok kerültek — csakhogy az SVG kis- és
+  nagybetűérzékeny: a `viewbox` és a `lineargradient` egyszerűen nem
+  rajzolódik ki. A felismerés azóta is kisbetűs, a kimenet viszont a szabványos
+  írásmódot kapja.
+- **A festési attribútumok kimaradtak a szűrésből.** A `style` értékét
+  vizsgáltam `url(…)`-re, a `fill`-t nem — pedig `fill="url(https://…)"` is
+  külső cím. A böngészők ezt a gyakorlatban nem oldják fel, de a „gyakorlatban
+  nem szokott” nem biztonsági garancia.
+
+### 2/f.2 A szerkeszthető szekció felboríthatta volna a hullámláncot
+
+A főoldali referencia szekció kikapcsolható, és üresen magától sem jelenik meg.
+Csakhogy minden szekció a **fölötte lévő** felületről érkezik (`band.from`), és
+ha a szekció eltűnik, az alatta lévő folyamat szekció rossz színről indítja a
+sávját — az pedig látható varrás a hullámhatáron.
+
+Ezért a főoldal **maga olvassa be** a referenciákat, és a szekció csak megkapja
+őket. Így egy helyen dől el a láthatóság és a hullámlánc is: referenciákkal a
+folyamat mély kékről érkezik, nélkülük a fehér bemutató szekcióról. Mindkét
+állapot mérve van.
+
+### 2/f.3 A csúszó sáv állóképen megkettőzte a partnereket
+
+A végtelenített csúszáshoz a sávot ismétléssel töltjük fel nyolc elemre —
+enélkül egy keskeny sáv a ciklus végén üres helyet hagyna a jobb szélen.
+Csökkentett mozgásnál viszont a sáv megáll és tördelve mutatja a logókat, és ott
+az ismétlés már nem folytonosság, hanem **kettőzés**: ugyanaz a cég jelent meg
+kétszer egymás mellett. Az első kör utáni másolatok azóta meg vannak jelölve, és
+állóképen kiesnek.
+
+### 2/f.4 A beállítások kliens oldalról húzták volna be az adattárat
+
+A megjelenési kapcsolók típusa és alapértelmezése először az adattár moduljában
+volt, és a validáció onnan importálta — a validációt viszont kliens komponensek
+is használják (hosszkorlátok miatt). Az adattár `revalidateTag`-et húz be, ami
+csak szerveren létezik: a build elszállt volna tőle. Ez pontosan az a csapda,
+amit a `FAQ_PAGES` miatt már egyszer dokumentáltunk. A típus és az
+alapértelmezés azóta a `lib/content/settings.ts`-ben van, az olvasás és az írás
+az adattárban.
+
 ## 3. Amit szándékosan másképp csináltam
 
 ### 3.1 Az admin csak blogot kezel — az árakat és a cégadatokat nem
