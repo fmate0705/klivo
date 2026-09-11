@@ -682,6 +682,32 @@ amit a `FAQ_PAGES` miatt már egyszer dokumentáltunk. A típus és az
 alapértelmezés azóta a `lib/content/settings.ts`-ben van, az olvasás és az írás
 az adattárban.
 
+### 2/f.5 A rövidebb nyitóképernyőn a felvezető a világos hullámra csúszott
+
+A partnersáv első változatában a sáv a hajlat alá került: a nyitóképernyő
+teljes magasságban megmaradt, a zárósorával együtt, és a logók csak azok alatt
+fértek el. A javítás kézenfekvőnek tűnt — a zárósor el, a nyitókép
+alacsonyabbra.
+
+Ettől viszont a **kontraszt bukott**: fehér felvezető szöveg a világos taréjon,
+1,14:1. A hullámmező `center` igazítású rajzterülete a doboz arányához
+igazodva vágódik, tehát alacsonyabb felületen a világos alsó harmad **feljebb
+csúszik** — pont a bekezdés mögé. A szöveg feljebb tolása nem segített: a
+világos zóna ugyanannyival jött vele.
+
+A megoldás nem a tipográfiában volt, hanem a rajzterületben: a `WaveCurls`
+`top` igazítású változata a doboznál másfélszer magasabbra feszíti a mezőt és a
+tetejéhez igazítja, tehát **mindig a felső kétharmad látszik** — ott pedig csak
+a két legmélyebb kék fut. Ugyanezt csinálják az aloldalak fejlécei, ugyanebből
+az okból. Ennek ára van: a nyitókép elveszíti a nagy világos tarajait, cserébe
+a szöveg minden magasságnál olvasható marad.
+
+Tanulság a méréshez: ez a hiba **nem látszott** a képernyőképen elsőre — a
+világos taraj és a fehér betű egymásba folyt, és pont ettől volt olvashatatlan.
+A `scripts/contrast.mjs` fogta meg.
+
+---
+
 ## 3. Amit szándékosan másképp csináltam
 
 ### 3.1 Az admin csak blogot kezel — az árakat és a cégadatokat nem

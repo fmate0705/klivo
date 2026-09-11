@@ -147,9 +147,14 @@ Ugyanezen a képernyőn állítható a **főoldali szekció**: látszódjon-e, h
 referencia férjen bele, és melyek — a kijelölés sorrendje a megjelenés
 sorrendje. Kijelölés nélkül a kézi sorrend eleje áll be.
 
-**Partnerek.** A nyitóképernyő alatt csúszó embléma-sáv: cégnév, embléma,
-opcionális link, sorrend, és egy kapcsoló az egész sávra. A kikapcsolás nem
-töröl semmit, csak elrejt. SVG is feltölthető — fertőtlenítve, lásd lentebb.
+**Partnerek.** A nyitóképernyő alatti embléma-sáv: cégnév, embléma, opcionális
+link, sorrend, és egy kapcsoló az egész sávra. A kikapcsolás nem töröl semmit,
+csak elrejt. SVG is feltölthető — fertőtlenítve, lásd lentebb.
+
+A logókat **fehérben** töltsd fel: a sáv mély kék felületen áll, és az emblémák
+korong nélkül, közvetlenül rajta ülnek. Hét embléma alatt a sor egyszerűen
+kifér és állva marad; fölötte indul a csúszás. Ha a sáv be van kapcsolva, a
+nyitóképernyő elhagyja a saját zárósorát — a sáv lép a helyére.
 
 **Bejegyzések.** Írás Markdownban (szűk, dokumentált nyelvtan — lásd
 `lib/markdown.ts`), borítókép feltöltése, publikálás, törlés. A slug a címből

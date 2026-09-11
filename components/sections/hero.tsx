@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { cn } from '@/lib/cn';
 import { hero, primaryCta, secondaryCta } from '@/lib/content/site';
 import { ButtonLink } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
@@ -29,18 +30,48 @@ const LINE_STEP_MS = 110;
 /** A címsor utáni elemek innen lépcsőznek tovább. */
 const AFTER_TITLE_MS = FIRST_LINE_DELAY_MS + hero.titleLines.length * LINE_STEP_MS;
 
-export function Hero() {
+export function Hero({
+  /**
+   * Látszódjon-e a zárósor (a mit építünk mondat és a görgetésjelző).
+   *
+   * Akkor kapcsol ki, ha a nyitóképernyő alá partnersáv kerül: két záró gesztus
+   * egymás alatt kioltja egymást, és a nyitókép a duplájára nyúlik. A sáv
+   * ugyanazt a szerepet tölti be — lezárja a képernyőt, és lefelé mutat.
+   */
+  closing = true,
+}: { closing?: boolean } = {}) {
   return (
     <section
       data-tone="dark"
-      className="relative isolate flex min-h-[90svh] flex-col overflow-hidden bg-wave-9 pb-8 pt-32 text-on-dark sm:pb-10 lg:pt-40"
+      className={cn(
+        'relative isolate flex flex-col overflow-hidden bg-wave-9 pt-32 text-on-dark lg:pt-40',
+        // Zárósorral a nyitóképernyő majdnem teljes képernyős. Nélküle
+        // alacsonyabb: a partnersáv lép a zárósor helyére, és a kettő együtt
+        // adja ki a képernyőt. Enélkül a sáv alatta üres kék mezőt hagyna, és
+        // a hajlat alá csúszna.
+        closing ? 'min-h-[90svh] pb-8 sm:pb-10' : 'min-h-[80svh] pb-2 lg:min-h-[76svh]',
+      )}
       aria-labelledby="hero-cim"
     >
-      <WaveCurls waterline />
+      {/* Zárósor nélkül a nyitóképernyő alacsonyabb, és a `center`
+          igazítású rajzterületből a **világos taréjok** is belógnak a felvezető
+          bekezdés mögé — fehér szöveg azokon 1,2:1. A `top` változat a
+          rajzterületet a doboznál magasabbra feszíti és a tetejéhez igazítja,
+          tehát mindig a felső kétharmad látszik, ahol csak a két legmélyebb kék
+          fut. Ugyanezt csinálják az aloldalak fejlécei is. */}
+      <WaveCurls waterline align={closing ? 'center' : 'top'} />
       <Bubbles />
 
       <Container className="wave-content flex flex-1 flex-col">
-        <div className="flex flex-1 flex-col justify-center pb-24 lg:pb-32">
+        <div
+          className={cn(
+            'flex flex-1 flex-col',
+            // A zárósor helye. Nélküle kisebb alsó térköz elég: a sort a
+            // partnersáv váltja ki, és a szöveg így sem csúszik a vízvonalra —
+            // arról a `top` igazítású rajzterület gondoskodik odafent.
+            closing ? 'justify-center pb-24 lg:pb-32' : 'justify-center pb-16 lg:pb-20',
+          )}
+        >
           <h1
             id="hero-cim"
             className="max-w-[15ch] font-display text-[clamp(3.25rem,10.5vw,9rem)] font-bold leading-[0.9] tracking-[-0.045em]"
@@ -82,23 +113,26 @@ export function Hero() {
         </div>
 
         {/* Zárósor a mély vízen: itt már a sötét szalagok futnak, tehát fehér.
+            Partnersáv mellett elmarad — azt a szerepet a sáv veszi át.
 
             A felső vonal csak `sm`-től van meg. Mobilon a sor két sorba törik,
             és a teteje kicsúszik a vízvonal fölé — a vonal ott a világos vízen
             ülne, egy vízszintes karcként a hullámok fölött. A vízvonal hullámos
             éle amúgy is elválasztja a sort a hero törzsétől. */}
-        <div
-          data-tone="dark"
-          className="rise border-soft mt-auto flex flex-col gap-4 pt-6 text-on-dark sm:flex-row sm:items-baseline sm:justify-between sm:border-t"
-          style={{ '--rise-delay': `${AFTER_TITLE_MS + 280}ms` } as CSSProperties}
-        >
-          <p className="flex flex-wrap items-baseline gap-x-2 text-body-lg">
-            <span className="text-on-dark/80">{hero.rotatingPrefix}</span>
-            <WordCycle words={hero.rotatingWords} className="font-display font-semibold" />
-          </p>
+        {closing ? (
+          <div
+            data-tone="dark"
+            className="rise border-soft mt-auto flex flex-col gap-4 pt-6 text-on-dark sm:flex-row sm:items-baseline sm:justify-between sm:border-t"
+            style={{ '--rise-delay': `${AFTER_TITLE_MS + 280}ms` } as CSSProperties}
+          >
+            <p className="flex flex-wrap items-baseline gap-x-2 text-body-lg">
+              <span className="text-on-dark/80">{hero.rotatingPrefix}</span>
+              <WordCycle words={hero.rotatingWords} className="font-display font-semibold" />
+            </p>
 
-          <ScrollCue label={hero.scrollCue} />
-        </div>
+            <ScrollCue label={hero.scrollCue} />
+          </div>
+        ) : null}
       </Container>
     </section>
   );

@@ -1,4 +1,5 @@
 import { faqs, pageMeta, showcase } from '@/lib/content/site';
+import { listPartners } from '@/lib/store/partners';
 import { getSiteSettings } from '@/lib/store/site-settings';
 import { listWorksForHome } from '@/lib/store/works';
 import { buildMetadata } from '@/lib/seo/metadata';
@@ -57,23 +58,30 @@ const LOUD = { layers: 3, depth: 'lg' } as const;
 const QUIET = { layers: 3, depth: 'md' } as const;
 
 export default async function HomePage() {
-  // A kiemelt referenciákat **itt** olvassuk be, nem a szekcióban: a
-  // hullámlánc csak akkor helyes, ha a főoldal tudja, megjelenik-e a szekció.
+  // A kapcsolható szekciók tartalmát **itt** olvassuk be, nem magukban a
+  // szekciókban. Két dolog múlik rajta, és mindkettő a lap szintjén dől el: a
+  // hullámlánc csak akkor helyes, ha tudjuk, megjelenik-e a referencia szekció,
+  // és a nyitóképernyő is csak akkor hagyhatja el a zárósorát, ha tudja, hogy
+  // partnersáv kerül alá.
   const settings = await getSiteSettings();
   const works = settings.works.enabled
     ? await listWorksForHome(settings.works.ids, settings.works.count)
     : [];
+  const partners = settings.partners.enabled ? await listPartners() : [];
 
   return (
     <>
       <JsonLd data={faqJsonLd(HOME_FAQS)} />
 
-      <Hero />
+      {/* Partnersáv mellett a nyitóképernyő nem írja ki a saját zárósorát: a
+          sáv veszi át ugyanazt a szerepet, és két záró gesztus egymás alatt
+          kioltaná egymást. */}
+      <Hero closing={partners.length === 0} />
       {/* A partnersáv nem új felület, hanem a nyitóképernyő folytatása:
           ugyanaz a mély kék, hullámhatár nélkül. Ezért nem borítja fel a lap
           hullámláncát — a Pillars akkor is kékről érkezik, ha a sáv ki van
           kapcsolva vagy nincs benne egyetlen embléma sem. */}
-      <PartnerStrip />
+      <PartnerStrip partners={partners} />
       {/* A nyitóképernyő után mindig sima fehér: a sötét kékből érkezve egy
           újabb sötét felület nem enged levegőt. */}
       <Pillars tone="white" band={{ from: 'blue', ...LOUD }} />

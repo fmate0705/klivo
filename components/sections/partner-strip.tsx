@@ -1,5 +1,4 @@
-import { listPartners, type Partner } from '@/lib/store/partners';
-import { getSiteSettings } from '@/lib/store/site-settings';
+import type { Partner } from '@/lib/store/partners';
 import { Container } from '@/components/ui/container';
 import { LogoMark } from '@/components/ui/logo-mark';
 
@@ -12,68 +11,96 @@ import { LogoMark } from '@/components/ui/logo-mark';
  * lap hullámlánca így érintetlen marad: az alatta lévő szekció továbbra is
  * kékről érkezik, akár látszik a sáv, akár ki van kapcsolva.
  *
- * **Miért világos korongon ülnek az emblémák.** A logókat az admin tölti fel,
- * tehát bármilyen színűek lehetnek — egy sötét logó a mély kéken eltűnne. A
- * monokróm, fehérre festett megoldás ezt megoldaná, de elvenné a márkák saját
- * színét, amihez általában ragaszkodnak. A világos korong mindkettőt megtartja.
+ * **A sáv a nyitóképernyő zárósorának a helyére kerül.** Ha van partner, a
+ * hero nem írja ki a saját zárósorát (`Hero closing={false}`): két záró gesztus
+ * egymás alatt kioltaná egymást, és a nyitóképernyő a duplájára nyúlna. Emiatt
+ * nincs a sávnak felirata sem — a logók magukért beszélnek, és egy „Velük
+ * dolgozunk együtt” címke épp azt a sort hozná vissza, amit levettünk.
  *
- * **A csúszás.** Folyamatos, egyenletes mozgás — `linear`, mert nincs kezdete és
- * vége, és minden gyorsulás azt sugallná, hogy történik valami. Tisztán
- * `transform`, tehát a compositoron fut; CSS animáció, nem JavaScript, tehát
- * betöltés közben sem esik ki képkocka. Rámutatásra megáll: aki el akar olvasni
- * egy nevet, tudja olvasni. Csökkentett mozgásnál nem csúszik, hanem tördelve
- * áll — az információ nem vész el, csak a mozgás.
+ * **Korong nélkül.** Az emblémák fehérben érkeznek, tehát a mély kéken korong
+ * nélkül is olvashatók; korongon a sáv kártyák sorává esne szét. A referencia
+ * kártyákon ez másképp van, ott a `LogoMark` korongos változata fut.
+ *
+ * **Csak akkor csúszik, ha van mit csúsztatni.** Kevés emblémánál a mozgás
+ * öncélú lenne: a logók kiférnek, nincs mit felfedni. Ott állókép van, középre
+ * zárva. A küszöb fölött indul a végtelenített csúszás — ott már valóban több
+ * embléma van, mint amennyi egyszerre látszik.
  */
 
 /**
- * Ennyi elemre töltjük fel a sávot ismétléssel.
+ * Ennyi emblémától kezdve csúszik a sáv.
  *
- * A végtelenített csúszás úgy működik, hogy két azonos sáv fut egymás után, és
- * mindkettő a **saját szélességével** tolódik el. Ha egy sáv keskenyebb a
- * képernyőnél, a ciklus végén üres hely marad a jobb szélen. Nyolc embléma a
- * legszélesebb nézetet is kitölti.
+ * A tartalom mértéke 80 rem, a belső margókkal együtt nagyjából 1216 px. Egy
+ * embléma legfeljebb 9 rem széles, a köz 3 rem — tehát hét elem az, ami a
+ * legszélesebb nézetben már nem fér ki egy sorba. Ennél kevesebbnél a csúszás
+ * csak mozgatná azt, ami amúgy is látszik.
  */
-const MIN_ITEMS = 8;
+const SLIDE_FROM = 7;
 
-export async function PartnerStrip() {
-  const settings = await getSiteSettings();
-  if (!settings.partners.enabled) return null;
+/**
+ * A csúszó sávot ennyi elemre töltjük fel ismétléssel.
+ *
+ * A végtelenítés úgy működik, hogy két azonos sáv fut egymás után, és mindkettő
+ * a **saját szélességével** tolódik el. Ha egy sáv keskenyebb a doboznál, a
+ * ciklus végén üres hely marad a jobb szélen.
+ */
+const MIN_ITEMS = 10;
 
-  const partners = await listPartners();
+export function PartnerStrip({ partners }: { partners: Partner[] }) {
   if (partners.length === 0) return null;
-
-  // Ismétléssel töltjük fel a sávot. A kulcs az ismétlés sorszámát is
-  // tartalmazza, különben két azonos kulcsú elem kerülne a listába. Az első kör
-  // utáni másolatok meg vannak jelölve: állókép esetén (csökkentett mozgás)
-  // kiesnek, mert ott az ismétlés már nem folytonosság, hanem kettőzés.
-  const repeats = Math.max(1, Math.ceil(MIN_ITEMS / partners.length));
-  const track = Array.from({ length: repeats }, (_, round) =>
-    partners.map((partner) => ({ partner, key: `${partner.id}-${round}`, repeat: round > 0 })),
-  ).flat();
 
   return (
     <section
       data-tone="dark"
-      aria-labelledby="partnerek-cim"
-      className="relative isolate overflow-hidden bg-wave-9 py-12 text-on-dark md:py-14"
+      aria-label="Partnereink"
+      className="relative isolate overflow-hidden bg-wave-9 py-9 text-on-dark md:py-10"
     >
       <Container>
-        <h2 id="partnerek-cim" className="text-body-sm font-medium text-on-dark/80">
-          Velük dolgozunk együtt
-        </h2>
+        {partners.length < SLIDE_FROM ? (
+          <StaticRow partners={partners} />
+        ) : (
+          <Marquee partners={partners} />
+        )}
       </Container>
-
-      <div className="marquee mt-7">
-        <MarqueeTrack items={track} />
-        {/* A második sáv a végtelenítés: ugyanaz a tartalom, de a
-            képernyőolvasónak már nem mondjuk el újra. */}
-        <MarqueeTrack items={track} clone />
-      </div>
     </section>
   );
 }
 
-function MarqueeTrack({
+/** Kevés embléma: egyszerű, középre zárt sor. Tördel, nem csúszik. */
+function StaticRow({ partners }: { partners: Partner[] }) {
+  return (
+    <ul className="flex flex-wrap items-center justify-center gap-x-12 gap-y-8">
+      {partners.map((partner) => (
+        <li key={partner.id}>
+          <PartnerLogo partner={partner} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Sok embléma: végtelenített csúszás, két azonos sávval. */
+function Marquee({ partners }: { partners: Partner[] }) {
+  // A kulcs az ismétlés sorszámát is tartalmazza, különben két azonos kulcsú
+  // elem kerülne a listába. Az első kör utáni másolatok meg vannak jelölve:
+  // állóképen (csökkentett mozgás) kiesnek, mert ott az ismétlés már nem
+  // folytonosság, hanem kettőzés.
+  const repeats = Math.max(1, Math.ceil(MIN_ITEMS / partners.length));
+  const items = Array.from({ length: repeats }, (_, round) =>
+    partners.map((partner) => ({ partner, key: `${partner.id}-${round}`, repeat: round > 0 })),
+  ).flat();
+
+  return (
+    <div className="marquee">
+      <Track items={items} />
+      {/* A második sáv a végtelenítés: ugyanaz a tartalom, de a
+          képernyőolvasónak már nem mondjuk el újra. */}
+      <Track items={items} clone />
+    </div>
+  );
+}
+
+function Track({
   items,
   clone = false,
 }: {
@@ -89,23 +116,38 @@ function MarqueeTrack({
     >
       {items.map(({ partner, key, repeat }) => (
         <li key={key} className={repeat ? 'marquee__item marquee__item--repeat' : 'marquee__item'}>
-          {partner.url ? (
-            <a
-              href={partner.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block rounded-card transition-opacity duration-feedback ease-standard hover:opacity-85"
-              // A klón másolat: a billentyűzetes bejárásból ki kell esnie,
-              // különben minden partner kétszer jönne szembe tabulálva.
-              {...(clone ? { tabIndex: -1 } : {})}
-            >
-              <LogoMark src={partner.logo} alt={partner.name} className="h-16 w-40 px-5 py-3" />
-            </a>
-          ) : (
-            <LogoMark src={partner.logo} alt={partner.name} className="h-16 w-40 px-5 py-3" />
-          )}
+          <PartnerLogo partner={partner} {...(clone ? { hidden: true } : {})} />
         </li>
       ))}
     </ul>
+  );
+}
+
+/**
+ * Egy embléma, opcionális hivatkozással.
+ *
+ * A magasság kötött, a szélesség a logóhoz igazodik — egy álló és egy fekvő
+ * embléma így egyforma súlyú marad a sorban. Felső korlát viszont kell:
+ * enélkül egy nagyon széles szóvédjegy kiszorítaná a többit.
+ */
+function PartnerLogo({ partner, hidden = false }: { partner: Partner; hidden?: boolean }) {
+  const logo = (
+    <LogoMark src={partner.logo} alt={partner.name} plate={false} className="h-10 max-w-[9rem]" />
+  );
+
+  if (!partner.url) return logo;
+
+  return (
+    <a
+      href={partner.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block transition-opacity duration-feedback ease-standard hover:opacity-75"
+      // A klón másolat: a billentyűzetes bejárásból ki kell esnie, különben
+      // minden partner kétszer jönne szembe tabulálva.
+      {...(hidden ? { tabIndex: -1 } : {})}
+    >
+      {logo}
+    </a>
   );
 }

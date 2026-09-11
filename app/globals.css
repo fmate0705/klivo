@@ -1381,12 +1381,15 @@
     -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
   }
 
+  /* A köz ugyanaz, mint az állókép változaté (`gap-x-12`): a sáv nem
+     változik meg attól, hogy csúszik-e. A jobb oldali belső margó az utolsó
+     és a következő sáv első eleme közti közt adja. */
   .marquee__track {
     display: flex;
     flex: none;
     align-items: center;
-    gap: 1.25rem;
-    padding-right: 1.25rem;
+    gap: 3rem;
+    padding-right: 3rem;
     animation: marquee-slide 56s linear infinite;
   }
 
@@ -1433,15 +1436,24 @@
   }
 
   /* A partnersáv nem csúszik: a klón eltűnik, az eredeti pedig tördelve
-     áll. Az információ megmarad, csak a mozgás nem. */
+     áll. Az információ megmarad, csak a mozgás nem.
+
+     A dobozból **blokk** lesz, a sávból pedig zsugorodni képes elem. Csúszás
+     közben a sáv `flex: none`, mert szélesebbnek kell lennie a doboznál —
+     állóképen viszont pont ez akadályozná meg a tördelést, és a sor jobb
+     széle levágva maradna. */
   .marquee {
+    display: block;
     mask-image: none;
     -webkit-mask-image: none;
   }
 
   .marquee__track {
+    flex: initial;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 2.5rem;
+    padding-right: 0;
     animation: none;
   }
 

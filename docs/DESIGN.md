@@ -450,12 +450,33 @@ lenyíló magassága maga az interakció), és a statikus árnyék a hullámrét
   a koppintás hamis hovert vált ki.
 - **A görgetésjelző egér ikonjában a pont mozog** le-föl, 2200 ms-os ciklusban.
 
-### A partnersáv csúszása
+### A partnersáv
 
-A nyitóképernyő alatt futó embléma-sáv. Két azonos sáv áll egymás után, és
-mindkettő a **saját szélességével** tolódik el balra: a ciklus végén a második
-pontosan ott áll, ahol az első indult, tehát az újraindulás nem látszik.
-Egyetlen sávval és egy visszaugrással ugyanez minden körben megpattanna.
+A nyitóképernyő alatt futó embléma-sáv, a tartalom mértékében (`Container`) —
+nem teljes szélességben, mert akkor nem a laphoz tartozna, hanem alá lenne
+csúsztatva.
+
+**A sáv a nyitóképernyő zárósorát váltja ki.** Ahol van partner, ott a hero nem
+írja ki a saját záró sorát (`Hero closing={false}`): két záró gesztus egymás
+alatt kioltaná egymást, és a nyitókép a duplájára nyúlna. Emiatt a sávnak
+felirata sincs — a logók magukért beszélnek, egy címke pedig épp azt a sort
+hozná vissza, amit levettünk. A nyitóképernyő ilyenkor alacsonyabb, és a
+hullámmezője a `top` igazítású változatra vált: alacsonyabb felületen a
+`center` igazításból a **világos taréjok** is a felvezető bekezdés mögé
+csúsznának, és fehér szöveg azokon 1,2:1. Ez nem elmélet — a kontrasztmérés
+fogta meg.
+
+**Korong nélkül.** A partnerlogók fehérben érkeznek, tehát a mély kéken magukban
+is olvashatók; korongon a sáv kártyák sorává esne szét. A referencia kártyákon
+más a helyzet: ott tetszőleges színű ügyféllogó jöhet, és ott a `LogoMark`
+korongos változata fut.
+
+**Csak akkor csúszik, ha van mit csúsztatni.** Hét embléma alatt a sor kifér,
+tehát a mozgás öncélú lenne: ott állókép van, középre zárva, tördelve. A küszöb
+fölött indul a végtelenített csúszás — két azonos sáv áll egymás után, és
+mindkettő a **saját szélességével** tolódik el balra, tehát a ciklus végén a
+második pontosan ott áll, ahol az első indult. Egyetlen sávval és egy
+visszaugrással ugyanez minden körben megpattanna.
 
 Tisztán `transform`, `linear` ütemben — folyamatos mozgásnak nincs kezdete és
 vége, és minden gyorsulás azt sugallná, hogy történik valami. CSS animáció, nem
@@ -464,12 +485,6 @@ vége, és minden gyorsulás azt sugallná, hogy történik valami. CSS animáci
 Rámutatásra és fókuszra megáll. Az előbbi azért, hogy egy nevet el lehessen
 olvasni; az utóbbi azért, mert egy fókuszált logó különben kicsúszna a
 képernyőről a fókuszgyűrűjével együtt.
-
-Az emblémák **világos korongon** ülnek (`LogoMark`). A logókat az admin tölti
-fel, tehát bármilyen színűek lehetnek: egy sötét logó a mély kéken eltűnne. A
-monokróm, fehérre festett sáv ezt megoldaná, de elvenné a márkák saját színét —
-amihez általában ragaszkodnak. A korong mindkettőt megtartja, és ugyanez a
-megoldás viszi a referencia kártyák emblémáit is.
 
 ### Csökkentett mozgás
 
