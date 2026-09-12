@@ -165,9 +165,9 @@ biztonsága és a hibák felderítése, jogalapja az adatkezelő jogos érdeke.
 
 ## 3. Meddig őrizzük az adatokat?
 
-A megkereséseket a megválaszolást követő ${company.leadRetention} ideig, szerződéskötés esetén
+A megkereséseket a megválaszolást követő ${company.leadRetention}, szerződéskötés esetén
 a szerződéses jogviszonyból eredő igények elévüléséig őrizzük. A szerverek
-technikai naplóit legfeljebb ${company.logRetention} ideig tároljuk.
+technikai naplóit legfeljebb ${company.logRetention} tároljuk.
 
 ## 4. Kik férnek hozzá?
 

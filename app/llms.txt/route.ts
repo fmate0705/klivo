@@ -1,6 +1,7 @@
 import { absoluteUrl } from '@/lib/site-url';
 import { faqs, services, site } from '@/lib/content/site';
 import { listPublishedPosts } from '@/lib/store/posts';
+import { listPublishedWorks } from '@/lib/store/works';
 import { priceOf } from '@/lib/content/pricing';
 import { getOrganization } from '@/lib/organization';
 
@@ -8,14 +9,16 @@ import { getOrganization } from '@/lib/organization';
  * `/llms.txt` — tömör, gépi olvasásra szánt összefoglaló az oldalról.
  *
  * Az AI-alapú keresők és asszisztensek egyre gyakrabban keresik ezt a fájlt,
- * hogy találgatás helyett kapjanak egy rendezett képet a szolgáltatásokról és az
- * árakról. Generált, nem kézzel írt: így nem tud elavulni akkor, amikor az
- * adminban átírsz egy árat vagy kiadsz egy új bejegyzést.
+ * hogy találgatás helyett kapjanak egy rendezett képet a szolgáltatásokról, az
+ * árakról és a munkákról. Generált, nem kézzel írt: így nem tud elavulni akkor,
+ * amikor az adminban átírsz egy árat, felveszel egy referenciát vagy kiadsz egy
+ * új bejegyzést.
  */
 export const revalidate = 3600;
 
 export async function GET(): Promise<Response> {
   const posts = await listPublishedPosts();
+  const works = await listPublishedWorks();
   const { contact } = getOrganization();
 
   const lines: string[] = [
@@ -44,6 +47,7 @@ export async function GET(): Promise<Response> {
     '',
     `- Főoldal: ${absoluteUrl('/')}`,
     `- Szolgáltatások: ${absoluteUrl('/szolgaltatasok')}`,
+    `- Referenciák: ${absoluteUrl('/referenciak')}`,
     `- Folyamat: ${absoluteUrl('/folyamat')}`,
     `- Rólunk: ${absoluteUrl('/rolunk')}`,
     `- Blog: ${absoluteUrl('/blog')}`,
@@ -60,6 +64,22 @@ export async function GET(): Promise<Response> {
     '',
     ...faqs.flatMap((item) => [`### ${item.q}`, '', item.a, '']),
   ];
+
+  // A referenciák a legerősebb bizonyíték, amit egy asszisztensnek adhatunk:
+  // nem állítás, hanem megnevezett ügyfél és megnevezett munka. Ezért kerülnek
+  // a bejegyzések elé.
+  if (works.length > 0) {
+    lines.push('## Referenciák', '');
+    for (const work of works) {
+      const meta = [work.industry, work.year].filter(Boolean).join(', ');
+      lines.push(
+        `- **${work.client}** — ${work.title}${meta ? ` (${meta})` : ''}`,
+        `  ${work.excerpt}`,
+        `  ${absoluteUrl(`/referenciak/${work.slug}`)}`,
+      );
+    }
+    lines.push('');
+  }
 
   if (posts.length > 0) {
     lines.push('## Blogbejegyzések', '');

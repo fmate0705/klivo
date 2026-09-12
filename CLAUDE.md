@@ -74,6 +74,10 @@ az eddig talált hibák), [`README.md`](README.md) (szerkezet, parancsok).
 - **A `WaveBand` `SURFACE` térképe a paletta része.** Ha egy felület tokenje
   változik (`--blue`, `--deep`), ezt a térképet is át kell írni — különben a
   sáv utolsó hulláma más színű lesz, mint a szekció, és éles vágás marad.
+- **A `tailwind-merge` csak azonos variánsú osztályt ejt ki.** A `p-0` az alap
+  `p-6`-ot leüti, a `sm:p-7`-et **nem** — a térköz 640 pixel fölött némán
+  visszajön. Ezért van a `Card`-on `flush` kapcsoló a `p-0` helyett; ahol
+  hasonló felülírás kell, ott is a komponens adjon rá kapcsolót.
 - **Kliens komponens nem importálhat a tárolóból.** A tároló `revalidateTag`-et
   húz be, ami csak szerveren létezik, és a build elszáll tőle. Ami a szerkesztő
   felületnek is kell (pl. `FAQ_PAGES`), az `lib/content/` alá megy.

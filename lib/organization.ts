@@ -104,14 +104,27 @@ const PLACEHOLDERS: Organization = {
     supervisoryAuthority: '[a felügyeleti szerv neve és elérhetősége]',
     disputeResolution: '[az illetékes békéltető testület neve és elérhetősége]',
     noticePeriod: '[felmondási idő]',
-    leadRetention: '[megkeresések őrzési ideje]',
-    logRetention: '[naplók őrzési ideje]',
+    leadRetention: '[megkeresések őrzési ideje]-ig',
+    logRetention: '[naplók őrzési ideje]-ig',
     effectiveDate: '[hatálybalépés dátuma]',
   },
 };
 
 function pick(value: string | undefined, fallback: string): string {
   return value && value.trim().length > 0 ? value.trim() : fallback;
+}
+
+/**
+ * Igaz, ha az érték még helyőrző — vagyis a `.env` megfelelő sora üres.
+ *
+ * **Miért kell ez, ha az oldalon szándékosan látszanak a helyőrzők.** A
+ * látogatónak szóló oldalon a `[adószám]` felirat hasznos: azonnal látszik, mi
+ * hiányzik. A **strukturált adatban** viszont káros — azt gépek olvassák, és
+ * ott a helyőrző nem hiányként, hanem a cég tényleges adataként jelenne meg a
+ * keresőben. Ami nincs kitöltve, az inkább maradjon ki a JSON-LD-ből.
+ */
+export function isPlaceholder(value: string): boolean {
+  return value.includes('[');
 }
 
 /**

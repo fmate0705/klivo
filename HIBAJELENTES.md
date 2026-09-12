@@ -782,6 +782,101 @@ történetet, ott, ahol tartoznak valamihez. Az admin mezője is ezt mondja ki
 
 ---
 
+### 2/f.9 A borítós kártyák 640 pixel fölött fehér keretet kaptak a kép köré
+
+A `Card` alap térköze `p-6 sm:p-7`. A borítós kártyák (blog, referencia) ezt
+`p-0`-val ütötték le, hogy a kép a kártya keretéig érjen — a `PostCard`
+dokumentációja ki is mondja: „a képet a kártya kerete vágja, nincs körülötte
+külön keret".
+
+Csakhogy a `tailwind-merge` **csak az azonos variánsú** osztályokat ejti ki. A
+`p-0` az alap `p-6`-ot leüti, a `sm:p-7`-et nem — tehát 640 pixel fölött, vagyis
+gyakorlatilag **minden asztali nézetben**, a kártya visszakapta a 28 pixeles
+térközt, és a borító köré fehér keret került.
+
+Ez a fajta hiba azért marad meg, mert **nem néz ki hibának**: egy keretes kép
+lehet szándékos is. Akkor derült ki, amikor egy új kártyán (folyamat) a színes
+fejlécsáv nem ért ki a szélekig — ott már látszott, hogy valami leüti a
+`p-0`-t.
+
+A javítás nem három `sm:p-0` lett, hanem egy `flush` kapcsoló a `Card`-on: így
+a hívónak nem kell ismernie a `tailwind-merge` variánsszabályát, és a következő
+borítós kártya sem fut bele. Ugyanez a csapda okozta korábban a némán eldobott
+betűméretet is (lásd a `lib/cn.ts` megjegyzését) — ott a megoldás a
+`tailwind-merge` bővítése volt, itt a hívó felület szűkítése.
+
+### 2/f.10 A folyamat idővonala kártyasorra cserélve
+
+A folyamat öt lépése függőleges idővonalon állt, felváltva a középvonal két
+oldalán. Két baj volt vele:
+
+- **Hosszú.** Öt lépés egymás alatt majdnem egy teljes képernyőnyi görgetés,
+  miközben a szakasz mondanivalója egy mondat: „ennyi lépés van, és mindegyiknél
+  tudod, mi jön".
+- **A sorrend nem látszott egyben.** A sorrend itt maga az információ, de
+  idővonalon mindig csak egy-két lépés van a képen.
+
+A helyére sorba rendezett, számozott kártyák kerültek, váltakozó magassággal. A
+kártyák fejlécsávja a kék skálán lépdel lefelé (`wave-5` → `wave-9`), az alsó
+éle pedig **hullám**, ugyanabból a görbéből (`lib/wave-path.ts`), ami a
+szekcióhatárokat rajzolja.
+
+Két részlet, ami menet közben derült ki:
+
+- **Az eltoláshoz `transform` kell, nem felső margó.** A margó a rácsban
+  rövidebbre vágja a kártya dobozát, tehát az eltolt kártyák alacsonyabbak
+  lesznek — a referencián viszont egyforma magasak, csak lejjebb ülnek.
+- **A fejlécsávra nem kell fehér kontúr**, pedig a hullámokon mindenütt van. Ott
+  két kék tónus találkozik; itt a sáv a kártya fehér felületével határos, tehát
+  a fehér vonal a fehéren nem jelenik meg. Az első változatban benne volt, és
+  pontosan semmit nem csinált.
+
+---
+
+### 2/f.11 A strukturált adat a `.env` helyőrzőit közölte a keresőkkel
+
+A cég sémája (`organizationJsonLd`) feltétel nélkül beírta a `.env`-ből jövő
+értékeket. Kitöltetlen fájlnál viszont ezek **helyőrzők**, tehát a JSON-LD ezt
+küldte a keresőknek:
+
+```json
+"email": "[e-mail cím]",
+"address": { "streetAddress": "[irányítószám] [település], [utca, házszám]" }
+```
+
+A látogatónak szánt oldalon a szögletes zárójel hasznos: azonnal látszik, mi
+hiányzik. A strukturált adat viszont **gépi állítás** — ott ugyanaz a szöveg
+nem hiányt jelöl, hanem a cég tényleges adatát. A séma azóta kihagyja a még
+kitöltetlen mezőket: amit nem tudunk, azt nem állítjuk.
+
+Ehhez visszakerült az `isPlaceholder` a `lib/organization.ts`-be. Korábban a
+jogi figyelmeztetés eltávolításakor törlődött — a mostani feladata más, és a
+doksija ezt ki is mondja.
+
+Ugyanitt került be a `logo` és az `image` is: a Google a szervezeti
+tudáspanelhez kifejezetten kéri a logót. Mindkettő a futásidőben rajzolt
+képekre mutat (`/icon`, `/opengraph-image`), tehát nincs külön képfájl, amit
+egy arculatváltás után el lehetne felejteni cserélni.
+
+### 2/f.12 A referenciák hiányoztak a gépi rétegekből
+
+A referencia oldalak elkészültek, de a kereső és az AI-asszisztensek felé
+vezető három csatornából kettőben nem szerepeltek:
+
+- **Strukturált adat.** Az esettanulmány oldalakon csak morzsamenü volt, maga a
+  tartalom nem volt megnevezve. Most `Article` séma írja le: cím, kivonat,
+  dátumok, borító, és `about`-ként az ügyfél. A listaoldal `ItemList`-et kapott
+  — enélkül a lap csak linkek halmaza a kereső szemében.
+- **`llms.txt`.** A „Fontos oldalak" felsorolásból hiányzott a Referenciák, és
+  a munkákról egyáltalán nem esett szó. Most külön szakaszban szerepelnek, a
+  bejegyzések **előtt**: egy megnevezett ügyfél és egy megnevezett munka a
+  legerősebb bizonyíték, amit egy asszisztensnek adhatunk — nem állítás, hanem
+  hivatkozható tény.
+
+A sitemap már korábban is tartalmazta őket.
+
+---
+
 ## 3. Amit szándékosan másképp csináltam
 
 ### 3.1 Az admin csak blogot kezel — az árakat és a cégadatokat nem

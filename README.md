@@ -59,6 +59,9 @@ döntések, a többi szöveg mellett a helyük.
 
 A `.env.example` minden mezőt elmagyaráz. A lényeg:
 
+**A jogi mezők kitöltéséhez** mezőnkénti magyarázat, példa és kitöltött minta:
+[`docs/JOGI-ADATOK.md`](docs/JOGI-ADATOK.md).
+
 - **1. blokk** — `NEXT_PUBLIC_SITE_URL`. Ebből készül minden canonical URL, a
   sitemap és az OG tag. Ha rossz, a produkcióba `localhost` URL-ek kerülnek.
 - **2. blokk** — elérhetőség (e-mail, telefon, ügyfélfogadás).
@@ -213,13 +216,20 @@ elküldetlen e-mail néma adatvesztés volna.
 ## SEO és AI-láthatóság
 
 - Oldalankénti cím és leírás egy helyen (`lib/content/site.ts`, `pageMeta`);
-  minden cím 33–56, minden leírás 120–152 karakter.
+  minden cím 18–65, minden leírás 89–152 karakter, és mindegyik egyedi.
 - Canonical URL, Open Graph és Twitter kártya minden oldalon, egy építőfüggvényből.
 - Strukturált adat: `ProfessionalService`, `WebSite`, `Service`, `FAQPage`,
-  `BlogPosting`, `BreadcrumbList`. A `FAQPage` **egyetlen** URL-en él (a
-  főoldalon) — ugyanaz több oldalon konkuráló jelzés lenne.
-- `sitemap.xml`, `robots.txt`, `llms.txt` generálva; a nem publikált bejegyzések
-  egyikbe sem kerülnek bele.
+  `BlogPosting`, `Article` (esettanulmányok), `ItemList` (gyűjtőoldalak),
+  `BreadcrumbList`. A `FAQPage` **egyetlen** URL-en él (a főoldalon) — ugyanaz
+  több oldalon konkuráló jelzés lenne.
+- **A cég sémájából kimaradnak a kitöltetlen mezők.** A `.env` helyőrzői a
+  látogatónak szólnak; strukturált adatként a kereső a cég tényleges adatának
+  venné őket.
+- `sitemap.xml`, `robots.txt`, `llms.txt` generálva; a nem publikált
+  bejegyzések és referenciák egyikbe sem kerülnek bele.
+- Az `llms.txt` a szolgáltatások és az árak mellett a **referenciákat** is
+  felsorolja, a bejegyzések előtt: egy megnevezett ügyfél és munka
+  hivatkozható tény, nem állítás.
 - Az OG kép és a favicon kódból rajzolódik, tehát nem tud elavulni.
 - Oldalanként egy `h1`, szintugrás nélkül. Minden tartalmi képnek van alt
   szövege, amely azt írja le, mit mutat a képernyő.

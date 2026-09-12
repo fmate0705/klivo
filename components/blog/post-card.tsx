@@ -35,11 +35,8 @@ export function PostCard({
   return (
     <Card
       interactive
-      className={cn(
-        'flex min-w-0 flex-col overflow-hidden p-0',
-        featured && 'lg:flex-row',
-        className,
-      )}
+      flush
+      className={cn('flex min-w-0 flex-col overflow-hidden', featured && 'lg:flex-row', className)}
     >
       <PostCover
         slug={post.slug}

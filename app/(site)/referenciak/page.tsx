@@ -1,7 +1,7 @@
 import { pageMeta } from '@/lib/content/site';
 import { listPublishedWorks } from '@/lib/store/works';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { breadcrumbJsonLd } from '@/lib/seo/jsonld';
+import { breadcrumbJsonLd, itemListJsonLd } from '@/lib/seo/jsonld';
 import { JsonLd } from '@/components/seo/json-ld';
 import { Container } from '@/components/ui/container';
 import { Section } from '@/components/ui/section';
@@ -39,6 +39,18 @@ export default async function WorksPage() {
           { name: 'Referenciák', path: '/referenciak' },
         ])}
       />
+      {/* A gyűjteményt is kimondjuk gépi formában: mik az elemei és milyen
+          sorrendben. Enélkül a lap csak linkek halmaza a kereső szemében. */}
+      {works.length > 0 ? (
+        <JsonLd
+          data={itemListJsonLd(
+            works.map((work) => ({
+              name: `${work.client} — ${work.title}`,
+              path: `/referenciak/${work.slug}`,
+            })),
+          )}
+        />
+      ) : null}
 
       <PageHeader
         title="Referenciák"

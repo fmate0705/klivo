@@ -29,7 +29,7 @@ export function WorkCard({
   className?: string;
 }) {
   return (
-    <Card interactive className={cn('flex min-w-0 flex-col overflow-hidden p-0', className)}>
+    <Card interactive flush className={cn('flex min-w-0 flex-col overflow-hidden', className)}>
       <div className="relative">
         <WorkCover
           slug={work.slug}

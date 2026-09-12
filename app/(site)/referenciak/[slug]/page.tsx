@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPublishedWorkBySlug, listPublishedWorks } from '@/lib/store/works';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { breadcrumbJsonLd } from '@/lib/seo/jsonld';
+import { breadcrumbJsonLd, caseStudyJsonLd } from '@/lib/seo/jsonld';
 import { JsonLd } from '@/components/seo/json-ld';
 import { Container } from '@/components/ui/container';
 import { Section } from '@/components/ui/section';
@@ -63,6 +63,7 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
 
   return (
     <>
+      <JsonLd data={caseStudyJsonLd(work)} />
       <JsonLd
         data={breadcrumbJsonLd([
           { name: 'Főoldal', path: '/' },

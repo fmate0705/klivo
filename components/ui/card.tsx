@@ -12,6 +12,7 @@ import { cn } from '@/lib/cn';
 
 export function Card({
   interactive = false,
+  flush = false,
   className,
   children,
 }: {
@@ -21,13 +22,27 @@ export function Card({
    * nyugtalanságként lát a szem.
    */
   interactive?: boolean;
+  /**
+   * Belső térköz nélküli kártya — a tartalom a kártya széléig ér.
+   *
+   * Ott kell, ahol egy kép vagy egy színsáv a keretig fut, és a szöveg kapja a
+   * saját térközét: borítós kártyák, folyamatkártyák.
+   *
+   * **Miért kapcsoló, és miért nem elég a hívónak `p-0`-t írnia.** A
+   * `tailwind-merge` csak az azonos variánsú osztályokat ejti ki: a `p-0` az
+   * alap `p-6`-ot leüti, a `sm:p-7`-et viszont nem. A kártya 640 pixel fölött
+   * némán visszakapta a térközt, és a kép köré fehér keret került — a hiba
+   * pontosan így fordult elő, és a képernyőn alig látszott.
+   */
+  flush?: boolean;
   className?: string;
   children: ReactNode;
 }) {
   return (
     <div
       className={cn(
-        'border-soft bg-raised card-lift relative rounded-card border p-6 sm:p-7',
+        'border-soft bg-raised card-lift relative rounded-card border',
+        !flush && 'p-6 sm:p-7',
         // A kiemelés **minden** kártyán ott van, nem csak a kattinthatókon: a
         // rámutatásra megmozduló felület a lap egészét élővé teszi, és a
         // kártyarácsokban ettől érződik kézzelfoghatónak a tartalom.

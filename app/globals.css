@@ -629,87 +629,38 @@
   }
 
   /**
-   * Az idővonal sorszáma és pontja.
+   * A folyamatkártya sorszáma.
    *
-   * A szám kontúros, és görgetésre telik meg — ez mutatja, hol tart az ember az
+   * Kontúros szám, ami görgetésre telik meg — ez mutatja, hol tart az ember az
    * úton. A `-webkit-text-stroke` minden mai böngészőben megy; ahol nem, ott a
    * szám egyszerűen tömör lesz, ami nem hiba, csak halkabb.
+   *
+   * A méret a **kártyához** igazodik, nem a képernyőhöz: öt kártya egy sorban
+   * keskeny hasábokat ad, és egy képernyőarányos szám ott átlógna a címsorra.
    */
-  .process-step__number {
+  .process-card__number {
     display: block;
     font-family: var(--font-display), system-ui, sans-serif;
-    font-size: clamp(2.75rem, 6vw, 4.5rem);
+    font-size: clamp(2rem, 2.6vw, 2.75rem);
     font-weight: 700;
     line-height: 0.9;
     letter-spacing: -0.04em;
-    color: rgb(var(--wave-7) / 0.14);
-    -webkit-text-stroke: 1.5px rgb(var(--line-strong));
-  }
-
-  .process-step__dot {
-    transition:
-      border-color 320ms var(--ease-out),
-      box-shadow 320ms var(--ease-out);
+    color: rgb(var(--wave-7) / 0.2);
+    -webkit-text-stroke: 1.5px rgb(var(--wave-5));
   }
 
   @supports (animation-timeline: view()) {
-    .process-step {
-      view-timeline-name: --process-step;
+    .process-card {
+      view-timeline-name: --process-card;
       view-timeline-axis: block;
     }
 
-    .process-step__number {
+    .process-card__number {
       animation: number-fill linear both;
-      animation-timeline: --process-step;
-      animation-range: cover 25% cover 55%;
-    }
-
-    .process-step__dot {
-      animation: dot-light linear both;
-      animation-timeline: --process-step;
-      animation-range: cover 25% cover 55%;
+      animation-timeline: --process-card;
+      animation-range: cover 20% cover 50%;
     }
   }
-
-  /**
-   * A folyamat lépéseit összekötő vonal.
-   *
-   * A kitöltés vízszintesen skálázódik nullából egyre, ahogy a szekció áthalad
-   * a nézeten — görgetéshez kötött animáció, tehát nincs hozzá figyelő, és a
-   * compositoron fut. Ahol a böngésző nem ismeri, a vonal egyszerűen teli: a
-   * hiányzó animáció nem tüntethet el információt.
-   */
-  .process__rail {
-    position: relative;
-    display: block;
-    height: 1px;
-    flex: 1;
-    background-color: rgb(var(--line));
-    overflow: hidden;
-  }
-
-  .process__fill {
-    position: absolute;
-    inset: 0;
-    display: block;
-    background-color: rgb(var(--wave-7));
-    transform-origin: left center;
-  }
-
-  @supports (animation-timeline: view()) {
-    .process {
-      view-timeline-name: --process;
-      view-timeline-axis: block;
-    }
-
-    .process__fill {
-      transform: scaleX(0);
-      animation: rail-fill linear both;
-      animation-timeline: --process;
-      animation-range: cover 15% cover 65%;
-    }
-  }
-
   /* A szekció tartalma mindig a hullámok fölött. */
   .wave-content {
     position: relative;
@@ -763,26 +714,6 @@
   to {
     color: rgb(var(--wave-7) / 0.55);
     -webkit-text-stroke-color: rgb(var(--wave-7));
-  }
-}
-
-@keyframes dot-light {
-  from {
-    border-color: rgb(var(--line));
-    box-shadow: 0 0 0 0 rgb(var(--wave-7) / 0);
-  }
-  to {
-    border-color: rgb(var(--wave-7));
-    box-shadow: 0 0 0 6px rgb(var(--wave-7) / 0.14);
-  }
-}
-
-@keyframes rail-fill {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
   }
 }
 
@@ -1471,9 +1402,7 @@
   .divider__layer,
   .sky-band__layer,
   .intro__sheet,
-  .process__fill,
-  .process-step__number,
-  .process-step__dot,
+  .process-card__number,
   .intro__layer,
   .intro__mark,
   .bubbles__dot,
@@ -1487,9 +1416,10 @@
     will-change: auto;
   }
 
-  /* A vonal teli marad: az információt a mozgás nem viheti el. */
-  .process__fill {
-    transform: scaleX(1) !important;
+  /* A sorszám teli marad: az információt a mozgás nem viheti el. */
+  .process-card__number {
+    color: rgb(var(--wave-7) / 0.55);
+    -webkit-text-stroke-color: rgb(var(--wave-7));
   }
 
   .bubbles {
