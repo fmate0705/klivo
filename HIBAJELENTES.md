@@ -740,6 +740,48 @@ A favicon (`app/icon.tsx`) ellenőrizve: az már a helyes palettán van.
 
 ---
 
+### 2/f.7 Az álló kép mellett csíkká préselődött a szöveg
+
+A „Kép és szöveg" blokk a feltöltött kép **saját arányát** vette át, a hasábok
+osztása viszont fix volt (7 a képnek, 5 a szövegnek). Fekvő képpel ez működött.
+Egy álló fotó viszont a hét hasáb szélességéből több mint kétszer olyan magas
+dobozt csinált, mint amilyen a mellette futó három sor szöveg — a bekezdés a sor
+közepén árválkodott, a szakasz pedig kifordult a lap ritmusából.
+
+Két megoldás volt kézenfekvő, és a rosszabbat könnyű elsőre választani:
+
+1. **A kép magassága kövesse a szövegét** (`items-stretch` + `object-cover`).
+   Rövid szövegnél viszont a kép egy vízszintes csíkká lapul — a hiba nem tűnik
+   el, csak átköltözik a másik oldalra.
+2. **A szerkesztő mondja meg a képarányt.** Öt lehetőség (16:9, 4:3, 1:1, 3:4,
+   9:16), a kép erre vágódik, és **ugyanez dönti el a hasábok osztását is**:
+   fekvőnek hét hasáb, négyzetnek hat, állónak négy-öt. Így a szöveg mindig kap
+   annyi helyet, amennyi kell.
+
+A második lett. Az arányhoz tartozó két hasáb egy táblában, a képarány mellett
+él (`WORK_RATIOS`), nem a megjelenítésben szétszórva — és teljes
+osztálynevekkel, mert a Tailwind a forrásban keresi őket: egy összefűzött
+`lg:col-span-${n}` némán kimaradna a kimenetből, és a rács **csak élesben**
+esne szét.
+
+A képarány később került a blokkhoz, tehát a korábban mentett referenciákban
+nincs benne. Ez nem hiba, hanem „még nem választott": a `ratioOf` az
+alapértelmezést adja rá, és ezt a `tests/works.test.ts` rögzíti.
+
+### 2/f.8 A borítókép kétszer szerepelt
+
+A borító a kártyán is ott volt, és az esettanulmány tetején is, teljes
+szélességben. A látogató tehát ugyanazt a képet látta az előző képernyőn, majd
+közvetlenül utána még egyszer, nagyban — a saját oldalán az első dolog, amit
+mutattunk, egy ismétlés volt.
+
+A borító azóta **kártyaelem**: a listán és a főoldali szekcióban van dolga, ott
+kell felismerni belőle a munkát. Az esettanulmányban a blokkok képei viszik a
+történetet, ott, ahol tartoznak valamihez. Az admin mezője is ezt mondja ki
+(„Kártyakép"), hogy a szerkesztő tudja, hova tölt fel.
+
+---
+
 ## 3. Amit szándékosan másképp csináltam
 
 ### 3.1 Az admin csak blogot kezel — az árakat és a cégadatokat nem

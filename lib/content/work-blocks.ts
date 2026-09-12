@@ -20,6 +20,90 @@
  * szerveren létezik, és a build elszáll tőle.
  */
 
+/**
+ * A „Kép és szöveg" blokk képaránya.
+ *
+ * **Miért nem a kép saját aránya dönt.** A feltöltött kép bármilyen alakú
+ * lehet, a mellette futó szöveg viszont pár soros: egy álló fotó mellett a
+ * bekezdés egy vékony csíkká préselődik, és a sor közepén árválkodik. Ezért a
+ * szerkesztő **megmondja**, milyen arányban jelenjen meg a kép, a megjelenítés
+ * pedig arra vágja (`object-cover`). Így bármilyen forrásképből kiszámítható
+ * elrendezés lesz.
+ *
+ * **A hasábok osztása az aránnyal együtt változik.** Egy fekvő kép megérdemli a
+ * szélesebb hasábot, egy állónak viszont kevesebb is elég — különben a szöveg
+ * szorulna össze mellette. A két hasáb ezért itt van a képarány mellett, nem a
+ * megjelenítésben szétszórva: egy arány egy sor, és a sor mindig teljes.
+ *
+ * Az osztályneveket teljes alakban kell leírni: a Tailwind a forrásban keresi
+ * őket, egy összefűzött `aspect-[${a}/${b}]` némán kimaradna a kimenetből.
+ */
+export type WorkRatio = '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+
+export const WORK_RATIOS: {
+  value: WorkRatio;
+  label: string;
+  /** A kép doboza. */
+  aspect: string;
+  /** A kép hasábja a tizenkettes rácsban. */
+  image: string;
+  /** A szöveg hasábja. A kettő együtt mindig tizenkettő. */
+  text: string;
+}[] = [
+  {
+    value: '16:9',
+    label: '16:9 — fekvő',
+    aspect: 'aspect-[16/9]',
+    image: 'lg:col-span-7',
+    text: 'lg:col-span-5',
+  },
+  {
+    value: '4:3',
+    label: '4:3 — fekvő',
+    aspect: 'aspect-[4/3]',
+    image: 'lg:col-span-7',
+    text: 'lg:col-span-5',
+  },
+  {
+    value: '1:1',
+    label: '1:1 — négyzet',
+    aspect: 'aspect-square',
+    image: 'lg:col-span-6',
+    text: 'lg:col-span-6',
+  },
+  {
+    value: '3:4',
+    label: '3:4 — álló',
+    aspect: 'aspect-[3/4]',
+    image: 'lg:col-span-5',
+    text: 'lg:col-span-7',
+  },
+  {
+    value: '9:16',
+    label: '9:16 — álló',
+    aspect: 'aspect-[9/16]',
+    image: 'lg:col-span-4',
+    text: 'lg:col-span-8',
+  },
+];
+
+/** Alapértelmezés: fekvő. A képernyőképek és a maketek zöme ilyen. */
+export const DEFAULT_RATIO: WorkRatio = '16:9';
+
+/**
+ * Egy képarány leírása, ismeretlen értékre az alapértelmezéssel.
+ *
+ * A tartalék nem elméleti: a képarány később került a blokkhoz, tehát a
+ * korábban mentett referenciákban nincs benne. Egy `undefined` képarány nem
+ * hiba, hanem „még nem választott" — a megjelenítésnek kell megoldania.
+ */
+export function ratioOf(value: string | undefined): (typeof WORK_RATIOS)[number] {
+  return (
+    WORK_RATIOS.find((item) => item.value === value) ??
+    (WORK_RATIOS.find((item) => item.value === DEFAULT_RATIO) as (typeof WORK_RATIOS)[number])
+  );
+}
+
 /** Egy eredménysor: a szám és az, hogy mit mér. */
 export type WorkStat = { value: string; label: string };
 
@@ -46,6 +130,8 @@ export type WorkBlock =
       image: string;
       alt: string;
       flip: boolean;
+      /** A kép képaránya. Lásd `WORK_RATIOS`. */
+      ratio: WorkRatio;
     }
   | { id: string; type: 'stats'; title: string; items: WorkStat[] }
   | { id: string; type: 'quote'; text: string; author: string; role: string }
@@ -69,7 +155,11 @@ export const WORK_BLOCK_TEMPLATES: {
 }[] = [
   { type: 'lead', label: 'Felvezető', hint: 'Egy bekezdés nagy betűvel. A történet első mondata.' },
   { type: 'text', label: 'Szöveg', hint: 'Címsor és folyószöveg. A munka gerince.' },
-  { type: 'split', label: 'Kép és szöveg', hint: 'Kép az egyik, szöveg a másik oldalon.' },
+  {
+    type: 'split',
+    label: 'Kép és szöveg',
+    hint: 'Kép az egyik, szöveg a másik oldalon, választható képaránnyal.',
+  },
   { type: 'image', label: 'Kép', hint: 'Egy széles kép, alatta képaláírás.' },
   { type: 'stats', label: 'Eredmények', hint: 'Két-négy szám. A bizonyíték.' },
   { type: 'quote', label: 'Idézet', hint: 'Az ügyfél mondata, névvel.' },
@@ -98,7 +188,16 @@ export function blankBlock(type: WorkBlockType, id: string): WorkBlock {
     case 'image':
       return { id, type, image: '', alt: '', caption: '' };
     case 'split':
-      return { id, type, title: '', body: '', image: '', alt: '', flip: false };
+      return {
+        id,
+        type,
+        title: '',
+        body: '',
+        image: '',
+        alt: '',
+        flip: false,
+        ratio: DEFAULT_RATIO,
+      };
     case 'stats':
       return {
         id,

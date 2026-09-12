@@ -6,10 +6,13 @@ import {
   MAX_WORK_BLOCKS,
   WORK_BLOCK_LIMITS,
   WORK_BLOCK_TEMPLATES,
+  WORK_RATIOS,
   blankBlock,
   blockLabel,
+  ratioOf,
   type WorkBlock,
   type WorkBlockType,
+  type WorkRatio,
 } from '@/lib/content/work-blocks';
 import { cn } from '@/lib/cn';
 import { adminInputClass } from './ui';
@@ -498,6 +501,45 @@ function BlockFields({
               className={adminInputClass()}
             />
           </Field>
+
+          <Field
+            label="Képarány"
+            hint="A kép erre az arányra vágódik, és ez dönti el a hasábok osztását is — fekvő képnek szélesebb hely jut, állónak keskenyebb. Így a szöveg soha nem szorul össze a kép mellett."
+          >
+            <div className="flex flex-wrap gap-2">
+              {WORK_RATIOS.map((option) => {
+                const picked = ratioOf(block.ratio).value === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => onChange({ ...block, ratio: option.value as WorkRatio })}
+                    className={cn(
+                      'flex items-center gap-2 rounded-card border px-3 py-2 text-body-sm',
+                      'transition-colors duration-feedback ease-standard disabled:opacity-50',
+                      picked
+                        ? 'border-wave-6 bg-sky font-medium'
+                        : 'border-line hover:border-line-strong',
+                    )}
+                  >
+                    {/* Apró előnézet a valódi arányban: a felirat megmondja,
+                        mi lesz, ez pedig megmutatja. */}
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        'block h-5 shrink-0 rounded-[3px] border',
+                        option.aspect,
+                        picked ? 'border-wave-7 bg-wave-4' : 'border-line-strong bg-wave-2',
+                      )}
+                    />
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          </Field>
+
           <label className="flex items-center gap-3 text-body-sm">
             <input
               type="checkbox"

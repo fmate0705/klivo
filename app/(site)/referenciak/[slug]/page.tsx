@@ -9,7 +9,6 @@ import { Section } from '@/components/ui/section';
 import { LogoMark } from '@/components/ui/logo-mark';
 import { Reveal, staggerDelay } from '@/components/motion/reveal';
 import { WaveCurls } from '@/components/wave/wave-curls';
-import { WorkCover } from '@/components/works/work-cover';
 import { WorkCard } from '@/components/works/work-card';
 import { WorkBlocks } from '@/components/works/work-blocks';
 import { CtaBand } from '@/components/sections/cta-band';
@@ -20,6 +19,12 @@ import { CtaBand } from '@/components/sections/cta-band';
  * A fejléc ugyanaz a hullámmező, mint az aloldalaké, csak itt az **ügyfél** áll
  * elöl: embléma, cégnév, aztán a munka címe. Egy referencia oldalon az első
  * információ az, kiről van szó — a mi címsorunk csak a második.
+ *
+ * **A borítókép nem jelenik meg ezen az oldalon.** Az a kártyák képe — a
+ * listán és a főoldali szekcióban —, és ott van dolga: onnan kell felismerni a
+ * munkát. Az esettanulmányban a saját képei viszik a történetet, blokkonként,
+ * ott ahol tartoznak valamihez; egy fejlécbe tett borító csak megismételné,
+ * amit a látogató az előző képernyőn már látott.
  *
  * A törzset az admin rakja össze sablonblokkokból (`lib/content/work-blocks.ts`),
  * a megjelenítés a `WorkBlocks` dolga. Szabad HTML sehol nincs benne: a
@@ -109,21 +114,9 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
           band={{ from: 'blue', layers: 3, depth: 'lg' }}
           className="pt-16 md:pt-20 lg:pt-24"
         >
-          <Container width="wide">
-            <Reveal variant="figure">
-              <WorkCover
-                slug={work.slug}
-                {...(work.cover ? { cover: work.cover, alt: work.coverAlt } : {})}
-                sizes="(min-width: 1440px) 1360px, 100vw"
-                priority
-                className="border-soft aspect-[16/9] w-full rounded-panel border"
-              />
-            </Reveal>
-          </Container>
-
           {work.services.length > 0 || work.siteUrl ? (
-            <Container className="mt-12 lg:mt-16">
-              <div className="border-soft flex flex-col gap-6 border-t pt-8 sm:flex-row sm:items-start sm:justify-between">
+            <Container>
+              <div className="border-soft flex flex-col gap-6 border-b pb-8 sm:flex-row sm:items-start sm:justify-between">
                 {work.services.length > 0 ? (
                   <div>
                     <h2 className="text-body-sm font-semibold">Mit csináltunk</h2>
@@ -154,7 +147,7 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
             </Container>
           ) : null}
 
-          <div className="mt-14 lg:mt-20">
+          <div className="mt-12 lg:mt-16">
             <WorkBlocks blocks={work.blocks} />
           </div>
         </Section>

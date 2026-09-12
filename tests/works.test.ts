@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cleanSettings, validatePartner, validateWork } from '@/lib/validation';
-import { MAX_WORK_BLOCKS } from '@/lib/content/work-blocks';
+import { DEFAULT_RATIO, MAX_WORK_BLOCKS, ratioOf } from '@/lib/content/work-blocks';
 
 /**
  * A referenciák törzsét az admin rakja össze sablonblokkokból. A validáció két
@@ -72,6 +72,29 @@ describe('validateWork', () => {
     }
   });
 
+  it('ismeretlen képarányt az alapértelmezésre javít', () => {
+    const result = validateWork({
+      ...valid,
+      blocks: [
+        {
+          id: 'a',
+          type: 'split',
+          title: 'Cím',
+          body: '',
+          image: '',
+          alt: '',
+          flip: false,
+          ratio: '7:3',
+        },
+      ],
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const block = result.value.blocks[0];
+      if (block?.type === 'split') expect(block.ratio).toBe(DEFAULT_RATIO);
+    }
+  });
+
   it('felső korlátot szab a blokkok számának', () => {
     const many = Array.from({ length: MAX_WORK_BLOCKS + 10 }, (_, index) => ({
       id: `b${index}`,
@@ -81,6 +104,29 @@ describe('validateWork', () => {
     const result = validateWork({ ...valid, blocks: many });
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.value.blocks).toHaveLength(MAX_WORK_BLOCKS);
+  });
+});
+
+describe('ratioOf', () => {
+  it('visszaadja a kért képarányt', () => {
+    expect(ratioOf('9:16').value).toBe('9:16');
+    expect(ratioOf('9:16').aspect).toBe('aspect-[9/16]');
+  });
+
+  it('a hasábok mindig kiadják a tizenkettőt', () => {
+    for (const ratio of ['16:9', '4:3', '1:1', '3:4', '9:16']) {
+      const { image, text } = ratioOf(ratio);
+      const sum =
+        Number(image.replace('lg:col-span-', '')) + Number(text.replace('lg:col-span-', ''));
+      expect(sum).toBe(12);
+    }
+  });
+
+  // A képarány később került a blokkhoz: a korábban mentett referenciákban
+  // nincs benne, és ott sem szabad széthullania az elrendezésnek.
+  it('hiányzó vagy ismeretlen értékre az alapértelmezést adja', () => {
+    expect(ratioOf(undefined).value).toBe(DEFAULT_RATIO);
+    expect(ratioOf('7:3').value).toBe(DEFAULT_RATIO);
   });
 });
 

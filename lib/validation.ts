@@ -18,6 +18,7 @@ import {
   MAX_BLOCK_ITEMS,
   MAX_WORK_BLOCKS,
   WORK_BLOCK_LIMITS,
+  ratioOf,
   type WorkBlock,
 } from '@/lib/content/work-blocks';
 import { DEFAULT_SETTINGS, WORKS_COUNT_RANGE, type SiteSettings } from '@/lib/content/settings';
@@ -401,6 +402,9 @@ function cleanBlock(input: unknown, index: number): WorkBlock | undefined {
         image: media(data.image),
         alt: text(data.alt).slice(0, limits.alt),
         flip: data.flip === true || data.flip === 'true',
+        // Ismeretlen képarányra az alapértelmezés áll be — a szerkesztő nem
+        // tud olyat küldeni, amire a megjelenítésnek nincs osztálya.
+        ratio: ratioOf(text(data.ratio)).value,
       };
 
     case 'stats':

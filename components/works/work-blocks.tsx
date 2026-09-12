@@ -1,4 +1,4 @@
-import type { WorkBlock } from '@/lib/content/work-blocks';
+import { ratioOf, type WorkBlock } from '@/lib/content/work-blocks';
 import { renderMarkdown } from '@/lib/markdown';
 import { cn } from '@/lib/cn';
 import { Container } from '@/components/ui/container';
@@ -114,16 +114,18 @@ function BlockView({ block }: { block: WorkBlock }) {
         </Container>
       );
 
-    case 'split':
+    case 'split': {
+      // A képarányt a szerkesztő választja; ebből következik a kép doboza **és**
+      // a hasábok osztása is. Régebbi, képarány nélkül mentett blokknál az
+      // alapértelmezés áll be — lásd `ratioOf`.
+      const ratio = ratioOf(block.ratio);
+
       return (
         <Container>
           <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-14">
             <Reveal
               variant="figure"
-              className={cn(
-                'lg:col-span-7',
-                block.flip ? 'lg:order-2 lg:col-start-6' : 'lg:order-1',
-              )}
+              className={cn(ratio.image, block.flip ? 'lg:order-2' : 'lg:order-1')}
             >
               {block.image ? (
                 <SmartImage
@@ -131,17 +133,18 @@ function BlockView({ block }: { block: WorkBlock }) {
                   alt={block.alt}
                   width={1200}
                   height={900}
-                  sizes="(min-width: 1024px) 58vw, 100vw"
-                  className="border-soft rounded-panel border bg-wave-2"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  // A doboz aránya kötött, a kép pedig **belevágódik**
+                  // (`object-cover`). Enélkül egy álló fotó mellett a bekezdés
+                  // egy vékony csíkká préselődne a sor közepén.
+                  className={cn('border-soft rounded-panel border bg-wave-2', ratio.aspect)}
+                  imageClassName="h-full object-cover"
                 />
               ) : null}
             </Reveal>
 
             <div
-              className={cn(
-                'lg:col-span-5',
-                block.flip ? 'lg:order-1 lg:row-start-1' : 'lg:order-2',
-              )}
+              className={cn(ratio.text, block.flip ? 'lg:order-1 lg:row-start-1' : 'lg:order-2')}
             >
               <Reveal delay={80}>
                 {block.title ? <h2 className="text-h3">{block.title}</h2> : null}
@@ -157,6 +160,7 @@ function BlockView({ block }: { block: WorkBlock }) {
           </div>
         </Container>
       );
+    }
 
     case 'stats':
       return (

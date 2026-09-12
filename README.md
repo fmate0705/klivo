@@ -146,6 +146,16 @@ galéria), sorba rendezi, és kitölti őket. Szabad HTML sehol nincs: a tipogr�
 a tartalmat adja. A húzás mellett minden blokknak van „föl”/„le” gombja is —
 egérrel és billentyűzettel is átrendezhető.
 
+A **„Kép és szöveg" blokknál a képarány is választható** (16:9, 4:3, 1:1, 3:4,
+9:16). A kép erre az arányra vágódik, és ugyanez dönti el a hasábok osztását is:
+fekvő képnek hét hasáb jut a tizenkettőből, állónak négy vagy öt, a maradék a
+szövegé. Enélkül egy álló fotó mellett a pár soros bekezdés vékony csíkká
+préselődött.
+
+A **borítókép csak a kártyákon** jelenik meg — a referencialistán és a főoldali
+szekcióban. Az esettanulmány saját oldalán nincs ott: azt a blokkok képei viszik,
+ott, ahol tartoznak valamihez.
+
 Ugyanezen a képernyőn állítható a **főoldali szekció**: látszódjon-e, hány
 referencia férjen bele, és melyek — a kijelölés sorrendje a megjelenés
 sorrendje. Kijelölés nélkül a kézi sorrend eleje áll be.

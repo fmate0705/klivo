@@ -282,8 +282,8 @@ export function WorkEditor({ work }: { work?: Work }) {
       </AdminCard>
 
       <AdminCard
-        title="Embléma és borító"
-        description="Az embléma a kártyán és az oldal fejlécében jelenik meg, világos korongon — így egy sötét logó is olvasható marad a kék felületen."
+        title="Embléma és kártyakép"
+        description="Mindkettő a referencia kártyáján jelenik meg: a listán és a főoldali szekcióban. Az esettanulmány saját oldalán a borító nem látszik — ott a blokkok képei viszik a történetet."
       >
         <div className="grid gap-6 sm:grid-cols-2">
           <ImagePicker
@@ -298,8 +298,8 @@ export function WorkEditor({ work }: { work?: Work }) {
           />
 
           <ImagePicker
-            label="Borítókép"
-            hint="Elhagyható. Kép nélkül hullámborító áll be. Fekvő, 16:10 arányú kép a legjobb."
+            label="Kártyakép"
+            hint="A kártya képe. Elhagyható: kép nélkül hullámborító áll be. Fekvő, 16:10 arányú kép a legjobb."
             value={cover}
             onChange={setCover}
             {...(errors.cover ? { error: errors.cover } : {})}
@@ -309,7 +309,7 @@ export function WorkEditor({ work }: { work?: Work }) {
 
         <div className="mt-5">
           <AdminField
-            label="Borító képleírása"
+            label="A kártyakép leírása"
             htmlFor="coverAlt"
             hint="Mit ábrázol a kép? Képernyőolvasó ezt olvassa fel."
             error={errors.coverAlt}
