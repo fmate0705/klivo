@@ -21,14 +21,36 @@
  * A `style-src` inline engedélye a React inline `style` propjai miatt kell,
  * amelyekkel a scroll-vezérelt CSS custom propertyket írjuk.
  */
+/**
+ * A látogatómérés hosztjai.
+ *
+ * A Google Analytics külső hostról tölt be, tehát a `default-src 'self'` alatt
+ * enélkül **blokkolva lenne** — és ez némán történne: a mérés egyszerűen nem
+ * indulna el, a konzolban egy CSP hibával, amit senki nem néz.
+ *
+ * Csak ez a három host van felsorolva, és csak a szükséges direktívákban: a
+ * mérőkód a `googletagmanager.com`-ról jön, a mért adat a
+ * `google-analytics.com` felé megy, a régebbi kliensek pedig képpontként is
+ * küldhetik.
+ *
+ * A kód akkor sem fut le, ha a látogató nem járult hozzá — a CSP itt csak
+ * megengedi, a betöltésről a `components/site/analytics.tsx` dönt.
+ */
+const analyticsHosts = {
+  script: 'https://www.googletagmanager.com',
+  connect:
+    'https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com',
+  image: 'https://*.google-analytics.com https://*.googletagmanager.com',
+};
+
 const contentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'" +
+  `script-src 'self' 'unsafe-inline' ${analyticsHosts.script}` +
     (process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''),
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  `img-src 'self' data: blob: ${analyticsHosts.image}`,
   "font-src 'self' data:",
-  "connect-src 'self'",
+  `connect-src 'self' ${analyticsHosts.connect}`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

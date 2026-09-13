@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import { footerNav, site } from '@/lib/content/site';
 import { emailHref, getOrganization, phoneHref } from '@/lib/organization';
+import { listSocialLinks } from '@/lib/store/social';
 import { Container } from '@/components/ui/container';
 import { Logo } from '@/components/site/logo';
+import { SocialLinks } from '@/components/site/social-links';
 
 /**
  * A lábléc.
@@ -10,11 +12,13 @@ import { Logo } from '@/components/site/logo';
  * Sötét, és a tetején ugyanaz a hullámtaraj zárja le az oldalt, amelyik a
  * szekciók között is fut — így az utolsó képernyő nem elvágva ér véget.
  *
- * Az elérhetőség és a cégadat a `.env`-ből jön (`lib/organization.ts`), nem
- * innen: egy telefonszám cseréje nem lehet forráskód-módosítás.
+ * Az elérhetőség és a cégadat a `.env`-ből jön (`lib/organization.ts`), a
+ * közösségi profilok pedig az adminból — egy telefonszám cseréje vagy egy új
+ * csatorna sem lehet forráskód-módosítás.
  */
-export function SiteFooter() {
+export async function SiteFooter() {
   const { contact, company } = getOrganization();
+  const social = await listSocialLinks();
   const year = new Date().getFullYear();
 
   return (
@@ -47,6 +51,11 @@ export function SiteFooter() {
               </li>
               <li className="text-soft">{contact.hours}</li>
             </ul>
+
+            {/* A közösségi profilok a márkablokk alján: az elérhetőség
+                folytatása, nem külön hasáb. Ha nincs felvéve egy sem, a sor
+                meg sem jelenik. */}
+            <SocialLinks links={social} size="sm" className="mt-1" />
           </div>
 
           <nav aria-label="Lábléc navigáció" className="grid gap-10 sm:grid-cols-3">

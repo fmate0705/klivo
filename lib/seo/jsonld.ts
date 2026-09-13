@@ -32,7 +32,17 @@ const WEBSITE_ID = absoluteUrl('/#website');
  * szervezeti tudáspanelhez kifejezetten kéri, és így nincs külön képfájl, amit
  * egy arculatváltás után el lehetne felejteni cserélni.
  */
-export function organizationJsonLd({ contact, company }: Organization) {
+export function organizationJsonLd(
+  { contact, company }: Organization,
+  /**
+   * A közösségi profilok címei.
+   *
+   * Ez a `sameAs` — ebből tudja a kereső, hogy az oldal és a profilok
+   * ugyanahhoz a céghez tartoznak. Üres tömböt nem írunk ki: egy üres
+   * `sameAs` nem állítás, csak zaj.
+   */
+  sameAs: string[] = [],
+) {
   // A cím három külön mezőből jön, tehát a strukturált adatban is három külön
   // mezőbe mehet — egyetlen `streetAddress`-be zsúfolva a kereső nem tudná
   // kiolvasni belőle a várost és az irányítószámot.
@@ -62,6 +72,7 @@ export function organizationJsonLd({ contact, company }: Organization) {
     ...(isPlaceholder(company.taxNumber) ? {} : { taxID: company.taxNumber }),
     areaServed: { '@type': 'Country', name: contact.areaServed },
     ...(address ? { address } : {}),
+    ...(sameAs.length > 0 ? { sameAs } : {}),
     knowsLanguage: ['hu'],
   };
 }

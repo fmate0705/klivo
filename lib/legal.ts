@@ -215,13 +215,28 @@ süti, amelyet kizárólag a belépett adminisztrátor böngészője kap meg. Ez
 csak a szerver számára olvasható (httpOnly), tehát JavaScript nem fér hozzá, és a
 munkamenet lejártakor érvényét veszti.
 
-**Nyomkövető és marketing sütik.** A weboldal ilyeneket nem használ. Nem futtatunk
-külső hirdetési vagy közösségimédia-követő szkriptet.
+**Látogatómérés (statisztikai sütik).** A weboldal a Google Analytics 4
+szolgáltatást használja annak mérésére, hogy mely oldalak mennyire hasznosak. A
+mérés **csak akkor indul el, ha ehhez a látogató a süti-tájékoztató buborékban
+kifejezetten hozzájárult**; hozzájárulás nélkül a mérőkód be sem töltődik. A
+mérés során a Google sütiket helyez el a böngészőben, és az IP-címet rövidítve
+kezeljük. Az adatkezelő ebben a körben a Google Ireland Limited; a
+szolgáltatás adatvédelmi tájékoztatója a
+[policies.google.com/privacy](https://policies.google.com/privacy) címen érhető
+el. A hozzájárulás jogalapja az érintett hozzájárulása.
+
+**Hirdetési sütik.** A weboldal ilyeneket nem használ. Hirdetési azonosítót nem
+képzünk, és hirdetési célú követőszkriptet nem futtatunk.
 
 ## Hogyan lehet kezelni a sütiket?
 
-A böngészők beállításai között a sütik letilthatók és törölhetők. A működéshez
-szükséges sütik letiltása esetén az adminisztrációs felület nem használható.
+A látogatómérésre adott hozzájárulás **bármikor visszavonható**: az alábbi
+gombbal a mentett válasz törlődik, és a tájékoztató újra megjelenik. Visszavonás
+után a mérőkód a következő oldalbetöltéskor már nem töltődik be.
+
+A böngészők beállításai között a sütik emellett letilthatók és törölhetők. A
+működéshez szükséges sütik letiltása esetén az adminisztrációs felület nem
+használható.
 
 Hatályos: ${company.effectiveDate}
 `;

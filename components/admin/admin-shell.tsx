@@ -23,6 +23,7 @@ const links = [
   { href: '/admin', label: 'Áttekintés' },
   { href: '/admin/referenciak', label: 'Referenciák' },
   { href: '/admin/partnerek', label: 'Partnerek' },
+  { href: '/admin/kozossegi', label: 'Közösségi média' },
   { href: '/admin/bejegyzesek', label: 'Bejegyzések' },
   { href: '/admin/csapat', label: 'Csapat' },
   { href: '/admin/gyik', label: 'GYIK' },

@@ -163,6 +163,11 @@ Ugyanezen a képernyőn állítható a **főoldali szekció**: látszódjon-e, h
 referencia férjen bele, és melyek — a kijelölés sorrendje a megjelenés
 sorrendje. Kijelölés nélkül a kézi sorrend eleje áll be.
 
+**Közösségi média.** A profilok címei (Facebook, Instagram, LinkedIn, YouTube,
+TikTok, X, GitHub). Ezek jelennek meg a lábléc ikonsorában és a kapcsolat
+oldalon, és ezek mennek a keresőnek `sameAs`-ként. A felület zárt listából jön,
+tehát ikont nem kell feltölteni — a jel a platformhoz tartozik.
+
 **Partnerek.** A nyitóképernyő alatti embléma-sáv: cégnév, embléma, opcionális
 link, sorrend, és egy kapcsoló az egész sávra. A kikapcsolás nem töröl semmit,
 csak elrejt. SVG is feltölthető — fertőtlenítve, lásd lentebb.
@@ -222,6 +227,8 @@ elküldetlen e-mail néma adatvesztés volna.
   `BlogPosting`, `Article` (esettanulmányok), `ItemList` (gyűjtőoldalak),
   `BreadcrumbList`. A `FAQPage` **egyetlen** URL-en él (a főoldalon) — ugyanaz
   több oldalon konkuráló jelzés lenne.
+- A `sameAs` a közösségi profilokból áll össze (Admin → Közösségi média) — ez
+  köti össze a keresőben az oldalt a profilokkal.
 - **A cég sémájából kimaradnak a kitöltetlen mezők.** A `.env` helyőrzői a
   látogatónak szólnak; strukturált adatként a kereső a cég tényleges adatának
   venné őket.

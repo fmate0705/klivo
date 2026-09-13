@@ -1,4 +1,5 @@
 import { pageMeta, processSteps } from '@/lib/content/site';
+import { listSocialLinks } from '@/lib/store/social';
 import { emailHref, getOrganization, phoneHref } from '@/lib/organization';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { breadcrumbJsonLd } from '@/lib/seo/jsonld';
@@ -8,6 +9,7 @@ import { Section } from '@/components/ui/section';
 import { Card } from '@/components/ui/card';
 import { Reveal } from '@/components/motion/reveal';
 import { PageHeader } from '@/components/site/page-header';
+import { SocialLinks } from '@/components/site/social-links';
 import { ContactForm } from '@/components/sections/contact-form';
 import { FaqSection } from '@/components/sections/faq-section';
 import { WaveRule } from '@/components/wave/wave-rule';
@@ -31,8 +33,9 @@ export const metadata = buildMetadata({
  * Az űrlap mellett ott a közvetlen elérhetőség is: aki telefonálni akar, annak
  * nem szabad előbb egy űrlapot kitöltenie.
  */
-export default function ContactPage() {
+export default async function ContactPage() {
   const { contact } = getOrganization();
+  const social = await listSocialLinks();
 
   return (
     <>
@@ -100,6 +103,17 @@ export default function ContactPage() {
                         <span className="mt-0.5 block">{contact.areaServed}</span>
                       </li>
                     </ul>
+
+                    {social.length > 0 ? (
+                      <>
+                        {/* A közösségi profilok az elérhetőség folytatása, nem
+                            külön szekció: aki ezt a kártyát olvassa, épp azt
+                            keresi, hogyan érhet el minket. */}
+                        <WaveRule tone="soft" className="mt-6" />
+                        <p className="text-soft mt-6 text-body-sm">Itt is megtalálsz</p>
+                        <SocialLinks links={social} className="mt-3" />
+                      </>
+                    ) : null}
                   </Card>
                 </Reveal>
 

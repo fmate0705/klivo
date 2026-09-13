@@ -46,7 +46,7 @@ for (const width of widths) {
     const p = await b.newPage({ viewport: { width, height: 900 } });
     await p.addInitScript(() => {
       try {
-        window.localStorage.setItem('klivo-cookie-consent', 'measure');
+        window.localStorage.setItem('klivo-cookie-consent', 'rejected');
       } catch {
         // Privát módban nincs tároló — a buborék marad, de attól még mérhető.
       }

@@ -22,6 +22,7 @@ import {
   type WorkBlock,
 } from '@/lib/content/work-blocks';
 import { DEFAULT_SETTINGS, WORKS_COUNT_RANGE, type SiteSettings } from '@/lib/content/settings';
+import { SOCIAL_LIMITS, platformOf, type SocialPlatform } from '@/lib/content/social';
 export type FieldErrors = Record<string, string>;
 
 export type ValidationResult<T> = { ok: true; value: T } | { ok: false; errors: FieldErrors };
@@ -638,6 +639,53 @@ export function cleanSettings(input: unknown): SiteSettings {
             WORKS_COUNT_RANGE.max,
           )
         : [],
+    },
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Közösségi média hivatkozás                                                  */
+/* -------------------------------------------------------------------------- */
+
+export type SocialFormInput = {
+  platform: SocialPlatform;
+  url: string;
+  order: number;
+};
+
+/**
+ * Egy közösségi hivatkozás ellenőrzése.
+ *
+ * **A felület zárt listából jön**, nem szabad szövegből: ismeretlen értékre a
+ * megjelenítésnek nem lenne jele, és egy elgépelt platformnév néma hibát adna.
+ *
+ * **Csak `https`.** A közösségi profilok mind azon vannak, és egy `http`
+ * hivatkozás a böngészőben vegyes tartalomként viselkedne. A `javascript:`
+ * séma ugyanígy kiesik — az is „link”, csak épp kódot futtat.
+ */
+export function validateSocialLink(input: unknown): ValidationResult<SocialFormInput> {
+  const data = (input ?? {}) as Record<string, unknown>;
+  const errors: FieldErrors = {};
+
+  const platform = platformOf(text(data.platform));
+  const url = text(data.url);
+  const order = Number(data.order);
+
+  if (!platform) errors.platform = 'Válassz felületet a listából.';
+
+  if (!url) errors.url = 'Add meg a profil címét.';
+  else if (url.length > SOCIAL_LIMITS.url || !/^https:\/\/[^\s]+\.[^\s]+$/i.test(url)) {
+    errors.url = 'A cím teljes, https-sel kezdődő webcím legyen.';
+  }
+
+  if (Object.keys(errors).length > 0) return { ok: false, errors };
+
+  return {
+    ok: true,
+    value: {
+      platform: (platform as NonNullable<typeof platform>).value,
+      url,
+      order: Number.isFinite(order) ? Math.trunc(order) : 0,
     },
   };
 }

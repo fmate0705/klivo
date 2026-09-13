@@ -1230,8 +1230,16 @@
     color: rgb(var(--wave-6));
   }
 
+  /**
+   * A folyószövegbe ágyazott hivatkozás.
+   *
+   * A szín `wave-8`, nem `wave-7`: az utóbbi fehéren 3,9:1, tehát folyószövegre
+   * megbukik a 4,5:1-es küszöbön. A hiba sokáig rejtve volt, mert a jogi
+   * szövegekben alig volt hivatkozás — a süti tájékoztató Google-linkje hozta
+   * elő. A `wave-8` fehéren 5,8:1, világoskéken 4,8:1.
+   */
   .prose a {
-    color: rgb(var(--wave-7));
+    color: rgb(var(--wave-8));
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-thickness: 1px;

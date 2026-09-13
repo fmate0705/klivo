@@ -26,7 +26,7 @@ const page = await browser.newPage({ viewport: { width, height } });
 // a lapot, és eltakarná a tartalmat. A felvétel előtt „elfogadott” állapot.
 await page.addInitScript(() => {
   try {
-    window.localStorage.setItem('klivo-cookie-consent', 'measure');
+    window.localStorage.setItem('klivo-cookie-consent', 'rejected');
   } catch {
     // Privát módban nincs tároló — a buborék marad a képen.
   }

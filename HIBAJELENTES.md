@@ -939,6 +939,62 @@ várost.
 
 ---
 
+---
+
+## 2/h. Közösségi profilok és látogatómérés
+
+### 2/h.1 A mérőkód nem kerülhetett be egyszerűen a fejlécbe
+
+A Google Analytics beillesztése első ránézésre két `<script>` tag. Ezen az
+oldalon viszont három dolog is ellene szólt, és mindhármat rendezni kellett:
+
+1. **A süti tájékoztató az ellenkezőjét állította.** Szó szerint ez volt benne:
+   „Nyomkövető és marketing sütik. A weboldal ilyeneket nem használ." A
+   buborék szövege ugyanezt mondta. A mérőkód betétele ezeket a mondatokat
+   valótlanná tette volna — a jogi szöveg nem maradhat a kód mögött.
+2. **A hozzájárulás nem volt valódi választás.** A buborékon egyetlen
+   „Rendben" gomb volt, és ez helyes is volt addig: az oldalon csak
+   működéshez szükséges süti futott, tehát nem volt mit eldönteni. A
+   komponens doksija ezt ki is mondta, és előre jelezte, mi lesz a teendő,
+   ha egyszer mérés kerül be. A látogatóméréshez az EU-ban **előzetes**
+   hozzájárulás kell, tehát a buborék két gombot kapott, és a mérés csak
+   elfogadás után indul.
+3. **A CSP blokkolta volna.** A `default-src 'self'` alatt a
+   `googletagmanager.com` felé nem indulhatott volna kérés. Ez a fajta hiba
+   néma: a mérés egyszerűen nem gyűjt semmit, a konzolban egy sorral, amit
+   senki nem néz.
+
+A mérés így **nem opt-out, hanem opt-in**: elutasításnál a mérőkód be sem
+töltődik. Mérve: hozzájárulás előtt és elutasítás után **nulla** kérés megy a
+Google felé, elfogadás után kettő.
+
+A mérőazonosító `GA_MEASUREMENT_ID` néven, **`NEXT_PUBLIC_` előtag nélkül**
+él. Az előtagos változót a build sütné a kliens csomagba, a `.env` viszont
+nincs a Docker build kontextusában — az azonosító üres lenne, és a mérés
+némán nem indulna el (lásd 2/g.1). Így a szerver olvassa futásidőben, és
+propként adja át.
+
+### 2/h.2 A közösségi ikonok zárt listából jönnek
+
+A hivatkozásoknál kézenfekvő lett volna egy szabad „felület neve" és „ikon
+URL" mezőpár. Abból viszont törött kép lesz a láblécben, amint egy hivatkozás
+elavul, és a szerkesztőnek ikont kellene keresgélnie.
+
+Helyette hét támogatott felület van, mindegyikhez a **Simple Icons**
+gyűjteményből (CC0) származó útvonallal. A szerkesztő a felületet választja ki,
+a címet írja be, a rajz jön magától. Ugyanezek a címek mennek a keresőnek
+`sameAs`-ként — ebből tudja a Google, hogy az oldal és a profilok ugyanahhoz a
+céghez tartoznak. A mező korábban üres tömb volt, ezért ki sem került a
+sémába.
+
+Egy rajz, két hangnem: a jel `currentColor`-t vesz fel, a keret pedig a
+`border-soft`/`text-soft` hangnem-osztályokat. A rámutatás színe
+`text-inherit` — a szülő hangneméből veszi a kiemelt színt, tehát a sötét
+láblécben fehér, a világos kapcsolat oldalon tinta. Egy rögzített
+`text-on-dark` az egyiken láthatatlan lett volna.
+
+---
+
 ## 3. Amit szándékosan másképp csináltam
 
 ### 3.1 Az admin csak blogot kezel — az árakat és a cégadatokat nem
