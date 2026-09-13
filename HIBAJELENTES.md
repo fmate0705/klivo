@@ -877,6 +877,68 @@ A sitemap már korábban is tartalmazta őket.
 
 ---
 
+---
+
+## 2/g. A `.env` sosem ért el a jogi oldalakig
+
+### 2/g.1 Az adatok a build pillanatában megfagytak
+
+A jogi oldalak, az impresszum és a lábléc cégadatai a `.env`-ből jönnek. A
+tünet: a `.env` átírása **semmit nem változtatott** a jogi oldalakon, sem
+újraindítás, sem deploy után. A helyőrzők (`[adószám]`, `[teljes cégnév]`)
+ottmaradtak örökre.
+
+Három tény találkozott, és külön-külön mindegyik helyes volt:
+
+1. **Minden nyilvános oldal build időben renderelődött** (`○` és `●` a Next
+   útvonaltáblájában). Ez volt a cél: 5 ms kiszolgálási idő.
+2. **A `.env` szándékosan nincs a Docker build kontextusában**
+   (`.dockerignore`) — az admin jelszó-hash és az aláírókulcs nem való image-be.
+3. **A konténer a `.env`-et futásidőben kapja** (`env_file` a compose-ban).
+
+Együtt viszont: a build alatt a `COMPANY_*` változók **nem léteztek**, tehát a
+`getOrganization()` a helyőrzőket adta vissza, és azok égtek bele a kész
+HTML-be. Futásidőben megérkeztek a valódi értékek — de már nem volt, ami
+újrarendereljen.
+
+Ez a hiba azért volt megtévesztő, mert a modul doksija helyesen írta le a
+szándékot („a `.env` átírása után a konténert újra kell indítani"), és a
+fejlesztői gépen **működött is**: ott a `next build` látja a `.env`-et, tehát a
+helyes értékek égtek bele. Csak Dockerben romlott el.
+
+**A javítás:** a nyilvános oldal kérésre renderelődik
+(`export const dynamic = 'force-dynamic'` a `(site)` keretben). A cégadat
+futásidejű adat, tehát futásidőben kell olvasni — ahogy a doksi eddig is
+állította.
+
+Egy részlet, amin el lehet csúszni: a keret beállítása **nem elég**. Ahol
+`generateStaticParams` van, az útvonal attól még build időben dől el — a
+`/jogi/[slug]`, `/blog/[slug]` és `/referenciak/[slug]` ezért maradt statikus az
+első próbánál. Mindháromból el kellett venni.
+
+Az ár mérve: ~15 ms kiszolgálási idő a korábbi ~5 ms helyett. A JSON adattár
+memóriában gyorsítótárazott, tehát a renderelés nem olvas lemezt.
+
+**Ellenőrizve úgy, ahogy Dockerben történik:** build cégadatok nélkül, majd
+indítás a cégadatokkal — mind a négy jogi oldal, a lábléc és a kapcsolat oldal
+a futásidejű értékeket mutatta, helyőrző nélkül.
+
+### 2/g.2 Egy `.env` sor mögött három szögletes zárójel állt
+
+A `COMPANY_SEAT` egyetlen mező volt, a kitöltetlen oldalon viszont **három**
+helyőrzőként jelent meg: `[irányítószám] [település], [utca, házszám]`. A
+szerkesztő így nem tudta, hogy egy sorba kell-e írnia mindhármat, vagy van
+valahol három külön mező.
+
+Most három van: `COMPANY_POSTCODE`, `COMPANY_CITY`, `COMPANY_STREET`. A
+megjelenő cím belőlük áll össze (a `seat` származtatott mező maradt, tehát a
+jogi szövegek nem változtak), a strukturált adatba pedig külön mezőként kerülnek
+(`postalCode`, `addressLocality`, `streetAddress`) — korábban az egész cím
+egyetlen `streetAddress`-be volt zsúfolva, amiből a kereső nem tudta kiolvasni a
+várost.
+
+---
+
 ## 3. Amit szándékosan másképp csináltam
 
 ### 3.1 Az admin csak blogot kezel — az árakat és a cégadatokat nem

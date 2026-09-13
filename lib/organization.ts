@@ -31,6 +31,22 @@ export type Contact = {
 
 export type Company = {
   legalName: string;
+  /** Irányítószám, például `1094`. */
+  postcode: string;
+  /** Település, például `Budapest`. */
+  city: string;
+  /** Közterület, házszám, emelet — a cím maradéka. */
+  street: string;
+  /**
+   * A teljes székhely egy sorban, megjelenítésre.
+   *
+   * **Származtatott mező, nincs mögötte saját `.env` sor.** A cím három
+   * darabból áll, és korábban egyetlen `COMPANY_SEAT` állt mögötte — abból
+   * viszont *három* szögletes zárójel lett a kitöltetlen oldalon
+   * (`[irányítószám] [település], [utca, házszám]`), és a szerkesztő nem
+   * tudta, melyiket hol töltse ki. A strukturált adat is pontosabb lett tőle:
+   * ott a három rész külön mezőbe megy, nem egyetlen `streetAddress`-be.
+   */
   seat: string;
   taxNumber: string;
   registrationNumber: string;
@@ -66,7 +82,9 @@ function fromEnv(): Partial<Contact & Company> {
     hours: process.env.CONTACT_HOURS,
     responseTime: process.env.CONTACT_RESPONSE_TIME,
     legalName: process.env.COMPANY_LEGAL_NAME,
-    seat: process.env.COMPANY_SEAT,
+    postcode: process.env.COMPANY_POSTCODE,
+    city: process.env.COMPANY_CITY,
+    street: process.env.COMPANY_STREET,
     taxNumber: process.env.COMPANY_TAX_NUMBER,
     registrationNumber: process.env.COMPANY_REGISTRATION_NUMBER,
     representative: process.env.COMPANY_REPRESENTATIVE,
@@ -95,7 +113,11 @@ const PLACEHOLDERS: Organization = {
   },
   company: {
     legalName: '[teljes cégnév]',
-    seat: '[irányítószám] [település], [utca, házszám]',
+    postcode: '[irányítószám]',
+    city: '[település]',
+    street: '[utca, házszám]',
+    // Nem `.env` mező: a fenti háromból áll össze.
+    seat: '',
     taxNumber: '[adószám]',
     registrationNumber: '[cégjegyzékszám vagy nyilvántartási szám]',
     representative: '[képviselő neve]',
@@ -137,6 +159,10 @@ export function isPlaceholder(value: string): boolean {
 export function getOrganization(): Organization {
   const env = fromEnv();
 
+  const postcode = pick(env.postcode, PLACEHOLDERS.company.postcode);
+  const city = pick(env.city, PLACEHOLDERS.company.city);
+  const street = pick(env.street, PLACEHOLDERS.company.street);
+
   return {
     contact: {
       email: pick(env.email, PLACEHOLDERS.contact.email),
@@ -147,7 +173,12 @@ export function getOrganization(): Organization {
     },
     company: {
       legalName: pick(env.legalName, PLACEHOLDERS.company.legalName),
-      seat: pick(env.seat, PLACEHOLDERS.company.seat),
+      postcode,
+      city,
+      street,
+      // A megjelenítendő cím a három részből áll össze, abban a sorrendben,
+      // ahogy a magyar címzés kívánja.
+      seat: `${postcode} ${city}, ${street}`,
       taxNumber: pick(env.taxNumber, PLACEHOLDERS.company.taxNumber),
       registrationNumber: pick(env.registrationNumber, PLACEHOLDERS.company.registrationNumber),
       representative: pick(env.representative, PLACEHOLDERS.company.representative),

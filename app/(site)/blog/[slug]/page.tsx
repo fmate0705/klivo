@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getPublishedPostBySlug, getRelatedPosts, listPublishedPosts } from '@/lib/store/posts';
+import { getPublishedPostBySlug, getRelatedPosts } from '@/lib/store/posts';
 import { renderMarkdown } from '@/lib/markdown';
 import { formatDate, toDateAttribute } from '@/lib/format';
 import { buildMetadata } from '@/lib/seo/metadata';
@@ -25,11 +25,6 @@ import { CtaBand } from '@/components/sections/cta-band';
  * escapel, csak utána épít markupot, tehát az adminból beírt szöveg soha nem
  * válhat futtatható HTML-lé — ezért adható át `dangerouslySetInnerHTML`-lel.
  */
-export async function generateStaticParams() {
-  const posts = await listPublishedPosts();
-  return posts.map((post) => ({ slug: post.slug }));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await getPublishedPostBySlug(slug);

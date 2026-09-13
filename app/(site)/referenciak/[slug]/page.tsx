@@ -31,11 +31,6 @@ import { CtaBand } from '@/components/sections/cta-band';
  * hosszabb szövegmezők a `lib/markdown.ts` szűk nyelvtanát használják, ami
  * előbb escapel, csak utána épít markupot.
  */
-export async function generateStaticParams() {
-  const works = await listPublishedWorks();
-  return works.map((work) => ({ slug: work.slug }));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const work = await getPublishedWorkBySlug(slug);

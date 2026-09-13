@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import { legalPages } from '@/lib/content/site';
 import { getLegalDocument } from '@/lib/legal';
 import { getOrganization } from '@/lib/organization';
 import { renderMarkdown } from '@/lib/markdown';
@@ -21,10 +20,6 @@ import { CookieSettings } from '@/components/site/cookie-settings';
  * két különböző adatot mutat.
 
  */
-export function generateStaticParams() {
-  return legalPages.map((page) => ({ slug: page.slug }));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const document = getLegalDocument(slug, getOrganization());

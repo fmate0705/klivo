@@ -33,7 +33,19 @@ const WEBSITE_ID = absoluteUrl('/#website');
  * egy arculatváltás után el lehetne felejteni cserélni.
  */
 export function organizationJsonLd({ contact, company }: Organization) {
-  const seat = isPlaceholder(company.seat) ? undefined : company.seat;
+  // A cím három külön mezőből jön, tehát a strukturált adatban is három külön
+  // mezőbe mehet — egyetlen `streetAddress`-be zsúfolva a kereső nem tudná
+  // kiolvasni belőle a várost és az irányítószámot.
+  const address =
+    isPlaceholder(company.postcode) || isPlaceholder(company.city) || isPlaceholder(company.street)
+      ? undefined
+      : {
+          '@type': 'PostalAddress',
+          addressCountry: 'HU',
+          postalCode: company.postcode,
+          addressLocality: company.city,
+          streetAddress: company.street,
+        };
 
   return {
     '@context': 'https://schema.org',
@@ -49,9 +61,7 @@ export function organizationJsonLd({ contact, company }: Organization) {
     ...(isPlaceholder(company.legalName) ? {} : { legalName: company.legalName }),
     ...(isPlaceholder(company.taxNumber) ? {} : { taxID: company.taxNumber }),
     areaServed: { '@type': 'Country', name: contact.areaServed },
-    ...(seat
-      ? { address: { '@type': 'PostalAddress', addressCountry: 'HU', streetAddress: seat } }
-      : {}),
+    ...(address ? { address } : {}),
     knowsLanguage: ['hu'],
   };
 }

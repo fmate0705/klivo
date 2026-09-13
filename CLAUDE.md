@@ -92,6 +92,11 @@ az eddig talált hibák), [`README.md`](README.md) (szerkezet, parancsok).
   CSP-t küld rá. A felismerést kisbetűsítve végezd, de a **kimenetre a
   szabványos írásmód** kerüljön — az SVG kis- és nagybetűérzékeny, a `viewbox`
   és a `lineargradient` némán nem rajzolódik ki.
+- **A `.env`-ből jövő adat futásidejű adat.** A `.env` nincs a Docker build
+  kontextusában, tehát build időben renderelve a helyőrzők égnek bele a HTML-be,
+  és onnantól semmilyen újraindítás nem segít. A nyilvános oldal ezért
+  `force-dynamic`. Figyelem: a keret beállítását a `generateStaticParams`
+  **felülírja** — ahol az van, az útvonal attól még statikus marad.
 - **Ne buildelj futó szerver mellé.** A `next build` felülírja a `.next`-et a
   futó `next start` alól: a kiszolgált HTML régi chunkokra hivatkozik, azok
   400-at adnak, és a lap stílus nélkül, óriási elemekkel jelenik meg. Állítsd

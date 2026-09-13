@@ -13,9 +13,14 @@ szerkesztési hely két egymásnak ellentmondó impresszumot jelentene.
 Nem tűnik el, nem lesz üres sor: kiírjuk, hogy hiányzik. Élesítés előtt nyisd
 meg mind a négy jogi oldalt, és nézd végig, maradt-e benne szögletes zárójel.
 
-**A `.env` módosítása után a konténert újra kell indítani**, és újra kell
-buildelni: az értékek egy része (`NEXT_PUBLIC_` előtagúak) a böngészőbe is
-bekerül, azokat a build süti bele.
+**A `.env` módosítása után elég a konténert újraindítani.** A nyilvános oldalak
+kérésre renderelődnek, tehát a cég- és jogi adatokat mindig a futó konténer
+környezetéből olvassák — újrabuildelni nem kell.
+
+> Ez korábban nem így volt, és emiatt **a jogi oldalakon semmilyen `.env`
+> módosítás nem látszott**. Az oldalak build időben renderelődtek, a `.env`
+> viszont szándékosan nincs benne a Docker build kontextusában — így a
+> helyőrzők égtek bele a kész HTML-be. Lásd `HIBAJELENTES.md` 2/g.1.
 
 > Ez a leírás a mezők **kitöltésében** segít, nem jogi tanácsadás. A jogi
 > dokumentumok szövege minta; élesítés előtt nézesse át jogi szakemberrel.
@@ -84,17 +89,28 @@ COMPANY_LEGAL_NAME=Kovács Máté egyéni vállalkozó
 Ne a márkanevet írd ide, ha az eltér a jogi névtől. A márkanév a `site.name`
 (`lib/content/site.ts`), az külön van.
 
-### `COMPANY_SEAT`
+### `COMPANY_POSTCODE`, `COMPANY_CITY`, `COMPANY_STREET`
 
 **Hol jelenik meg:** impresszum, ÁSZF 1. pont.
 
 A **székhely**, nem a levelezési cím és nem az, ahol dolgozol — az az adat,
-ami a cégkivonatban / EV-nyilvántartásban áll. Irányítószám, település, közterület,
-házszám; ha van, emelet és ajtó.
+ami a cégkivonatban / EV-nyilvántartásban áll.
+
+**Három külön mező**, mert az oldalon is három külön helyőrző jelenik meg
+helyettük. Egyetlen `COMPANY_SEAT` állt itt korábban, és abból a kitöltetlen
+oldalon ez lett: `[irányítószám] [település], [utca, házszám]` — három zárójel
+egyetlen sor mögött, és nem derült ki, melyiket hova kell írni.
 
 ```
-COMPANY_SEAT=1094 Budapest, Példa utca 12. 3. em. 4.
+COMPANY_POSTCODE=1094
+COMPANY_CITY=Budapest
+COMPANY_STREET=Példa utca 12. 3. em. 4.
 ```
+
+A megjelenő cím ebből áll össze: **1094 Budapest, Példa utca 12. 3. em. 4.** A
+strukturált adatba is külön mezőként kerülnek (`postalCode`,
+`addressLocality`, `streetAddress`), nem egyetlen sztringként — a kereső így
+ki tudja olvasni belőle a várost.
 
 Ha székhelyszolgáltatót használsz, a székhelyszolgáltató címét kell megadni —
 az a bejegyzett székhely.
@@ -312,7 +328,9 @@ CONTACT_HOURS=Hétköznap 9:00 és 17:00 között
 CONTACT_RESPONSE_TIME=Egy munkanapon belül válaszolunk.
 
 COMPANY_LEGAL_NAME=Kovács Máté egyéni vállalkozó
-COMPANY_SEAT=1094 Budapest, Példa utca 12. 3. em. 4.
+COMPANY_POSTCODE=1094
+COMPANY_CITY=Budapest
+COMPANY_STREET=Példa utca 12. 3. em. 4.
 COMPANY_TAX_NUMBER=12345678-1-42
 COMPANY_REGISTRATION_NUMBER=51234567
 COMPANY_REPRESENTATIVE=Kovács Máté
@@ -331,7 +349,9 @@ COMPANY_EFFECTIVE_DATE=2026. szeptember 15.
 
 ## 7. Ellenőrzés élesítés előtt
 
-1. Indítsd újra a konténert, és buildelj újra.
+1. Indítsd újra a konténert. **Újrabuildelni nem kell**: a nyilvános oldalak
+   kérésre renderelődnek, tehát a cégadatokat mindig a futó konténer
+   környezetéből olvassák.
 2. Nyisd meg mind a négy jogi oldalt, és keress szögletes zárójelet:
    - `/jogi/impresszum`
    - `/jogi/aszf`
