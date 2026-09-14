@@ -9,8 +9,8 @@ import { Section } from '@/components/ui/section';
 import { Card } from '@/components/ui/card';
 import { Reveal } from '@/components/motion/reveal';
 import { PageHeader } from '@/components/site/page-header';
-import { SocialLinks } from '@/components/site/social-links';
 import { ContactForm } from '@/components/sections/contact-form';
+import { SocialCards } from '@/components/sections/social-cards';
 import { FaqSection } from '@/components/sections/faq-section';
 import { WaveRule } from '@/components/wave/wave-rule';
 import { FooterWave } from '@/components/site/footer-wave';
@@ -32,10 +32,16 @@ export const metadata = buildMetadata({
  *
  * Az űrlap mellett ott a közvetlen elérhetőség is: aki telefonálni akar, annak
  * nem szabad előbb egy űrlapot kitöltenie.
+ *
+ * A közösségi profilok külön szekciót kapnak az űrlap alatt. Korábban egy kis
+ * ikonsor állt az elérhetőség kártyájában; ugyanaz a négy jel egy képernyőn
+ * kétszer zaj lenne, ezért csak a szekció maradt. A láblécben az ikonsor
+ * természetesen ott van — az más feladat: ott jelzés, itt ajánlat.
  */
 export default async function ContactPage() {
   const { contact } = getOrganization();
   const social = await listSocialLinks();
+  const hasSocial = social.length > 0;
 
   return (
     <>
@@ -103,17 +109,6 @@ export default async function ContactPage() {
                         <span className="mt-0.5 block">{contact.areaServed}</span>
                       </li>
                     </ul>
-
-                    {social.length > 0 ? (
-                      <>
-                        {/* A közösségi profilok az elérhetőség folytatása, nem
-                            külön szekció: aki ezt a kártyát olvassa, épp azt
-                            keresi, hogyan érhet el minket. */}
-                        <WaveRule tone="soft" className="mt-6" />
-                        <p className="text-soft mt-6 text-body-sm">Itt is megtalálsz</p>
-                        <SocialLinks links={social} className="mt-3" />
-                      </>
-                    ) : null}
                   </Card>
                 </Reveal>
 
@@ -142,13 +137,28 @@ export default async function ContactPage() {
         </Container>
       </Section>
 
-      <FaqSection
-        page="kapcsolat"
+      {/* A közösségi szekció megléte egy lépéssel eltolja a felületek
+          váltakozását — ezért **itt** dől el, nem a szekcióban. Ha maga döntene
+          a láthatóságáról, a GYIK rossz felületről indítaná a sávját, és
+          látható varrás maradna a határon. */}
+      <SocialCards
+        links={social}
         tone="sky"
         band={{ from: 'white', layers: 3, depth: 'md', flip: true }}
       />
 
-      <FooterWave from="sky" />
+      <FaqSection
+        page="kapcsolat"
+        tone={hasSocial ? 'white' : 'sky'}
+        band={{
+          from: hasSocial ? 'sky' : 'white',
+          layers: 3,
+          depth: 'md',
+          flip: !hasSocial,
+        }}
+      />
+
+      <FooterWave from={hasSocial ? 'white' : 'sky'} />
     </>
   );
 }

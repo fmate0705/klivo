@@ -1,5 +1,6 @@
 import type { TeamMember } from '@/lib/store/team';
 import { cn } from '@/lib/cn';
+import { emailHref, phoneHref } from '@/lib/organization';
 import { Container } from '@/components/ui/container';
 import { Section, type SectionBand, type SectionTone } from '@/components/ui/section';
 import { SectionHeading } from '@/components/ui/heading';
@@ -30,6 +31,11 @@ import { WaveRule } from '@/components/wave/wave-rule';
  * szöveg, ezért a jobbra fordított soroknál a szövegblokk a hasáb jobb
  * széléhez tolódik. Enélkül a név a lap túlsó szélére került, a fölötte lévő
  * sor szövege alá — és nem lehetett eldönteni, melyik képhez tartozik.
+ *
+ * **Az elérhetőség a bemutatkozás alatt van, nem a kártyán belül.** Aki egy
+ * konkrét kollégához fordulna, előbb eldönti, kihez — a cím és a szám tehát a
+ * névhez tartozik, nem külön listába. Mindkettő elhagyható az adminban, és
+ * üresen a sor egyszerűen kimarad.
  *
  * **A portrék átlátszó hátterűek lesznek.** Ezért kap mindegyik alá egy
  * hullámokból rakott, kék felületet — a kivágott alak így nem lyukként hat,
@@ -97,6 +103,8 @@ export function Team({
                       {member.bio}
                     </p>
                   ) : null}
+
+                  <TeamContact member={member} flipped={flipped} />
                 </Reveal>
               </li>
             );
@@ -104,6 +112,87 @@ export function Team({
         </ul>
       </Container>
     </Section>
+  );
+}
+
+/**
+ * A tag közvetlen elérhetősége.
+ *
+ * **Csak ami ki van töltve.** Mindkét mező elhagyható az adminban, és ha
+ * egyik sincs kitöltve, az egész blokk kimarad. Ezért nem változik meg a
+ * megjelenés a korábban felvett, elérhetőség nélküli tagoknál.
+ *
+ * **Kattintható, nem felolvasható szöveg.** Telefonon a szám tárcsázható, a
+ * cím levelet nyit. Egy kiírt, de nem hivatkozott elérhetőséget a látogatónak
+ * kézzel kellene átmásolnia — pont azon a felületen a legnehezebb, ahol a
+ * legkönnyebb lehetne.
+ *
+ * A jel dekoráció, a jelentést a szöveg hordozza: ezért `aria-hidden`, és
+ * ezért nincs külön „E-mail:" felirat elé.
+ */
+function TeamContact({ member, flipped }: { member: TeamMember; flipped: boolean }) {
+  if (!member.email && !member.phone) return null;
+
+  return (
+    <ul
+      className={cn(
+        'mt-7 flex flex-col gap-3 text-body-sm',
+        // A fordított soroknál a szövegblokk jobbra zár; enélkül az
+        // elérhetőség a bal szélen maradna, elszakadva a névtől.
+        flipped && 'sm:items-end',
+      )}
+    >
+      {member.email ? (
+        <li>
+          <ContactLink href={emailHref(member.email)} label={member.email}>
+            <path d="M2.5 5.5h13v9h-13z" />
+            <path d="m2.9 6 6.1 4.4L15.1 6" />
+          </ContactLink>
+        </li>
+      ) : null}
+
+      {member.phone ? (
+        <li>
+          <ContactLink href={phoneHref(member.phone)} label={member.phone}>
+            <path d="M6.2 3.2 7.8 6.6 6.3 8.2c.8 1.7 2 2.9 3.6 3.6l1.6-1.5 3.4 1.6-.5 2.6c-.1.6-.7 1-1.3.9-5-.6-8.9-4.5-9.5-9.5-.1-.6.3-1.2.9-1.3l2.6-.5Z" />
+          </ContactLink>
+        </li>
+      ) : null}
+    </ul>
+  );
+}
+
+/** Egy elérhetőség: jel egy körben, mellette a kattintható érték. */
+function ContactLink({
+  href,
+  label,
+  children,
+}: {
+  href: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      className="text-soft group/contact inline-flex items-center gap-3 transition-colors duration-feedback ease-standard hover:text-ink"
+    >
+      <span className="border-soft bg-raised flex h-9 w-9 shrink-0 items-center justify-center rounded-pill border shadow-raise transition-transform duration-feedback ease-standard group-hover/contact:-translate-y-0.5 motion-reduce:group-hover/contact:translate-y-0">
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 18 18"
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          {children}
+        </svg>
+      </span>
+      <span className="link-underline break-all">{label}</span>
+    </a>
   );
 }
 

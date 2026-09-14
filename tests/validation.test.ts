@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { slugify, validateContact, validatePost } from '@/lib/validation';
+import { slugify, validateContact, validatePost, validateTeamMember } from '@/lib/validation';
 
 describe('slugify', () => {
   it('leszedi a magyar ékezeteket', () => {
@@ -73,5 +73,45 @@ describe('validatePost', () => {
   it('elutasítja a protokoll-relatív képhivatkozást', () => {
     const result = validatePost({ ...valid, image: '//example.com/kep.png' });
     expect(result.ok).toBe(false);
+  });
+});
+
+describe('validateTeamMember', () => {
+  const valid = {
+    name: 'Kovács Anna',
+    role: 'Fejlesztő',
+    bio: '',
+    email: '',
+    phone: '',
+    photo: '',
+    order: 0,
+  };
+
+  it('elfogadja az elérhetőség nélküli tagot', () => {
+    const result = validateTeamMember(valid);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.email).toBe('');
+      expect(result.value.phone).toBe('');
+    }
+  });
+
+  it('kifogásolja a hibás e-mail címet', () => {
+    const result = validateTeamMember({ ...valid, email: 'anna(kukac)klivo.hu' });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.email).toBeDefined();
+  });
+
+  it('átengedi a kitöltött elérhetőséget', () => {
+    const result = validateTeamMember({
+      ...valid,
+      email: ' anna@klivo.hu ',
+      phone: ' +36 30 123 4567 ',
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.email).toBe('anna@klivo.hu');
+      expect(result.value.phone).toBe('+36 30 123 4567');
+    }
   });
 });

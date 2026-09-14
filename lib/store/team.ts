@@ -8,7 +8,9 @@ import { createCollection, createId } from './json-store';
  * változik, és egy új kolléga felvétele nem lehet forráskód-módosítás.
  *
  * A `photo` a `/media/…` útvonalra mutat (lásd `lib/store/uploads.ts`), és
- * lehet üres: kép nélkül a névből képzett monogram jelenik meg. A feltöltött
+ * lehet üres: kép nélkül a névből képzett monogram jelenik meg. Az e-mail és a
+ * telefon szintén elhagyható — nem minden szerepnél van értelme közvetlen
+ * elérhetőséget kiírni, és egy üres mező helyén a sor egyszerűen nem jelenik meg. A feltöltött
  * képek átlátszó hátterűek lesznek, ezért a megjelenítés ad alájuk egy
  * világoskék felületet — így egy kivágott portré és egy teli fotó is ugyanúgy
  * néz ki a rácsban.
@@ -20,6 +22,15 @@ export type TeamMember = {
   role: string;
   /** Egy-két mondat. Nem kötelező. */
   bio: string;
+  /**
+   * Közvetlen e-mail cím. Nem kötelező.
+   *
+   * Aki egy konkrét kollégához fordulna, ne az általános címre írjon — de ez
+   * döntés kérdése, nem minden szerepnél van értelme. Üresen a sor kimarad.
+   */
+  email: string;
+  /** Közvetlen telefonszám. Nem kötelező, ugyanazon okból. */
+  phone: string;
   /** `/media/…` útvonal, vagy üres. */
   photo: string;
   /** Kézi sorrend. Kisebb szám előrébb. */

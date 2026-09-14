@@ -18,6 +18,10 @@ import type { TeamMember } from '@/lib/store/team';
  * A fotó nem kötelező: kép nélkül a névből képzett monogram jelenik meg a
  * nyilvános oldalon, hullámos háttéren. Így egy új kolléga akkor is felvehető,
  * ha a fotója még nem készült el — nem marad lyuk a rácsban.
+ *
+ * Az elérhetőség ugyanígy elhagyható. Nem minden szerepnél van értelme
+ * közvetlen címet kiírni, és a nyilvános oldalon egy üres mező helyén nem
+ * üres sor marad, hanem semmi.
  */
 export function TeamEditor({ member }: { member?: TeamMember }) {
   const router = useRouter();
@@ -45,6 +49,8 @@ export function TeamEditor({ member }: { member?: TeamMember }) {
       name: String(form.get('name') ?? ''),
       role: String(form.get('role') ?? ''),
       bio: String(form.get('bio') ?? ''),
+      email: String(form.get('email') ?? ''),
+      phone: String(form.get('phone') ?? ''),
       photo,
       order: Number(form.get('order') ?? 0),
     };
@@ -180,6 +186,55 @@ export function TeamEditor({ member }: { member?: TeamMember }) {
               className={adminInputClass(errors.bio)}
             />
           </AdminField>
+
+          {/* Nem külön kártya: két mező nem indokol új dobozt a dobozban. A
+              csoportcím és a magyarázat viszont kell — enélkül nem derülne ki,
+              hogy ez a két adat nyilvánosan megjelenik. */}
+          <div>
+            <p className="text-body-sm font-medium">Közvetlen elérhetőség</p>
+            <p className="mt-1 text-body-sm text-muted">
+              Az „Ismerd meg a csapatot” szekcióban jelenik meg, a bemutatkozás alatt, kattintható
+              hivatkozásként. Egyik sem kötelező: amit üresen hagysz, az nem jelenik meg.
+            </p>
+
+            <div className="mt-3 grid gap-5 sm:grid-cols-2">
+              <AdminField
+                label="E-mail cím"
+                htmlFor="email"
+                hint="Például: anna@klivo.hu"
+                error={errors.email}
+              >
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="off"
+                  defaultValue={member?.email ?? ''}
+                  maxLength={TEAM_LIMITS.email}
+                  className={adminInputClass(errors.email)}
+                />
+              </AdminField>
+
+              <AdminField
+                label="Telefonszám"
+                htmlFor="phone"
+                hint="Például: +36 30 123 4567. Ahogy beírod, úgy jelenik meg."
+                error={errors.phone}
+              >
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="off"
+                  defaultValue={member?.phone ?? ''}
+                  maxLength={TEAM_LIMITS.phone}
+                  className={adminInputClass(errors.phone)}
+                />
+              </AdminField>
+            </div>
+          </div>
 
           <AdminField
             label="Sorrend"

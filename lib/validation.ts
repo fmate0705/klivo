@@ -203,6 +203,8 @@ export type TeamFormInput = {
   name: string;
   role: string;
   bio: string;
+  email: string;
+  phone: string;
   photo: string;
   order: number;
 };
@@ -211,6 +213,8 @@ export const TEAM_LIMITS = {
   name: 80,
   role: 80,
   bio: 400,
+  email: 160,
+  phone: 40,
   photo: 300,
 } as const;
 
@@ -229,6 +233,8 @@ export function validateTeamMember(input: unknown): ValidationResult<TeamFormInp
   const name = text(data.name);
   const role = text(data.role);
   const bio = text(data.bio);
+  const email = text(data.email);
+  const phone = text(data.phone);
   const photo = text(data.photo);
   const order = Number(data.order);
 
@@ -239,6 +245,13 @@ export function validateTeamMember(input: unknown): ValidationResult<TeamFormInp
   else if (role.length > TEAM_LIMITS.role) errors.role = 'A szerep túl hosszú.';
 
   if (bio.length > TEAM_LIMITS.bio) errors.bio = 'A bemutatkozás túl hosszú.';
+
+  // Mindkettő elhagyható — de ha meg van adva, legyen használható: egy elgépelt
+  // cím a kártyán kattintható hivatkozásként jelenne meg, és sehova nem vinne.
+  if (email && (!EMAIL_PATTERN.test(email) || email.length > TEAM_LIMITS.email)) {
+    errors.email = 'Ez az e-mail cím nem tűnik érvényesnek.';
+  }
+  if (phone.length > TEAM_LIMITS.phone) errors.phone = 'A telefonszám túl hosszú.';
 
   if (photo && !photo.startsWith('/'))
     errors.photo = 'A kép útvonalának az oldalon belülre kell mutatnia.';
@@ -252,6 +265,8 @@ export function validateTeamMember(input: unknown): ValidationResult<TeamFormInp
       name,
       role,
       bio,
+      email,
+      phone,
       photo,
       order: Number.isFinite(order) ? Math.trunc(order) : 0,
     },

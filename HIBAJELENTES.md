@@ -993,6 +993,45 @@ Egy rajz, két hangnem: a jel `currentColor`-t vesz fel, a keret pedig a
 láblécben fehér, a világos kapcsolat oldalon tinta. Egy rögzített
 `text-on-dark` az egyiken láthatatlan lett volna.
 
+### 2/h.3 Egy oldalon kétszer ugyanaz a négy ikon
+
+A kapcsolat oldal elérhetőség-kártyájában egy kis ikonsor állt („Itt is
+megtalálsz"), és alá került az új, kártyás közösségi szekció. Ugyanaz a négy
+jel, egy képernyőnyi távolságon belül, kétszer — a második nem hozzátesz,
+hanem elbizonytalanít: a látogató azt keresi, mi a különbség a kettő között.
+
+A kártyasor maradt, az ikonsor kikerült a kártyából. A kettő nem ugyanaz a
+feladat: a láblécben az ikonsor **jelzés** (aki keresi, megtalálja), a
+szekcióban a kártya **ajánlat** — megnevezi a felületet, kiírja a profil
+címét, és akkora célfelületet ad, amit érintéssel is el lehet találni. A
+láblécben ezért megmaradt az ikonsor.
+
+A kártyákon szándékosan nincs kísérőmondat arról, mi megy az adott felületen.
+Azt csak kitalálni lehetne; a profil címe viszont igaz, és ugyanúgy megmondja,
+hova visz.
+
+A szekció megléte egy lépéssel eltolja a felületek váltakozását, ezért — a
+2/f.2 pontban leírt szabály szerint — **a lap dönt a láthatóságáról**, nem a
+szekció: a GYIK felülete és a lábléc hullámának `from` értéke ugyanabból a
+`hasSocial` értékből származik. Ha a szekció döntött volna magáról, profil
+nélkül a GYIK rossz színről indítaná a sávját.
+
+### 2/h.4 A csapattagok elérhetősége a régi adatokban nem létezik
+
+Az e-mail és a telefon új mező a `TeamMember` típuson, a `data/team.json`-ben
+viszont már benne ülnek a korábban felvett tagok — náluk a mező egyszerűen
+hiányzik. A típus szerint `string`, futásidőben `undefined`.
+
+Ez akkor lenne hiba, ha a megjelenítés hosszt olvasna vagy formázna rajta.
+A szekció ehelyett igazságértéket néz (`member.email ? …`), és ha egyik mező
+sincs kitöltve, az egész blokk kimarad — nem üres sor marad a helyén. A
+korábban felvett tagok megjelenése így változatlan, adatmigráció nélkül.
+
+Mindkét mező elhagyható az adminban is: nem minden szerepnél van értelme
+közvetlen elérhetőséget kiírni. A cím viszont, **ha** meg van adva, átmegy az
+e-mail mintán — egy elgépelt cím kattintható hivatkozásként jelenne meg, és
+sehova nem vinne.
+
 ---
 
 ## 3. Amit szándékosan másképp csináltam
