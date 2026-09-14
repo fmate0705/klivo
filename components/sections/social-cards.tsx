@@ -93,7 +93,7 @@ export function SocialCards({
                     </a>
                   </h3>
 
-                  {/*<p className="text-soft mt-2 break-all text-body-sm">{readable(link.url)}</p>*/}
+                  <p className="text-soft mt-2 break-all text-body-sm">{readable(link.url)}</p>
 
                   <span
                     aria-hidden="true"
