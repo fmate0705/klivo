@@ -1002,19 +1002,59 @@ hanem elbizonytalanít: a látogató azt keresi, mi a különbség a kettő köz
 
 A kártyasor maradt, az ikonsor kikerült a kártyából. A kettő nem ugyanaz a
 feladat: a láblécben az ikonsor **jelzés** (aki keresi, megtalálja), a
-szekcióban a kártya **ajánlat** — megnevezi a felületet, kiírja a profil
-címét, és akkora célfelületet ad, amit érintéssel is el lehet találni. A
-láblécben ezért megmaradt az ikonsor.
+szekcióban a kártya **ajánlat** — megnevezi a felületet, és akkora
+célfelületet ad, amit érintéssel is el lehet találni. A láblécben ezért
+megmaradt az ikonsor.
 
 A kártyákon szándékosan nincs kísérőmondat arról, mi megy az adott felületen.
-Azt csak kitalálni lehetne; a profil címe viszont igaz, és ugyanúgy megmondja,
-hova visz.
+Azt csak kitalálni lehetne.
 
 A szekció megléte egy lépéssel eltolja a felületek váltakozását, ezért — a
 2/f.2 pontban leírt szabály szerint — **a lap dönt a láthatóságáról**, nem a
 szekció: a GYIK felülete és a lábléc hullámának `from` értéke ugyanabból a
 `hasSocial` értékből származik. Ha a szekció döntött volna magáról, profil
 nélkül a GYIK rossz színről indítaná a sávját.
+
+### 2/h.5 A közösségi kártya nagyobb volt, mint amennyi tartalom belefért
+
+Az első változat hasábkártya volt: jel egy 48 pixeles körben, alatta a felület
+neve `h5`-ben, alatta a profil címe (`facebook.com/klivo`), alatta egy
+„Megnyitás” sor nyíllal — mindez `p-6 sm:p-7` térközben. Négy sor tartalom,
+amiből három ugyanazt mondja: „ez a Facebook, és odavisz”. A rács így négy
+nagy, üresnek látszó dobozt adott, és a szem keresni kezdte bennük, mi maradt
+ki belőle.
+
+A cím kikerült a kártyáról. Nem mond többet, mint a név — aki a Facebookot
+keresi, a „Facebook” szóra kattint, nem a `facebook.com/klivo` sorra —, és
+mivel `break-all` tördelte, mobilon bármikor kettétört: a sor kártyái ettől
+különböző magasak lettek. Vele ment a „Megnyitás” felirat is: a kattinthatóság
+ígéretét a kártya emelkedése és a nyíl már elmondja.
+
+Ami maradt, egyetlen sorba fér, tehát a kártya is egysoros lett: jel, név,
+nyíl, `flush` kártyán saját, szűkebb térközzel (`px-5 py-4 sm:px-6 sm:py-5`).
+A térköz azért a `flush` kapcsolón keresztül szűkül, és nem `p-0`-val: a
+`tailwind-merge` a `p-0`-val csak az alap `p-6`-ot ütné le, a `sm:p-7`-et nem,
+és a kártya 640 pixel fölött némán visszakapná a nagy térközt (lásd 2/f.9).
+
+Az `auto-fit` rács alsó határa 15-ről 16 rem-re nőtt. Egysoros kártyán a név
+a jel és a nyíl **mellett** áll, nem alattuk: ennyi kell ahhoz, hogy a
+leghosszabb felületnév („X (Twitter)”) se tördeljen — tördeléstől a sor
+kártyái megint különböző magasak lennének.
+
+A nyíl ferde (↗), nem vízszintes (→). Az oldal többi nyila azt ígéri, hogy
+„tovább, itt”; ez a hivatkozás viszont elvisz az oldalról, új lapra.
+
+### 2/h.6 A közösségi szekció a főoldalon a felhívás elé került
+
+A szekció a kapcsolat oldalon jó helyen volt, de a főoldalról hiányzott —
+pedig épp ott van az a látogató, aki már végigolvasta a lapot, de még nem ír
+üzenetet. A záró felhívás **elé** került, nem utána: a felhívás az oldal
+utolsó gesztusa, és ami mögé kerül, elviszi róla a figyelmet.
+
+A lap hullámlánca ettől egy szemmel hosszabb lett (… → fehér GYIK →
+világoskék közösségi → kék felhívás), és a felhívás `from` értéke — ugyanazon
+a 2/f.2 szabályon — a **lapon** dől el: profil nélkül a szekció kimarad, és a
+felhívás továbbra is fehérről érkezik.
 
 ### 2/h.4 A csapattagok elérhetősége a régi adatokban nem létezik
 

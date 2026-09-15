@@ -1,5 +1,6 @@
 import { faqs, pageMeta, showcase } from '@/lib/content/site';
 import { listPartners } from '@/lib/store/partners';
+import { listSocialLinks } from '@/lib/store/social';
 import { getSiteSettings } from '@/lib/store/site-settings';
 import { listWorksForHome } from '@/lib/store/works';
 import { buildMetadata } from '@/lib/seo/metadata';
@@ -15,6 +16,7 @@ import { ProcessSteps } from '@/components/sections/process-steps';
 import { Ownership } from '@/components/sections/ownership';
 import { BlogTeaser } from '@/components/sections/blog-teaser';
 import { FaqSection } from '@/components/sections/faq-section';
+import { SocialCards } from '@/components/sections/social-cards';
 import { CtaBand } from '@/components/sections/cta-band';
 
 /**
@@ -23,14 +25,15 @@ import { CtaBand } from '@/components/sections/cta-band';
  * A szekciók sorrendje egy érvelés, nem tetszőleges felsorolás: mit kapsz
  * (ígéret) → miben segítünk (szolgáltatás) → hogy néz ki (bizonyíték) → hogyan
  * zajlik (folyamat) → mi lesz a tiéd (kockázat) → mit gondolunk (blog) → mi az,
- * ami még kérdés (GYIK) → beszéljünk (cselekvés).
+ * ami még kérdés (GYIK) → hol találsz meg (közösségi) → beszéljünk (cselekvés).
  *
  * **A felületek körbejárnak:** mély kék → fehér → kék → fehér → kék →
- * világoskék → fehér → világoskék → fehér → kék. Minden váltást hullámsáv visz
- * át, és a hangsúly váltakozik: a nagy, világos↔sötét váltásoknál mély sáv, az
- * árnyalaton belülieknél vékony. Szomszédos szekció soha nem azonos felületű —
- * ezért függ a folyamat szekció sávja attól, megjelenik-e fölötte a referencia
- * szekció.
+ * világoskék → fehér → világoskék → fehér → világoskék → kék. Minden váltást
+ * hullámsáv visz át, és a hangsúly váltakozik: a nagy, világos↔sötét
+ * váltásoknál mély sáv, az árnyalaton belülieknél vékony. Szomszédos szekció
+ * soha nem azonos felületű — ezért függ a folyamat szekció sávja attól,
+ * megjelenik-e fölötte a referencia szekció, és a záró felhívásé attól,
+ * van-e fölötte közösségi szekció.
  *
  * A képes szekciók (bemutató felületek, blog) szándékosan **fehér** felületen
  * ülnek: a makettek háttere így beleolvad a lapba ahelyett, hogy dobozként
@@ -59,15 +62,17 @@ const QUIET = { layers: 3, depth: 'md' } as const;
 
 export default async function HomePage() {
   // A kapcsolható szekciók tartalmát **itt** olvassuk be, nem magukban a
-  // szekciókban. Két dolog múlik rajta, és mindkettő a lap szintjén dől el: a
-  // hullámlánc csak akkor helyes, ha tudjuk, megjelenik-e a referencia szekció,
-  // és a nyitóképernyő is csak akkor hagyhatja el a zárósorát, ha tudja, hogy
-  // partnersáv kerül alá.
+  // szekciókban. Három dolog múlik rajta, és mindhárom a lap szintjén dől el: a
+  // hullámlánc csak akkor helyes, ha tudjuk, megjelenik-e a referencia és a
+  // közösségi szekció, és a nyitóképernyő is csak akkor hagyhatja el a
+  // zárósorát, ha tudja, hogy partnersáv kerül alá.
   const settings = await getSiteSettings();
   const works = settings.works.enabled
     ? await listWorksForHome(settings.works.ids, settings.works.count)
     : [];
   const partners = settings.partners.enabled ? await listPartners() : [];
+  const social = await listSocialLinks();
+  const hasSocial = social.length > 0;
 
   return (
     <>
@@ -115,7 +120,16 @@ export default async function HomePage() {
         tone="white"
         band={{ from: 'sky', ...QUIET, flip: true }}
       />
-      <CtaBand band={{ from: 'white', ...LOUD }} />
+      {/* A közösségi szekció a záró felhívás **elé** kerül, nem utána: a
+          felhívás az oldal utolsó gesztusa, és ami mögé kerül, elviszi róla a
+          figyelmet. Itt viszont jó helyen van — aki végigolvasta a lapot, de
+          még nem ír üzenetet, annak ez a következő lépés.
+
+          A megléte egy lépéssel eltolja a felületek váltakozását, ezért — a
+          `CLAUDE.md` szabálya szerint — **itt** dől el, nem a szekcióban:
+          profil nélkül a felhívás továbbra is fehérről érkezik. */}
+      <SocialCards links={social} tone="sky" band={{ from: 'white', ...QUIET }} />
+      <CtaBand band={{ from: hasSocial ? 'sky' : 'white', ...LOUD }} />
     </>
   );
 }
